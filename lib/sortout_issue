@@ -1,0 +1,127 @@
+in home_local_storage.dart -> use share preferences to save menu items remove this and use wth hiveor cubit
+sort 2 custom text form field chnage to one only
+dispose all focus node as well as valuenotifier
+
+do nt use absordpointer instead of customtextform field has readonly
+buid not design any parameter use in initstate 
+remove null from all widget and define as late
+
+in transaction_screen -> check build method (not call api there also mindate maxdate check)
+
+check focusnode nextFocusNode in last set textInputAction done
+
+check showgeneraldiologue as a custom extension
+
+account_scree.dart -> check build method
+
+
+transaction_details_widget - > addfrom type on edit button check not pass all parameter only pass id -> on that screen using method all data come
+
+
+where give if condition check proper snackbar dusplay in add time becase the field required but still we can add or update so cause issue
+
+remove unnecessary unused parameter
+
+in showgeneraldiologue use custom extension
+
+in transaction_list_widget ,  party_transaction_screen and in party_screen use ListView.builder instead of ListView chnage 
+
+in home page view all transaction display onluy when 5 count aftre display
+
+
+_buildIncomExpenseCard in this 2 time. state is check remove this 
+
+in transaction list only 5 data display check
+
+enum use and add key (refrence restaurant _ driver app) - (in transaction screen display all , income tab type for this reason chnage name where i can tap and data come that type)
+
+
+flutter clean                
+flutter pub get
+flutter pub run build_runner build --delete-conflicting-outputs
+
+
+
+import 'package:expenseapp/core/app/all_import_file.dart';
+import 'package:flutter/material.dart';
+
+part 'HomeMenuItem.g.dart';
+part 'HomeMenuType.g.dart'
+
+@HiveType(typeId: 12)
+enum HomeMenuType {
+  @HiveField(0)
+  NULL,
+
+  @HiveField(1)
+  HOME_PAGE_BANNER,
+
+  @HiveField(2)
+  BUDGETS,
+
+  @HiveField(3)
+  UPCOMING_TRANSACTION,
+
+  @HiveField(4)
+  GOALS,
+
+  @HiveField(5)
+  ACCOUNT_LIST,
+
+  @HiveField(6)
+  INCOME_EXPENSE,
+
+  @HiveField(7)
+  NET_WORTH,
+
+  @HiveField(8)
+  LOANS,
+
+  @HiveField(9)
+  GRAPHS,
+
+  @HiveField(10)
+  TRANSACTION_LIST,
+}
+
+
+@HiveType(typeId: 13)
+class HomeMenuItem {
+  HomeMenuItem({required this.id, required this.iconCode, required this.title, required this.type, this.isOn = false});
+
+    factory HomeMenuItem.fromJson(Map<String, dynamic> json) {
+    return HomeMenuItem(
+      id: json['id'] as int,
+      iconCode: json['iconCode'] as int,
+      title: json['title'] as String,
+      isOn: json['isOn'] as bool,
+      type: HomeMenuType.values.firstWhere((e) => e.name == json['type'], orElse: () => HomeMenuType.NULL),
+    );
+  }
+
+
+
+
+  @HiveField(0)
+  final int id;
+
+  @HiveField(1)
+  final int iconCode;
+
+  @HiveField(2)
+  final String title;
+
+  @HiveField(3)
+  bool isOn;
+
+  @HiveField(4)
+  final HomeMenuType type;
+
+  IconData get icon => IconData(iconCode, fontFamily: 'MaterialIcons');
+
+  Map<String, dynamic> toJson() => {'id': id, 'iconCode': iconCode, 'title': title, 'isOn': isOn, 'type': type.name};
+
+  HomeMenuItem copyWith({int? id, int? iconCode, String? title, bool? isOn, HomeMenuType? type}) {
+    return HomeMenuItem(id: id ?? this.id, iconCode: iconCode ?? this.iconCode, title: title ?? this.title, isOn: isOn ?? this.isOn, type: type ?? this.type);
+  }
+}

@@ -1,0 +1,100 @@
+import 'dart:developer';
+
+import 'package:bloc/bloc.dart';
+import 'package:expenseapp/features/RecurringTransaction/Enums/RecurringTransactionStatus.dart';
+import 'package:expenseapp/features/RecurringTransaction/LocalStorage/recurring_transaction_local_data.dart';
+import 'package:expenseapp/features/RecurringTransaction/Model/Recurring.dart';
+import 'package:expenseapp/features/RecurringTransaction/Model/RecurringTransaction.dart';
+import 'package:meta/meta.dart';
+
+@immutable
+sealed class UpdateRecurringTransactionState {}
+
+final class UpdateRecurringTransactionInitial extends UpdateRecurringTransactionState {}
+
+final class UpdateRecurringTransactionLoading extends UpdateRecurringTransactionState {}
+
+// final class UpdateRecurringTransactionSuccess extends UpdateRecurringTransactionState {
+//   UpdateRecurringTransactionSuccess(this.transaction, this.status, this.recurringTransactionId, this.transactionId);
+//   Recurring? transaction;
+//   RecurringTransactionStatus? status;
+//   String? recurringTransactionId;
+//   String? transactionId;
+
+//   UpdateRecurringTransactionSuccess copyWith({Recurring? transaction, RecurringTransactionStatus? status, String? recurringTransactionId, String? transactionId}) {
+//     return UpdateRecurringTransactionSuccess(transaction ?? this.transaction, status ?? this.status, recurringTransactionId ?? this.recurringTransactionId, transactionId ?? this.transactionId);
+//   }
+// }
+final class UpdateRecurringTransactionSuccess extends UpdateRecurringTransactionState {
+  UpdateRecurringTransactionSuccess({
+    this.transaction,
+    this.status,
+    this.recurringTransactionId,
+    this.transactionId,
+  });
+  final Recurring? transaction;
+  final RecurringTransactionStatus? status;
+  final String? recurringTransactionId;
+  final String? transactionId;
+
+  UpdateRecurringTransactionSuccess copyWith({
+    Recurring? transaction,
+    RecurringTransactionStatus? status,
+    String? recurringTransactionId,
+    String? transactionId,
+  }) {
+    return UpdateRecurringTransactionSuccess(
+      transaction: transaction ?? this.transaction,
+      status: status ?? this.status,
+      recurringTransactionId: recurringTransactionId ?? this.recurringTransactionId,
+      transactionId: transactionId ?? this.transactionId,
+    );
+  }
+}
+
+final class UpdateRecurringTransactionFailure extends UpdateRecurringTransactionState {
+  UpdateRecurringTransactionFailure(this.errorMessage);
+  final String errorMessage;
+}
+
+class UpdateRecurringTransactionCubit extends Cubit<UpdateRecurringTransactionState> {
+  UpdateRecurringTransactionCubit() : super(UpdateRecurringTransactionInitial());
+
+  RecurringTransactionLocalData recurringTransactionLocalData = RecurringTransactionLocalData();
+
+  Future<void> changeRecurringTransactionStatus({
+    required Recurring transaction,
+    required RecurringTransactionStatus status,
+    required String recurringTransactionId,
+    required String transactionId,
+  }) async {
+    emit(UpdateRecurringTransactionLoading());
+    Future.delayed(const Duration(seconds: 5), () {
+      try {
+        //recurringTransactionLocalData.updateRecurringTransactionByStatus(recurring: transaction, status: status, recurringTransactionId: recurringTransactionId, transactionId: transactionId);
+        emit(
+          UpdateRecurringTransactionSuccess(
+            transaction: transaction,
+            status: status,
+            recurringTransactionId: recurringTransactionId,
+            transactionId: transactionId,
+          ),
+        );
+      } catch (e) {
+        emit(UpdateRecurringTransactionFailure(e.toString()));
+      }
+    });
+  }
+
+  Future<void> updateRecurringTransaction({required String recurringId, required String title, required double amount, required String endDate , String? accountId, String? categoryId}) async {
+    emit(UpdateRecurringTransactionLoading());
+    Future.delayed(const Duration(seconds: 5), () async {
+      try {
+        final recurringTransaction = await recurringTransactionLocalData.updateRecurringTitleAmtDate(recurring: recurringId, title: title, amount: amount, endDate: endDate , accountId: accountId, categoryId: categoryId);
+        emit(UpdateRecurringTransactionSuccess(transaction: recurringTransaction));
+      } catch (e) {
+        emit(UpdateRecurringTransactionFailure(e.toString()));
+      }
+    });
+  }
+}

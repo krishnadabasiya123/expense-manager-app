@@ -1,0 +1,500 @@
+import 'package:expenseapp/core/app/all_import_file.dart';
+import 'package:expenseapp/features/Party/Cubits/PartyTransaction/get_soft_delete_party_transaction_cubit.dart';
+import 'package:expenseapp/features/Transaction/Cubits/get_soft_delete_transactions_cubit.dart';
+import 'package:expenseapp/features/Transaction/Cubits/restore_transaction_cubit.dart';
+import 'package:expenseapp/features/Transaction/Cubits/soft_delete_transaction_cubit.dart';
+import 'package:flutter/material.dart';
+
+class SoftDeleteTransactionList extends StatelessWidget {
+  const SoftDeleteTransactionList({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<GetSoftDeleteTransactionsCubit, GetSoftDeleteTransactionsState>(
+      listener: (context, state) {},
+      builder: (context, state) {
+        if (state is GetSoftDeleteTransactionsSuccess) {
+          final transactions = state.transactions;
+
+          if (transactions.isEmpty) {
+            return CustomErrorWidget(
+              errorMessage: context.tr('noDataFound'),
+              errorType: CustomErrorType.noDataFound,
+              onRetry: () {
+                context.read<GetSoftDeleteTransactionsCubit>().getSoftDeleteTransactions();
+              },
+            );
+          }
+
+          return ListView.builder(
+            itemCount: transactions.length,
+            itemBuilder: (context, index) {
+              final transaction = transactions[index];
+              final accountName = context.read<GetAccountCubit>().getAccountName(id: transaction.accountId ?? '');
+              final accountFromName = context.read<GetAccountCubit>().getAccountName(id: transaction.accountFromId ?? '');
+              final accountToName = context.read<GetAccountCubit>().getAccountName(id: transaction.accountToId ?? '');
+              final categoryName = context.read<GetCategoryCubit>().getCategoryName(transaction.categoryId ?? '');
+              return RestoreTransactionCard(
+                transaction: transaction,
+                subtitle: transaction.title ?? '',
+                amount: transaction.amount!.formatAmt(),
+                account: accountName,
+                type: transaction.type!,
+                accountFromName: accountFromName,
+                accountToName: accountToName,
+                categoryName: categoryName,
+              );
+            },
+          );
+        }
+        if (state is GetSoftDeleteTransactionsFailure) {
+          return CustomErrorWidget(
+            errorMessage: context.tr('dataNotFound'),
+            onRetry: () {
+              context.read<GetSoftDeleteTransactionsCubit>().getSoftDeleteTransactions();
+            },
+          );
+        }
+        return const Center(child: CircularProgressIndicator());
+      },
+    );
+  }
+}
+
+class RestoreTransactionCard extends StatefulWidget {
+  const RestoreTransactionCard({
+    required this.transaction,
+    required this.subtitle,
+    required this.amount,
+    required this.account,
+    required this.type,
+    required this.accountFromName,
+    required this.accountToName,
+    required this.categoryName,
+    super.key,
+  });
+  final Transaction transaction;
+  final String subtitle;
+  final String amount;
+  final String account;
+  final String accountFromName;
+  final String accountToName;
+  final String categoryName;
+  final TransactionType type;
+
+  @override
+  State<RestoreTransactionCard> createState() => _RestoreTransactionCardState();
+}
+
+class _RestoreTransactionCardState extends State<RestoreTransactionCard> {
+  bool isIncome = false;
+  bool isExpense = false;
+  bool isTransfer = false;
+
+  @override
+  void initState() {
+    super.initState();
+    isIncome = widget.type == TransactionType.INCOME;
+    isExpense = widget.type == TransactionType.EXPENSE;
+    isTransfer = widget.type == TransactionType.TRANSFER;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isIncome
+        ? Colors.green
+        : isExpense
+        ? Colors.red
+        : Colors.blue;
+
+    return Opacity(
+      opacity: 1,
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        margin: const EdgeInsetsDirectional.symmetric(vertical: 8),
+        child: Padding(
+          padding: const EdgeInsetsDirectional.all(16),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: .center,
+
+                children: [
+                  Container(
+                    height: 30.sp(context),
+                    width: 30.sp(context),
+                    decoration: BoxDecoration(
+                      color: isExpense
+                          ? Colors.red.shade100
+                          : isIncome
+                          ? Colors.green.shade100
+                          : Colors.blue.shade100,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      isExpense
+                          ? Icons.arrow_upward
+                          : isIncome
+                          ? Icons.arrow_downward
+                          : Icons.transform_outlined,
+
+                      color: color,
+
+                      size: 20.sp(context),
+                    ),
+                  ),
+
+                  SizedBox(width: context.width * 0.02),
+
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: .center,
+                      children: [
+                        if (widget.categoryName.isNotEmpty && (isExpense || isIncome)) ...[
+                          CustomTextView(
+                            text: widget.categoryName,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                            fontSize: context.isTablet ? 18.sp(context) : 15.sp(context),
+                            maxLines: 2,
+                          ),
+                        ] else ...[
+                          if (isTransfer) ...[
+                            CustomTextView(
+                              text: '${widget.accountFromName} → ${widget.accountToName}',
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                              fontSize: context.isTablet ? 18.sp(context) : 15.sp(context),
+                              maxLines: 2,
+                            ),
+                          ],
+                        ],
+                        if (widget.subtitle.isNotEmpty) ...[
+                          CustomTextView(
+                            text: widget.subtitle,
+                            color: Colors.black,
+                            fontSize: context.isTablet ? 16.sp(context) : 15.sp(context),
+                          ),
+                        ],
+
+                        // Text('date ${transaction.date}'),
+                        // Text('time ${transaction.time}'),
+                        // Text('type ${transaction.type}'),
+                        // Text('amount ${transaction.amount}'),
+                        // Text('description ${transaction.description}'),
+                        // Text('categoryId ${transaction.categoryId}'),
+                        // Text('accountId ${transaction.accountId}'),
+                        // Text('recurringId ${transaction.recurringId}'),
+                        // Text('accountFromId ${transaction.accountFromId}'),
+                        // Text('accountToId ${transaction.accountToId}'),
+                        // Text('image ${transaction.image}'),
+                        // Text('partyId ${transaction.partyId}'),
+                        // Text('partyTransactionId ${transaction.partyTransactionId}'),
+                        // Text('addFromType ${transaction.addFromType}'),
+                        // //ID
+                        // Text('id ${transaction.id}'),
+                        // //title
+                        // Text('title ${transaction.title}'),
+
+                        /*
+                        this.id,
+    this.date,
+    this.title,
+    this.type,
+    this.amount,
+    this.description,
+    this.categoryId,
+    this.time,
+    this.accountId,
+    this.recurringId,
+    this.accountFromId,
+    this.accountToId,
+    this.image,
+    this.partyId,
+    this.partyTransactionId,
+    this.addFromType,
+                     */
+                      ],
+                    ),
+                  ),
+
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+
+                    children: [
+                      CustomTextView(
+                        text: widget.amount,
+                        fontWeight: FontWeight.bold,
+                        color: color,
+                      ),
+
+                      if (widget.type != TransactionType.TRANSFER) CustomTextView(text: widget.account, fontSize: 14.sp(context), color: Colors.grey.shade600),
+                    ],
+                  ),
+                ],
+              ),
+              SizedBox(height: context.height * 0.002),
+              const CustomHorizontalDivider(endOpacity: 0.2),
+              SizedBox(height: context.height * 0.002),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: CustomRoundedButton(
+                      height: context.isTablet ? context.height * 0.038 : context.height * 0.045,
+                      icon: Icon(Icons.restore, color: Colors.green, size: 20.sp(context)),
+                      backgroundColor: Colors.green.withOpacity(0.08),
+                      text: context.tr('restoreKey'),
+                      borderRadius: BorderRadius.circular(8),
+                      onPressed: () {
+                        showRestoreDialogue(context: context, transaction: widget.transaction);
+                      },
+                      //isLoading: state is RestoreTransactionLoading,
+                      textStyle: TextStyle(color: Colors.green, fontSize: 14.sp(context)),
+                      borderSide: const BorderSide(color: Colors.green),
+                    ),
+                  ),
+
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: CustomRoundedButton(
+                      height: context.isTablet ? context.height * 0.038 : context.height * 0.045,
+                      icon: Icon(Icons.delete, color: Colors.red, size: 20.sp(context)),
+                      backgroundColor: Colors.red.withOpacity(0.08),
+                      text: context.tr('deleteKey'),
+                      textStyle: TextStyle(color: Colors.red, fontSize: 14.sp(context)),
+                      borderSide: const BorderSide(color: Colors.red),
+                      // textStyle: const TextStyle(color: Colors.red),
+                      borderRadius: BorderRadius.circular(8),
+                      onPressed: () {
+                        showDeleteAlertDialog(context: context, transaction: widget.transaction);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> showDeleteAlertDialog({required Transaction transaction, required BuildContext context}) async {
+    await showGeneralDialog(
+      context: context,
+      barrierLabel: 'Delete',
+      barrierColor: Colors.black.withValues(alpha: .3),
+      transitionDuration: const Duration(milliseconds: 300),
+
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return Transform.scale(
+          scale: Curves.easeOutBack.transform(animation.value),
+          child: Opacity(opacity: animation.value, child: child),
+        );
+      },
+
+      pageBuilder: (context, animation, secondaryAnimation) {
+        final size = MediaQuery.of(context).size;
+
+        return Center(
+          child: PopScope(
+            canPop: false,
+            onPopInvokedWithResult: (didPop, result) {
+              if (didPop) return;
+              if (context.read<SoftDeleteTransactionCubit>().state is! SoftDeleteTransactionLoading) {
+                Navigator.of(context).pop();
+                return;
+              }
+            },
+            child: AlertDialog(
+              constraints: BoxConstraints(maxHeight: size.height * 0.45, maxWidth: size.width * 0.85),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: CustomTextView(text: context.tr('deleteAccountTitleKey'), fontWeight: FontWeight.bold, fontSize: 18.sp(context)),
+              content: CustomTextView(text: context.tr('deleteRestoreTransactionDialogMsg'), softWrap: true, maxLines: 3),
+              actions: [
+                BlocProvider(
+                  create: (context) => SoftDeleteTransactionCubit(),
+                  child: BlocConsumer<SoftDeleteTransactionCubit, SoftDeleteTransactionState>(
+                    listener: (context, state) {
+                      if (state is SoftDeleteTransactionSuccess) {
+                        Navigator.pop(context);
+                        context.read<GetSoftDeleteTransactionsCubit>().getSoftDeleteTransactionLocally(transaction);
+
+                        if (state.transaction.partyTransactionId != null) {
+                          context.read<GetSoftDeletePartyTransactionCubit>().updateSoftDeletePartyTransactionLocally(partyTransaactioId: transaction.partyTransactionId!);
+                        }
+                      }
+                    },
+                    builder: (context, state) {
+                      return Row(
+                        children: [
+                          Expanded(
+                            child: CustomRoundedButton(
+                              onPressed: () {
+                                if (state is! SoftDeleteTransactionLoading) {
+                                  Navigator.pop(context);
+                                }
+                              },
+                              width: 1,
+                              backgroundColor: Theme.of(context).primaryColor,
+                              text: context.tr('cancelKey'),
+                              borderRadius: BorderRadius.circular(8),
+                              //showBorder: false,
+                              height: 40.sp(context),
+                              textStyle: TextStyle(fontSize: 18.sp(context)),
+
+                              //isLoading: widget.isEdit ? updateCategoryState is UpdateCategoryLoading : addCategoryState is AddCategoryLoading,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: CustomRoundedButton(
+                              onPressed: () {
+                                context.read<SoftDeleteTransactionCubit>().softDeleteTransaction(transaction);
+                              },
+                              width: 1,
+                              backgroundColor: Theme.of(context).primaryColor,
+                              text: context.tr('deleteKey'),
+                              borderRadius: BorderRadius.circular(8),
+                              height: 40.sp(context),
+                              textStyle: TextStyle(
+                                fontSize: 18.sp(context),
+                              ),
+                              isLoading: state is SoftDeleteTransactionLoading,
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+Future<void> showRestoreDialogue({required Transaction transaction, required BuildContext context}) async {
+  await showGeneralDialog(
+    context: context,
+    barrierLabel: 'Restore',
+    barrierColor: Colors.black.withValues(alpha: .3),
+    transitionDuration: const Duration(milliseconds: 300),
+
+    transitionBuilder: (context, animation, secondaryAnimation, child) {
+      return Transform.scale(
+        scale: Curves.easeOutBack.transform(animation.value),
+        child: Opacity(opacity: animation.value, child: child),
+      );
+    },
+
+    pageBuilder: (context, animation, secondaryAnimation) {
+      final size = MediaQuery.of(context).size;
+
+      return Center(
+        child: PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) {
+            if (didPop) return;
+            if (context.read<RestoreTransactionCubit>().state is! RestoreTransactionLoading) {
+              Navigator.of(context).pop();
+              return;
+            }
+          },
+          child: AlertDialog(
+            constraints: BoxConstraints(maxHeight: size.height * 0.45, maxWidth: size.width * 0.85),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            title: CustomTextView(text: context.tr('restoreTitleKey'), fontWeight: FontWeight.bold, fontSize: 18.sp(context)),
+            content: CustomTextView(text: context.tr('confirmRestoreDialogMsg'), softWrap: true, maxLines: 3),
+            actions: [
+              BlocProvider(
+                create: (context) => RestoreTransactionCubit(),
+                child: BlocConsumer<RestoreTransactionCubit, RestoreTransactionState>(
+                  listener: (context, state) {
+                    if (state is RestoreTransactionSuccess) {
+                      Navigator.pop(context);
+                      context.read<GetSoftDeleteTransactionsCubit>().getSoftDeleteTransactionLocally(transaction);
+
+                      context.read<GetTransactionCubit>().addTransactionLocally(transaction);
+
+                      UiUtils.showCustomSnackBar(
+                        context: context,
+                        errorMessage: context.tr('transactionRestoredSuccessfullyKey'),
+                      );
+
+                      if (state.transaction.partyTransactionId != null) {
+                        final partyTransactionmodel = context.read<GetSoftDeletePartyTransactionCubit>().getPartyTransaction(transactionId: state.transaction.id!);
+
+                        // this method is for if in transaction party data restore then from party transaction forcefully restore party transaction
+                        //(same party transaction id available in party transaction list)
+
+                        context.read<GetSoftDeletePartyTransactionCubit>().getSoftDeletePartyTransactionLocally(transaction: partyTransactionmodel);
+                      }
+                    }
+
+                    if (state is RestoreTransactionFailure) {
+                      UiUtils.showCustomSnackBar(
+                        context: context,
+                        errorMessage: state.errorMessage,
+                      );
+                    }
+                  },
+                  builder: (context, state) {
+                    return Row(
+                      children: [
+                        Expanded(
+                          child: CustomRoundedButton(
+                            onPressed: () {
+                              if (state is! RestoreTransactionLoading) {
+                                Navigator.pop(context);
+                              }
+                            },
+                            width: 1,
+                            backgroundColor: Theme.of(context).primaryColor,
+                            text: context.tr('cancelKey'),
+                            borderRadius: BorderRadius.circular(8),
+                            //showBorder: false,
+                            height: 40.sp(context),
+                            textStyle: TextStyle(fontSize: 18.sp(context)),
+
+                            //isLoading: widget.isEdit ? updateCategoryState is UpdateCategoryLoading : addCategoryState is AddCategoryLoading,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: CustomRoundedButton(
+                            onPressed: () {
+                              context.read<RestoreTransactionCubit>().restoreTransaction(transaction);
+                            },
+                            width: 1,
+                            backgroundColor: Theme.of(context).primaryColor,
+                            text: context.tr('restoreKey'),
+                            borderRadius: BorderRadius.circular(8),
+                            height: 40.sp(context),
+                            textStyle: TextStyle(
+                              fontSize: 18.sp(context),
+                            ),
+                            isLoading: state is RestoreTransactionLoading,
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
