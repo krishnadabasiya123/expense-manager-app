@@ -4,7 +4,7 @@ part 'Category.g.dart';
 
 @HiveType(typeId: 6)
 class Category extends HiveObject {
-  Category({required this.id, required this.name, this.isDefault = false});
+  Category({this.id = '', this.name = '', this.isDefault = false});
   @HiveField(0)
   String id;
   @HiveField(1)

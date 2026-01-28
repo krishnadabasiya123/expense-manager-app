@@ -17,16 +17,16 @@ class RecurringAdapter extends TypeAdapter<Recurring> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Recurring(
-      recurringId: fields[0] as String?,
-      title: fields[1] as String?,
-      frequency: fields[2] as RecurringFrequency?,
-      startDate: fields[3] as String?,
-      endDate: fields[4] as String?,
-      amount: fields[5] as double?,
-      accountId: fields[6] as String?,
-      categoryId: fields[7] as String?,
-      type: fields[8] as TransactionType?,
-      recurringTransactions: (fields[9] as List?)?.cast<RecurringTransaction>(),
+      recurringId: fields[0] as String,
+      title: fields[1] as String,
+      frequency: fields[2] as RecurringFrequency,
+      startDate: fields[3] as String,
+      endDate: fields[4] as String,
+      amount: fields[5] as double,
+      accountId: fields[6] as String,
+      categoryId: fields[7] as String,
+      type: fields[8] as TransactionType,
+      recurringTransactions: (fields[9] as List).cast<RecurringTransaction>(),
     );
   }
 

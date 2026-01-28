@@ -1,6 +1,7 @@
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/features/RecurringTransaction/Model/Recurring.dart';
 import 'package:expenseapp/features/RecurringTransaction/Model/RecurringTransaction.dart';
+import 'package:expenseapp/features/RecurringTransaction/Widget/delete_recurring_dialogue.dart';
 import 'package:expenseapp/features/Transaction/Cubits/add_transaction_cubit.dart';
 import 'package:expenseapp/features/Transaction/Cubits/delete_transactions_cubit.dart';
 import 'package:expenseapp/main.dart';
@@ -42,7 +43,7 @@ class TransactionDetailsState extends State<TransactionDetails> {
   String categoryName = '';
   String accountFromName = '';
   String accountToName = '';
-  TransactionType? type;
+  TransactionType type = TransactionType.NONE;
   bool isIncome = false;
   bool isTransfer = false;
   bool isExpense = false;
@@ -53,11 +54,11 @@ class TransactionDetailsState extends State<TransactionDetails> {
     super.initState();
     //TODO: check
     transaction = widget.transaction;
-    accountName = context.read<GetAccountCubit>().getAccountName(id: widget.transaction.accountId ?? '');
-    categoryName = context.read<GetCategoryCubit>().getCategoryName(widget.transaction.categoryId ?? '');
+    accountName = context.read<GetAccountCubit>().getAccountName(id: widget.transaction.accountId);
+    categoryName = context.read<GetCategoryCubit>().getCategoryName(widget.transaction.categoryId);
 
-    accountFromName = context.read<GetAccountCubit>().getAccountName(id: widget.transaction.accountFromId ?? '');
-    accountToName = context.read<GetAccountCubit>().getAccountName(id: widget.transaction.accountToId ?? '');
+    accountFromName = context.read<GetAccountCubit>().getAccountName(id: widget.transaction.accountFromId);
+    accountToName = context.read<GetAccountCubit>().getAccountName(id: widget.transaction.accountToId);
     type = widget.transaction.type;
     isIncome = type == TransactionType.INCOME;
     isTransfer = type == TransactionType.TRANSFER;
@@ -110,10 +111,10 @@ class TransactionDetailsState extends State<TransactionDetails> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  if (transaction.title?.isNotEmpty ?? false) ...[
+                                  if (transaction.title.isNotEmpty) ...[
                                     if (!isTransfer) ...[
                                       CustomTextView(
-                                        text: transaction.title ?? '',
+                                        text: transaction.title,
                                         fontSize: 18.sp(context),
                                         fontWeight: FontWeight.w600,
                                         softWrap: true,
@@ -131,7 +132,7 @@ class TransactionDetailsState extends State<TransactionDetails> {
                                     ),
                                   ],
 
-                                  CustomTextView(text: UiUtils.convertCustomDate(transaction.date!), fontSize: 13.sp(context), color: Colors.grey.shade600),
+                                  CustomTextView(text: UiUtils.convertCustomDate(transaction.date), fontSize: 13.sp(context), color: Colors.grey.shade600),
                                 ],
                               ),
                             ),
@@ -140,7 +141,7 @@ class TransactionDetailsState extends State<TransactionDetails> {
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 CustomTextView(
-                                  text: transaction.amount!.formatAmt(),
+                                  text: transaction.amount.formatAmt(),
                                   fontSize: 15.sp(context),
                                   fontWeight: FontWeight.w600,
                                   color: isIncome
@@ -179,8 +180,8 @@ class TransactionDetailsState extends State<TransactionDetails> {
                             if (isTransfer) ...[
                               SizedBox(height: context.height * 0.02),
                             ],
-                            if (transaction.description != '') ...[
-                              _buildTransactionDetails(icon: Icons.description, title: context.tr('descriptionLbl'), value: transaction.description ?? ''),
+                            if (transaction.description.isNotEmpty) ...[
+                              _buildTransactionDetails(icon: Icons.description, title: context.tr('descriptionLbl'), value: transaction.description),
                               SizedBox(height: context.height * 0.02),
                             ],
                           ],
@@ -198,36 +199,17 @@ class TransactionDetailsState extends State<TransactionDetails> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        // Navigator.pop(context);
-                        log('widget.transaction!.addFromType ${widget.transaction.addFromType}');
+                        Navigator.pop(context);
+
                         if (widget.transaction.addFromType == TransactionType.RECURRING) {
-                          Navigator.of(context).pushNamed(
-                            Routes.editMainRecurringTransaction,
-                            arguments: {
-                              'recurring': Recurring(
-                                recurringId: widget.transaction.recurringId,
-                                title: widget.transaction.title,
-                                amount: widget.transaction.amount,
-                                accountId: widget.transaction.accountId,
-                                categoryId: widget.transaction.categoryId,
-                                recurringTransactions: [
-                                  RecurringTransaction(
-                                    recurringTransactionId: widget.transaction.recurringTransactionId,
-                                    transactionId: widget.transaction.id,
-                                    recurringId: widget.transaction.recurringId,
-                                    scheduleDate: widget.transaction.date,
-                                  ),
-                                ],
-                              ),
-                            },
-                          );
+                          Navigator.of(context).pushNamed(Routes.editMainRecurringTransaction, arguments: {'recurringId': widget.transaction.recurringId});
                         } else if (widget.transaction.addFromType == TransactionType.DEBIT || widget.transaction.addFromType == TransactionType.CREDIT) {
                           Navigator.pushNamed(
                             context,
                             Routes.addPartyTransaction,
                             arguments: {
                               'party': PartyTransaction(
-                                id: widget.transaction.partyTransactionId!,
+                                id: widget.transaction.partyTransactionId,
                                 date: widget.transaction.date,
                                 type: widget.transaction.addFromType,
                                 amount: widget.transaction.amount,
@@ -258,7 +240,11 @@ class TransactionDetailsState extends State<TransactionDetails> {
                     GestureDetector(
                       onTap: () {
                         Navigator.pop(context);
-                        showDeleteAlertDialog(transaction: transaction, context: context);
+                        if (transaction.recurringId.isNotEmpty) {
+                          showDeleteRecurringDialogue(context, recurringId: transaction.recurringId);
+                        } else {
+                          showDeleteAlertDialog(transaction: transaction, context: context);
+                        }
                       },
                       child: Row(
                         children: [
@@ -331,31 +317,31 @@ class TransactionDetailsState extends State<TransactionDetails> {
 
                           context.read<AddTransactionCubit>().addSoftDeleteTransaction(state.transaction);
 
-                          if (state.transaction.partyTransactionId != null) {
+                          if (state.transaction.partyTransactionId.isNotEmpty) {
                             context.read<GetPartyCubit>().deletePartyTransactionLocally(
-                              transaction: PartyTransaction(id: state.transaction.partyTransactionId!, partyId: state.transaction.partyId, mainTransactionId: state.transaction.id),
-                              partyId: state.transaction.partyId!,
-                            );
-
-                            context.read<GetPartyCubit>().saveSoftDeletedPartytransactionById(
-                              transaction: PartyTransaction(
-                                id: state.transaction.partyTransactionId!,
-                                partyId: state.transaction.partyId,
-                                partyName: state.transaction.title,
-                                mainTransactionId: state.transaction.id,
-                                type: state.transaction.type == TransactionType.EXPENSE ? TransactionType.DEBIT : TransactionType.CREDIT,
-                                accountId: state.transaction.accountId,
-                                amount: state.transaction.amount,
-                                category: state.transaction.categoryId,
-                                date: state.transaction.date,
-                                description: state.transaction.description,
-                                image: state.transaction.image,
-
-                                isMainTransaction: true,
-                                updatedAt: DateTime.now().toString(),
-                              ),
+                              transaction: PartyTransaction(id: state.transaction.partyTransactionId, partyId: state.transaction.partyId, mainTransactionId: state.transaction.id),
+                              partyId: state.transaction.partyId,
                             );
                           }
+
+                          context.read<GetPartyCubit>().saveSoftDeletedPartytransactionById(
+                            transaction: PartyTransaction(
+                              id: state.transaction.partyTransactionId,
+                              partyId: state.transaction.partyId,
+                              partyName: state.transaction.title,
+                              mainTransactionId: state.transaction.id,
+                              type: state.transaction.type == TransactionType.EXPENSE ? TransactionType.DEBIT : TransactionType.CREDIT,
+                              accountId: state.transaction.accountId,
+                              amount: state.transaction.amount,
+                              category: state.transaction.categoryId,
+                              date: state.transaction.date,
+                              description: state.transaction.description,
+                              image: state.transaction.image,
+
+                              isMainTransaction: true,
+                              updatedAt: DateTime.now().toString(),
+                            ),
+                          );
 
                           Navigator.of(context).pop();
                         }
@@ -407,135 +393,3 @@ class TransactionDetailsState extends State<TransactionDetails> {
     );
   }
 }
-//   Future<void> showDeleteAlertDialog({
-//     required Transaction transaction,
-//     required BuildContext context,
-//   }) async {
-//     final rootNavigator = Navigator.of(context, rootNavigator: true);
-
-//     context.showAppDialog(
-//       barrierDismissible: false,
-//       child: BlocProvider(
-//         create: (_) => DeleteTransactionsCubit(),
-//         child: Builder(
-//           builder: (dialogContext) {
-//             return PopScope(
-//               canPop: false,
-//               onPopInvokedWithResult: (didPop, _) {
-//                 if (didPop) return;
-
-//                 final isLoading = dialogContext.read<DeleteTransactionsCubit>().state is DeleteTransactionsLoading;
-
-//                 if (!isLoading) {
-//                   rootNavigator.pop();
-//                 }
-//               },
-//               child: AlertDialog(
-//                 shape: RoundedRectangleBorder(
-//                   borderRadius: BorderRadius.circular(16),
-//                 ),
-//                 title: CustomTextView(
-//                   text: dialogContext.tr('deleteAccountTitleKey'),
-//                   fontWeight: FontWeight.bold,
-//                   fontSize: 18.sp(dialogContext),
-//                 ),
-//                 content: CustomTextView(
-//                   text: dialogContext.tr('deleteTransactionDialogMsg'),
-//                   softWrap: true,
-//                   maxLines: 3,
-//                 ),
-//                 actions: [
-//                   BlocConsumer<DeleteTransactionsCubit, DeleteTransactionsState>(
-//                     listener: (dialogContext, state) {
-//                       if (state is DeleteTransactionsSuccess) {
-//                         /// ---- LOCAL UPDATES ----
-//                         dialogContext.read<GetTransactionCubit>().deleteTransacionLocally(state.transaction);
-
-//                         dialogContext.read<AddTransactionCubit>().addSoftDeleteTransaction(state.transaction);
-
-//                         if (state.transaction.partyTransactionId != null) {
-//                           dialogContext.read<GetPartyCubit>().deletePartyTransactionLocally(
-//                             transaction: PartyTransaction(
-//                               id: state.transaction.partyTransactionId!,
-//                               partyId: state.transaction.partyId,
-//                               mainTransactionId: state.transaction.id,
-//                             ),
-//                             partyId: state.transaction.partyId!,
-//                           );
-
-//                           dialogContext.read<GetPartyCubit>().saveSoftDeletedPartytransactionById(
-//                             transaction: PartyTransaction(
-//                               id: state.transaction.partyTransactionId!,
-//                               partyId: state.transaction.partyId,
-//                               partyName: state.transaction.title,
-//                               mainTransactionId: state.transaction.id,
-//                               type: state.transaction.type == TransactionType.EXPENSE ? TransactionType.DEBIT : TransactionType.CREDIT,
-//                               accountId: state.transaction.accountId,
-//                               amount: state.transaction.amount,
-//                               category: state.transaction.categoryId,
-//                               date: state.transaction.date,
-//                               description: state.transaction.description,
-//                               image: state.transaction.image,
-//                               isMainTransaction: true,
-//                               updatedAt: DateTime.now().toIso8601String(),
-//                             ),
-//                           );
-//                         }
-
-//                         /// ---- CLOSE DIALOG SAFELY ----
-//                         rootNavigator.pop();
-//                       }
-//                     },
-//                     builder: (dialogContext, state) {
-//                       final isLoading = state is DeleteTransactionsLoading;
-
-//                       return Row(
-//                         children: [
-//                           Expanded(
-//                             child: CustomRoundedButton(
-//                               height: dialogContext.height * 0.05,
-//                               onPressed: () {
-//                                 if (!isLoading) {
-//                                   rootNavigator.pop();
-//                                 }
-//                               },
-
-//                               text: dialogContext.tr('deleteAccountCancelKey'),
-//                               backgroundColor: Theme.of(dialogContext).primaryColor,
-//                               borderRadius: BorderRadius.circular(8),
-//                               textStyle: TextStyle(
-//                                 fontSize: 15.sp(dialogContext),
-//                               ),
-//                             ),
-//                           ),
-//                           const SizedBox(width: 15),
-//                           Expanded(
-//                             child: CustomRoundedButton(
-//                               height: dialogContext.height * 0.05,
-//                               onPressed: isLoading
-//                                   ? null
-//                                   : () {
-//                                       dialogContext.read<DeleteTransactionsCubit>().deleteTransaction(transaction);
-//                                     },
-//                               isLoading: isLoading,
-//                               text: dialogContext.tr('deleteAccountConfirmKey'),
-//                               backgroundColor: Theme.of(dialogContext).primaryColor,
-//                               borderRadius: BorderRadius.circular(8),
-//                               textStyle: TextStyle(
-//                                 fontSize: 15.sp(dialogContext),
-//                               ),
-//                             ),
-//                           ),
-//                         ],
-//                       );
-//                     },
-//                   ),
-//                 ],
-//               ),
-//             );
-//           },
-//         ),
-//       ),
-//     );
-//   }
-// }

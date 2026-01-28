@@ -27,11 +27,6 @@ class CategoryBottomSheetState extends State<CategoryBottomSheet> {
   }
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return ValueListenableBuilder(

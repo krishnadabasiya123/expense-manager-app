@@ -201,106 +201,94 @@ class _CategoryScreenState extends State<CategoryScreen> {
   }
 
   void showDeleteAlertDialog(BuildContext context, {Category? category}) {
-    showGeneralDialog(
-      context: context,
-      barrierLabel: 'Delete',
-      barrierColor: Colors.black.withValues(alpha: 0.3),
-      transitionDuration: const Duration(milliseconds: 300),
+    context.showAppDialog(
+      child: BlocProvider(
+        create: (context) => DeleteCategoryCubit(),
+        child: Builder(
+          builder: (dialogueContext) {
+            return Center(
+              child: PopScope(
+                canPop: false,
+                onPopInvokedWithResult: (didPop, result) {
+                  if (didPop) return;
+                  if (dialogueContext.read<DeleteCategoryCubit>().state is! DeleteCategoryLoading) {
+                    Navigator.of(dialogueContext).pop();
+                    return;
+                  }
+                },
+                child: AlertDialog(
+                  constraints: BoxConstraints(maxHeight: context.height * 0.45, maxWidth: context.width * 0.85),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
 
-      transitionBuilder: (context, animation, secondaryAnimation, child) {
-        return Transform.scale(
-          scale: Curves.easeOutBack.transform(animation.value),
-          child: Opacity(opacity: animation.value, child: child),
-        );
-      },
-
-      pageBuilder: (context, animation, secondaryAnimation) {
-        final size = MediaQuery.of(context).size;
-
-        return Center(
-          child: PopScope(
-            canPop: false,
-            onPopInvokedWithResult: (didPop, result) {
-              if (didPop) return;
-              if (context.read<DeleteCategoryCubit>().state is! DeleteCategoryLoading) {
-                Navigator.of(context).pop();
-                return;
-              }
-            },
-            child: AlertDialog(
-              constraints: BoxConstraints(maxHeight: size.height * 0.45, maxWidth: size.width * 0.85),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-
-              title: CustomTextView(
-                text: context.tr('deleteCategoryKey'),
-                fontWeight: FontWeight.bold,
-                fontSize: 20.sp(context),
-              ),
-              content: CustomTextView(text: context.tr('deleteCategoryMsgDialogueKey'), softWrap: true, maxLines: 3),
-              actions: [
-                BlocProvider(
-                  create: (context) => DeleteCategoryCubit(),
-                  child: BlocConsumer<DeleteCategoryCubit, DeleteCategoryState>(
-                    listener: (context, state) {
-                      if (state is DeleteCategorySuccess) {
-                        Navigator.pop(context);
-                        context.read<GetCategoryCubit>().deleteCategoryLocally(state.category);
-                        context.read<GetTransactionCubit>().setNullCategoryValueInTransaction(state.category.id);
-                        context.read<GetPartyCubit>().setNullCategoryValueInParty(state.category.id);
-                        context.read<GetSoftDeletePartyTransactionCubit>().updateSoftDeletePartyTransactionAfterDeleteCategory(categoryId: state.category.id);
-                        context.read<GetSoftDeleteTransactionsCubit>().updateSoftDeleteTransactionAfterDeleteCategory(categoryId: state.category.id);
-                        context.read<GetRecurringTransactionCubit>().setNullCategoryValueInRecurringTransaction(state.category.id);
-                      }
-
-                      if (state is DeleteCategoryFailure) {
-                        Navigator.pop(context);
-                        UiUtils.showCustomSnackBar(context: context, errorMessage: state.errorMessage);
-                      }
-                    },
-                    builder: (context, state) {
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Expanded(
-                            child: CustomRoundedButton(
-                              onPressed: () {
-                                if (state is! DeleteCategoryLoading) {
-                                  Navigator.pop(context);
-                                }
-                              },
-                              width: 1,
-                              backgroundColor: Theme.of(context).primaryColor,
-                              text: context.tr('deleteAccountCancelKey'),
-                              borderRadius: BorderRadius.circular(8),
-                              height: 40.sp(context),
-                              textStyle: TextStyle(fontSize: 15.sp(context)),
-                            ),
-                          ),
-                          const SizedBox(width: 15),
-                          Expanded(
-                            child: CustomRoundedButton(
-                              onPressed: () {
-                                context.read<DeleteCategoryCubit>().deleteCategory(category!);
-                              },
-                              width: 1,
-                              backgroundColor: Theme.of(context).primaryColor,
-                              text: context.tr('deleteAccountConfirmKey'),
-                              borderRadius: BorderRadius.circular(8),
-                              height: 40.sp(context),
-                              textStyle: TextStyle(fontSize: 15.sp(context)),
-                              isLoading: state is DeleteCategoryLoading,
-                            ),
-                          ),
-                        ],
-                      );
-                    },
+                  title: CustomTextView(
+                    text: context.tr('deleteCategoryKey'),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20.sp(context),
                   ),
+                  content: CustomTextView(text: context.tr('deleteCategoryMsgDialogueKey'), softWrap: true, maxLines: 3),
+                  actions: [
+                    BlocConsumer<DeleteCategoryCubit, DeleteCategoryState>(
+                      listener: (context, state) {
+                        if (state is DeleteCategorySuccess) {
+                          context.read<GetCategoryCubit>().deleteCategoryLocally(state.category);
+                          context.read<GetTransactionCubit>().setNullCategoryValueInTransaction(state.category.id);
+                          context.read<GetPartyCubit>().setNullCategoryValueInParty(state.category.id);
+                          context.read<GetSoftDeletePartyTransactionCubit>().updateSoftDeletePartyTransactionAfterDeleteCategory(categoryId: state.category.id);
+                          context.read<GetSoftDeleteTransactionsCubit>().updateSoftDeleteTransactionAfterDeleteCategory(categoryId: state.category.id);
+                          context.read<GetRecurringTransactionCubit>().setNullCategoryValueInRecurringTransaction(state.category.id);
+                          Navigator.pop(context);
+                        }
+
+                        if (state is DeleteCategoryFailure) {
+                          Navigator.pop(context);
+                          UiUtils.showCustomSnackBar(context: context, errorMessage: state.errorMessage);
+                        }
+                      },
+                      builder: (context, state) {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Expanded(
+                              child: CustomRoundedButton(
+                                onPressed: () {
+                                  if (state is! DeleteCategoryLoading) {
+                                    Navigator.pop(context);
+                                  }
+                                },
+                                width: 1,
+                                backgroundColor: Theme.of(context).primaryColor,
+                                text: context.tr('deleteAccountCancelKey'),
+                                borderRadius: BorderRadius.circular(8),
+                                height: 40.sp(context),
+                                textStyle: TextStyle(fontSize: 15.sp(context)),
+                              ),
+                            ),
+                            const SizedBox(width: 15),
+                            Expanded(
+                              child: CustomRoundedButton(
+                                onPressed: () {
+                                  context.read<DeleteCategoryCubit>().deleteCategory(category!);
+                                },
+                                width: 1,
+                                backgroundColor: Theme.of(context).primaryColor,
+                                text: context.tr('deleteAccountConfirmKey'),
+                                borderRadius: BorderRadius.circular(8),
+                                height: 40.sp(context),
+                                textStyle: TextStyle(fontSize: 15.sp(context)),
+                                isLoading: state is DeleteCategoryLoading,
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-        );
-      },
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 }

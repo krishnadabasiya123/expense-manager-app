@@ -1,12 +1,9 @@
 import 'dart:ui';
 
 import 'package:expenseapp/core/app/all_import_file.dart';
-import 'package:expenseapp/features/Account/Cubits/add_account_cubit.dart';
 import 'package:expenseapp/features/Account/Cubits/delete_account_cubit.dart';
-import 'package:expenseapp/features/Account/Cubits/update_account_cubit.dart';
 import 'package:expenseapp/features/Account/Screen/show_account_create_screen.dart';
 import 'package:expenseapp/features/Party/Cubits/PartyTransaction/get_soft_delete_party_transaction_cubit.dart';
-import 'package:expenseapp/features/Transaction/Cubits/delete_transactions_cubit.dart';
 import 'package:expenseapp/features/Transaction/Cubits/get_soft_delete_transactions_cubit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -381,7 +378,6 @@ class _AccountScreenState extends State<AccountScreen> {
           ),
           actionsAlignment: MainAxisAlignment.center,
           actions: [
-            // A professional "Understood" button
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: CustomTextView(text: context.tr('gotitKey'), fontSize: 16.sp(context)),

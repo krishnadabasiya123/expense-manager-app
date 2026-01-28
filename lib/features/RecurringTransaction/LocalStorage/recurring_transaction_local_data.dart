@@ -1,8 +1,8 @@
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/features/RecurringTransaction/Model/Recurring.dart';
 import 'package:expenseapp/features/RecurringTransaction/Model/RecurringTransaction.dart';
-import 'package:expenseapp/features/RecurringTransaction/Enums/RecurringFrequency.dart';
-import 'package:expenseapp/features/RecurringTransaction/Enums/RecurringTransactionStatus.dart';
+import 'package:expenseapp/features/RecurringTransaction/Model/Enums/RecurringFrequency.dart';
+import 'package:expenseapp/features/RecurringTransaction/Model/Enums/RecurringTransactionStatus.dart';
 import 'package:hive/hive.dart';
 
 class RecurringTransactionLocalData {
@@ -25,6 +25,9 @@ class RecurringTransactionLocalData {
   List<Recurring> getRecurringTransaction() {
     final transactions = box.values.toList();
     log('data is $transactions');
+    for (final transaction in transactions) {
+      log('transaction is ${transaction.toJson()}');
+    }
     return transactions;
   }
 
@@ -50,13 +53,11 @@ class RecurringTransactionLocalData {
     for (final recurring in recurringList) {
       final transactions = recurring.recurringTransactions;
 
-      if (transactions != null) {
-        for (final txn in transactions) {
-          if (txn.recurringTransactionId == recurringTransactionId) {
-            txn
-              ..status = status
-              ..transactionId = transactionId;
-          }
+      for (final txn in transactions) {
+        if (txn.recurringTransactionId == recurringTransactionId) {
+          txn
+            ..status = status
+            ..transactionId = transactionId;
         }
       }
 
@@ -84,6 +85,7 @@ class RecurringTransactionLocalData {
           categoryId: categoryId,
         );
         await box.put(key, updatedRecurring);
+        log('updated recurring ${updatedRecurring.toJson()}');
         return updatedRecurring;
       }
     }
@@ -104,19 +106,30 @@ class RecurringTransactionLocalData {
     if (key == null) return;
 
     final recurring = box.get(key);
-    if (recurring == null || recurring.recurringTransactions == null) return;
+    if (recurring == null) return;
 
-    final index = recurring.recurringTransactions!.indexWhere(
+    final index = recurring.recurringTransactions.indexWhere(
       (e) => e.scheduleDate == scheduleDate && e.transactionId == null,
     );
 
     if (index == -1) return;
 
-    recurring.recurringTransactions![index] = recurring.recurringTransactions![index].copyWith(
+    recurring.recurringTransactions[index] = recurring.recurringTransactions[index].copyWith(
       transactionId: transactionId,
       recurringTransactionId: recurringTransactionId,
     );
 
     await box.put(key, recurring);
+  }
+
+  Future<void> deleteRecurringTransaction({required String recurringId}) async {
+    final key = box.keys.firstWhere(
+      (k) => box.get(k)?.recurringId == recurringId,
+      orElse: () => null,
+    );
+
+    if (key != null) {
+      await box.delete(key);
+    }
   }
 }

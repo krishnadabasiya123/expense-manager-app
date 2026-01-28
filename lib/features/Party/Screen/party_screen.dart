@@ -28,7 +28,7 @@ class _PartyScreenState extends State<PartyScreen> {
     context.read<GetPartyCubit>().getParty();
   }
 
-  List<Party> getParty({String? searchText}) {
+  List<Party> getParty({String searchText = ''}) {
     return context.read<GetPartyCubit>().getPartyBySearchName(searchText: searchText);
   }
 
@@ -185,7 +185,7 @@ class _PartyScreenState extends State<PartyScreen> {
                               crossAxisAlignment: .start,
                               children: [
                                 CustomTextView(
-                                  text: partyData.name!,
+                                  text: partyData.name,
                                   fontSize: 16.sp(context),
                                   color: Theme.of(context).colorScheme.onSecondary,
                                   fontWeight: FontWeight.bold,
@@ -347,105 +347,91 @@ class _PartyScreenState extends State<PartyScreen> {
   }
 
   void showDeleteAlertDialog(BuildContext context, {required Party party}) {
-    showGeneralDialog(
-      context: context,
-      barrierLabel: 'Delete',
-      barrierColor: Colors.black.withValues(alpha: 0.3),
-      transitionDuration: const Duration(milliseconds: 300),
+    context.showAppDialog(
+      child: BlocProvider(
+        create: (context) => DeletePartyCubit(),
+        child: Builder(
+          builder: (dialogContext) {
+            return Center(
+              child: PopScope(
+                canPop: false,
+                onPopInvokedWithResult: (didPop, result) {
+                  if (didPop) return;
+                  if (dialogContext.read<DeletePartyCubit>().state is! DeletePartyLoading) {
+                    Navigator.of(dialogContext).pop();
+                    return;
+                  }
+                },
+                child: AlertDialog(
+                  constraints: const BoxConstraints(),
+                  //constraints: BoxConstraints(maxHeight: size.height * 0.45, maxWidth: size.width * 0.85),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  title: CustomTextView(text: context.tr('deleteAccountTitleKey'), fontWeight: FontWeight.bold, fontSize: 20.sp(context)),
+                  content: CustomTextView(text: context.tr('deletePartyDialogMsg'), softWrap: true, maxLines: 3),
+                  actions: [
+                    BlocConsumer<DeletePartyCubit, DeletePartyState>(
+                      listener: (context, state) {
+                        if (state is DeletePartySuccess) {
+                          Navigator.of(context).pop();
 
-      transitionBuilder: (context, animation, secondaryAnimation, child) {
-        return Transform.scale(
-          scale: Curves.easeOutBack.transform(animation.value),
-          child: Opacity(opacity: animation.value, child: child),
-        );
-      },
+                          context.read<GetPartyCubit>().deletePartyLocally(state.party);
 
-      pageBuilder: (context, animation, secondaryAnimation) {
-        final size = MediaQuery.of(context).size;
-
-        return Center(
-          child: PopScope(
-            canPop: false,
-            onPopInvokedWithResult: (didPop, result) {
-              if (didPop) return;
-              if (context.read<DeletePartyCubit>().state is! DeletePartyLoading) {
-                Navigator.of(context).pop();
-                return;
-              }
-            },
-            child: AlertDialog(
-              constraints: const BoxConstraints(),
-              //constraints: BoxConstraints(maxHeight: size.height * 0.45, maxWidth: size.width * 0.85),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              title: CustomTextView(text: context.tr('deleteAccountTitleKey'), fontWeight: FontWeight.bold, fontSize: 20.sp(context)),
-              content: CustomTextView(text: context.tr('deletePartyDialogMsg'), softWrap: true, maxLines: 3),
-              actions: [
-                BlocProvider(
-                  create: (context) => DeletePartyCubit(),
-                  child: BlocConsumer<DeletePartyCubit, DeletePartyState>(
-                    listener: (context, state) {
-                      if (state is DeletePartySuccess) {
-                        Navigator.of(context).pop();
-
-                        context.read<GetPartyCubit>().deletePartyLocally(state.party);
-
-                        if (state.party.transaction != null) {
-                          for (final transaction in state.party.transaction!) {
+                          for (final transaction in state.party.transaction) {
                             context.read<GetTransactionCubit>().deleteTransacionLocally(Transaction(id: transaction.mainTransactionId));
                           }
                         }
-                      }
-                    },
-                    builder: (context, state) {
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Expanded(
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Theme.of(context).primaryColor,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                //  padding: const EdgeInsetsDirectional.symmetric(vertical: 14),
-                              ),
-                              onPressed: () {
-                                if (state is! DeletePartyLoading) {
-                                  Navigator.of(context).pop();
-                                }
-                              },
+                      },
+                      builder: (context, state) {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Theme.of(context).primaryColor,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                  //  padding: const EdgeInsetsDirectional.symmetric(vertical: 14),
+                                ),
+                                onPressed: () {
+                                  if (state is! DeletePartyLoading) {
+                                    Navigator.of(context).pop();
+                                  }
+                                },
 
-                              child: CustomTextView(text: context.tr('deleteAccountCancelKey'), fontSize: 15.sp(context), color: Colors.white, textAlign: TextAlign.center),
-                            ),
-                          ),
-                          const SizedBox(width: 15),
-                          Expanded(
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Theme.of(context).primaryColor,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                //padding: const EdgeInsetsDirectional.symmetric(vertical: 14),
+                                child: CustomTextView(text: context.tr('deleteAccountCancelKey'), fontSize: 15.sp(context), color: Colors.white, textAlign: TextAlign.center),
                               ),
-                              onPressed: state is DeletePartyLoading
-                                  ? null
-                                  : () async {
-                                      await context.read<DeletePartyCubit>().deleteParty(party);
-                                    },
-                              child: state is DeletePartyLoading
-                                  ? const CustomCircularProgressIndicator(
-                                      color: Colors.white,
-                                    )
-                                  : CustomTextView(text: context.tr('deleteAccountConfirmKey'), fontSize: 15.sp(context), color: Colors.white, textAlign: TextAlign.center),
                             ),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
+                            const SizedBox(width: 15),
+                            Expanded(
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Theme.of(context).primaryColor,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                  //padding: const EdgeInsetsDirectional.symmetric(vertical: 14),
+                                ),
+                                onPressed: state is DeletePartyLoading
+                                    ? null
+                                    : () async {
+                                        await context.read<DeletePartyCubit>().deleteParty(party);
+                                      },
+                                child: state is DeletePartyLoading
+                                    ? const CustomCircularProgressIndicator(
+                                        color: Colors.white,
+                                      )
+                                    : CustomTextView(text: context.tr('deleteAccountConfirmKey'), fontSize: 15.sp(context), color: Colors.white, textAlign: TextAlign.center),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-        );
-      },
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 }

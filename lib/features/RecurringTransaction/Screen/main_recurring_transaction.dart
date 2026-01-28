@@ -1,10 +1,12 @@
 import 'package:expenseapp/core/app/all_import_file.dart';
+import 'package:expenseapp/features/RecurringTransaction/Cubit/delete_recurring_transaction_cubit.dart';
 import 'package:expenseapp/features/RecurringTransaction/Cubit/get_recurring_transaction_cubit.dart';
-import 'package:expenseapp/features/RecurringTransaction/Enums/RecurringFrequency.dart';
-import 'package:expenseapp/features/RecurringTransaction/Enums/RecurringTransactionStatus.dart';
+import 'package:expenseapp/features/RecurringTransaction/Model/Enums/RecurringFrequency.dart';
+import 'package:expenseapp/features/RecurringTransaction/Model/Enums/RecurringTransactionStatus.dart';
 import 'package:expenseapp/features/RecurringTransaction/Model/Recurring.dart';
 import 'package:expenseapp/features/RecurringTransaction/Model/RecurringTransaction.dart';
 import 'package:expenseapp/features/RecurringTransaction/Screen/edit_recurring_dialogue.dart';
+import 'package:expenseapp/features/RecurringTransaction/Widget/delete_recurring_dialogue.dart';
 import 'package:flutter/material.dart';
 
 class RecurringTransactionList extends StatefulWidget {
@@ -33,11 +35,11 @@ class _RecurringTransactionListState extends State<RecurringTransactionList> {
       return context.tr('endedKey');
     }
 
-    final upcoming = transactions.where((e) => e.status == RecurringTransactionStatus.UPCOMING).toList();
+    final upcoming = transactions.where((e) => e.status == RecurringTransactionStatus.UPCOMING || e.status == RecurringTransactionStatus.CANCELLED).toList();
 
     if (upcoming.isEmpty) return null;
 
-    upcoming.sort((a, b) => UiUtils.parseDate(a.scheduleDate!).compareTo(UiUtils.parseDate(b.scheduleDate!)));
+    upcoming.sort((a, b) => UiUtils.parseDate(a.scheduleDate).compareTo(UiUtils.parseDate(b.scheduleDate)));
 
     return upcoming.first.scheduleDate;
   }
@@ -72,8 +74,8 @@ class _RecurringTransactionListState extends State<RecurringTransactionList> {
             return ResponsivePadding(
               topPadding: context.height * 0.01,
               bottomPadding: context.width * 0.03,
-              leftPadding: context.width * 0.03,
-              rightPadding: context.width * 0.03,
+              leftPadding: context.width * 0.05,
+              rightPadding: context.width * 0.05,
               child: ListView.builder(
                 shrinkWrap: true,
                 itemCount: transaction.length,
@@ -89,12 +91,12 @@ class _RecurringTransactionListState extends State<RecurringTransactionList> {
                       iconBg: item.type == TransactionType.EXPENSE ? Colors.red.withValues(alpha: 0.15) : Colors.green.withValues(alpha: 0.15),
                       iconColor: item.type == TransactionType.EXPENSE ? Colors.red : Colors.green,
                       title: item.title,
-                      amount: item.amount!.toString(),
+                      amount: item.amount.toString(),
                       frequency: item.frequency,
                       start: item.startDate,
                       end: item.endDate,
                       type: item.type,
-                      nextPay: getNextPayDate(item.recurringTransactions!),
+                      nextPay: getNextPayDate(item.recurringTransactions),
                       recurring: item,
                     ),
                   );
@@ -217,9 +219,10 @@ class RecurringCard extends StatelessWidget {
                         },
                         onSelected: (value) async {
                           if (value == context.tr('editKey')) {
-                            Navigator.of(context).pushNamed(Routes.editMainRecurringTransaction, arguments: {'recurring': recurring});
-
-                            //showEditRecurringDialogue(context, recurring: recurring);
+                            Navigator.of(context).pushNamed(Routes.editMainRecurringTransaction, arguments: {'recurringId': recurring!.recurringId});
+                          }
+                          if (value == context.tr('deleteKey')) {
+                            showDeleteRecurringDialogue(context, recurringId: recurring!.recurringId);
                           }
                         },
                       ),
@@ -271,236 +274,256 @@ Widget _info(BuildContext context, String label, String? value, {bool highlight 
   );
 }
 
-// class _UpcomingTile extends StatelessWidget {
-//   const _UpcomingTile({required this.date, this.recurring});
-//   final DateTime date;
-//   final Recurring? recurring;
+// void showDeleteRecurringDialogue(BuildContext context, {required Recurring recurring}) {
+//   final isCheck = ValueNotifier<bool>(false);
 
-//   @override
-//   Widget build(BuildContext context) {
-//     final colorScheme = Theme.of(context).colorScheme;
-//     return _BaseTile(
-//       borderColor: colorScheme.primary,
-//       icon: Icons.schedule,
-//       iconColor: colorScheme.primary,
-//       title: date,
-//       subtitle: context.tr('upcomingTransactionKey'),
-//       trailing: Column(
-//         mainAxisAlignment: MainAxisAlignment.end,
-//         crossAxisAlignment: .end,
-//         children: [
-//           _buildPaidButton(
-//             context,
-//             onTap: () {
-//               showChangeStatusDialog(context, transaction: recurring, isPaid: true);
+//   context.showAppDialog(
+//     child: BlocProvider(
+//       create: (context) => DeleteRecurringTransactionCubit(),
+//       child: Builder(
+//         builder: (dialogContext) {
+//           return ValueListenableBuilder(
+//             valueListenable: isCheck,
+//             builder: (context, value, child) {
+//               return Center(
+//                 child: PopScope(
+//                   canPop: false,
+//                   onPopInvokedWithResult: (didPop, result) {
+//                     if (didPop) return;
+//                     if (dialogContext.read<DeleteRecurringTransactionCubit>().state is! DeleteRecurringTransactionLoading) {
+//                       Navigator.of(dialogContext).pop();
+//                       return;
+//                     }
+//                   },
+//                   child: AlertDialog(
+//                     actions: [
+//                       Center(
+//                         child: Container(
+//                           child: ValueListenableBuilder(
+//                             valueListenable: isCheck,
+//                             builder: (context, value, child) {
+//                               return Column(
+//                                 //   mainAxisSize: MainAxisSize.min,
+//                                 children: [
+//                                   /// Delete Icon
+//                                   SizedBox(height: context.height * 0.03),
+
+//                                   /// Title
+//                                   // Text(
+//                                   //   'Confirm Deletion',
+//                                   //   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+//                                   //     fontWeight: FontWeight.bold,
+//                                   //   ),
+//                                   // ),
+//                                   CustomTextView(text: context.tr('deleteAccountTitleKey'), fontWeight: FontWeight.bold, fontSize: 20.sp(context)),
+
+//                                   SizedBox(height: context.height * 0.01),
+//                                   CustomTextView(
+//                                     text: context.tr('recurringDialogueMsg'),
+//                                     softWrap: true,
+//                                     maxLines: 3,
+//                                     textAlign: TextAlign.center,
+//                                     color: Colors.grey,
+//                                   ),
+
+//                                   /// Description
+//                                   // Text(
+//                                   //   'Deleting this recurring will permanently remove all related transactions from your records.',
+//                                   //   textAlign: TextAlign.center,
+//                                   //   style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey),
+//                                   // ),
+//                                   SizedBox(height: context.height * 0.02),
+
+//                                   /// Checkbox container
+//                                   Container(
+//                                     padding: EdgeInsetsDirectional.symmetric(vertical: context.height * 0.01, horizontal: context.width * 0.04),
+//                                     decoration: BoxDecoration(
+//                                       color: const Color(0xFFF1F5F9),
+//                                       borderRadius: BorderRadius.circular(20),
+//                                       border: Border.all(
+//                                         color: Colors.grey.shade200,
+//                                       ),
+//                                     ),
+//                                     child: Row(
+//                                       children: [
+//                                         Checkbox(
+//                                           value: isCheck.value,
+//                                           activeColor: Colors.blue.shade800,
+//                                           onChanged: (value) {
+//                                             isCheck.value = value!;
+//                                           },
+//                                         ),
+//                                         SizedBox(width: context.width * 0.02),
+//                                         Expanded(
+//                                           child: CustomTextView(
+//                                             text: context.tr('keepAsNormalTransactionKey'),
+//                                             fontSize: 15.sp(context),
+//                                             color: Colors.black,
+//                                             softWrap: true,
+//                                             maxLines: 2,
+//                                           ),
+//                                         ),
+//                                       ],
+//                                     ),
+//                                   ),
+
+//                                   SizedBox(height: context.height * 0.02),
+
+//                                   /// Buttons
+//                                   BlocConsumer<DeleteRecurringTransactionCubit, DeleteRecurringTransactionState>(
+//                                     listener: (context, state) {
+//                                       if (state is DeleteRecurringTransactionSuccess) {
+//                                         context.read<GetRecurringTransactionCubit>().deleteRecurringTransactionLocally(recurringId: recurring.recurringId);
+//                                         Navigator.pop(context);
+//                                         if (isCheck.value) {
+//                                           context.read<GetTransactionCubit>().setNullRecurringTransactionId(recurringId: recurring.recurringId);
+//                                         } else {
+//                                           context.read<GetTransactionCubit>().permanentlyDeleteRecurringTransaction(recurringId: recurring.recurringId);
+//                                         }
+//                                       }
+//                                     },
+//                                     builder: (context, state) {
+//                                       return Row(
+//                                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//                                         children: [
+//                                           Expanded(
+//                                             child: ElevatedButton(
+//                                               style: ElevatedButton.styleFrom(
+//                                                 backgroundColor: Theme.of(context).primaryColor,
+//                                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+//                                                 //  padding: const EdgeInsetsDirectional.symmetric(vertical: 14),
+//                                               ),
+//                                               onPressed: () {
+//                                                 if (state is! DeleteRecurringTransactionLoading) {
+//                                                   Navigator.of(context).pop();
+//                                                 }
+//                                               },
+
+//                                               child: CustomTextView(text: context.tr('deleteAccountCancelKey'), fontSize: 15.sp(context), color: Colors.white, textAlign: TextAlign.center),
+//                                             ),
+//                                           ),
+//                                           const SizedBox(width: 15),
+//                                           Expanded(
+//                                             child: ElevatedButton(
+//                                               style: ElevatedButton.styleFrom(
+//                                                 backgroundColor: Theme.of(context).primaryColor,
+//                                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+//                                                 //padding: const EdgeInsetsDirectional.symmetric(vertical: 14),
+//                                               ),
+//                                               onPressed: state is DeleteRecurringTransactionLoading
+//                                                   ? null
+//                                                   : () async {
+//                                                       await context.read<DeleteRecurringTransactionCubit>().deleteRecurringTransaction(recurring);
+//                                                     },
+//                                               child: state is DeleteRecurringTransactionLoading
+//                                                   ? const CustomCircularProgressIndicator(
+//                                                       color: Colors.white,
+//                                                     )
+//                                                   : CustomTextView(text: context.tr('deleteAccountConfirmKey'), fontSize: 15.sp(context), color: Colors.white, textAlign: TextAlign.center),
+//                                             ),
+//                                           ),
+//                                         ],
+//                                       );
+//                                     },
+//                                   ),
+//                                 ],
+//                               );
+//                             },
+//                           ),
+//                         ),
+//                         // child: AlertDialog(
+//                         //   constraints: const BoxConstraints(),
+//                         //   //constraints: BoxConstraints(maxHeight: size.height * 0.45, maxWidth: size.width * 0.85),
+//                         //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+//                         //   title: CustomTextView(text: context.tr('deleteAccountTitleKey'), fontWeight: FontWeight.bold, fontSize: 20.sp(context)),
+//                         //   content: CustomTextView(text: context.tr('recurringDialogueMsg'), softWrap: true, maxLines: 3),
+//                         //   actions: [
+//                         //     Row(
+//                         //       children: [
+//                         //         Checkbox(
+//                         //           value: isCheck.value,
+//                         //           checkColor: const Color.fromARGB(255, 255, 255, 255),
+//                         //           fillColor: WidgetStateProperty.resolveWith((states) {
+//                         //             if (states.contains(WidgetState.selected)) {
+//                         //               return Colors.black;
+//                         //             }
+//                         //             return null;
+//                         //           }),
+
+//                         //           onChanged: (value) {
+//                         //             isCheck.value = value!;
+//                         //           },
+//                         //         ),
+//                         //         CustomTextView(text: context.tr('keepAsNormalTransactionKey'), fontSize: 15.sp(context), color: Colors.black, softWrap: true, maxLines: 3),
+//                         //       ],
+//                         //     ),
+//                         //     BlocConsumer<DeleteRecurringTransactionCubit, DeleteRecurringTransactionState>(
+//                         //       listener: (context, state) {
+//                         //         if (state is DeleteRecurringTransactionSuccess) {
+//                         //           context.read<GetRecurringTransactionCubit>().deleteRecurringTransactionLocally(recurringId: recurring.recurringId);
+//                         //           Navigator.pop(context);
+//                         //           if (isCheck.value) {
+//                         //             context.read<GetTransactionCubit>().setNullRecurringTransactionId(recurringId: recurring.recurringId);
+//                         //           } else {
+//                         //             context.read<GetTransactionCubit>().permanentlyDeleteRecurringTransaction(recurringId: recurring.recurringId);
+//                         //           }
+//                         //         }
+//                         //       },
+//                         //       builder: (context, state) {
+//                         //         return Row(
+//                         //           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//                         //           children: [
+//                         //             Expanded(
+//                         //               child: ElevatedButton(
+//                         //                 style: ElevatedButton.styleFrom(
+//                         //                   backgroundColor: Theme.of(context).primaryColor,
+//                         //                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+//                         //                   //  padding: const EdgeInsetsDirectional.symmetric(vertical: 14),
+//                         //                 ),
+//                         //                 onPressed: () {
+//                         //                   if (state is! DeleteRecurringTransactionLoading) {
+//                         //                     Navigator.of(context).pop();
+//                         //                   }
+//                         //                 },
+
+//                         //                 child: CustomTextView(text: context.tr('deleteAccountCancelKey'), fontSize: 15.sp(context), color: Colors.white, textAlign: TextAlign.center),
+//                         //               ),
+//                         //             ),
+//                         //             const SizedBox(width: 15),
+//                         //             Expanded(
+//                         //               child: ElevatedButton(
+//                         //                 style: ElevatedButton.styleFrom(
+//                         //                   backgroundColor: Theme.of(context).primaryColor,
+//                         //                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+//                         //                   //padding: const EdgeInsetsDirectional.symmetric(vertical: 14),
+//                         //                 ),
+//                         //                 onPressed: state is DeleteRecurringTransactionLoading
+//                         //                     ? null
+//                         //                     : () async {
+//                         //                         await context.read<DeleteRecurringTransactionCubit>().deleteRecurringTransaction(recurring);
+//                         //                       },
+//                         //                 child: state is DeleteRecurringTransactionLoading
+//                         //                     ? const CustomCircularProgressIndicator(
+//                         //                         color: Colors.white,
+//                         //                       )
+//                         //                     : CustomTextView(text: context.tr('deleteAccountConfirmKey'), fontSize: 15.sp(context), color: Colors.white, textAlign: TextAlign.center),
+//                         //               ),
+//                         //             ),
+//                         //           ],
+//                         //         );
+//                         //       },
+//                         //     ),
+//                         //   ],
+//                         // ),
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//               );
 //             },
-//           ),
-//           SizedBox(height: context.height * 0.003),
-//           _buildCancelButton(
-//             context,
-//             onTap: () {
-//               showChangeStatusDialog(context, transaction: recurring, isCancelled: true);
-//             },
-//           ),
-//         ],
+//           );
+//         },
 //       ),
-//     );
-//   }
-// }
-
-// class _PaidTile extends StatelessWidget {
-//   const _PaidTile({required this.date, this.recurring});
-//   final DateTime date;
-//   final Recurring? recurring;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return _BaseTile(
-//       borderColor: Colors.green,
-//       icon: Icons.check_circle,
-//       iconColor: Colors.green,
-//       title: date,
-//       subtitle: context.tr('paidKey'),
-//       trailing: (date.isToday || date.isPast)
-//           ? _buildCancelButton(
-//               context,
-//               onTap: () {
-//                 showChangeStatusDialog(context, transaction: recurring, isCancelled: true);
-//               },
-//             )
-//           : (date.isFuture)
-//           ? Column(
-//               mainAxisAlignment: MainAxisAlignment.end,
-//               crossAxisAlignment: .end,
-//               children: [
-//                 _buildUpcomingButton(
-//                   context,
-//                   onTap: () {
-//                     showChangeStatusDialog(context, transaction: recurring, isUpcoming: true);
-//                   },
-//                 ),
-//                 SizedBox(height: context.height * 0.003),
-//                 _buildCancelButton(
-//                   context,
-//                   onTap: () {
-//                     showChangeStatusDialog(context, transaction: recurring, isCancelled: true);
-//                   },
-//                 ),
-//               ],
-//             )
-//           : const SizedBox(),
-//     );
-//   }
-// }
-
-// class _CancelledTile extends StatelessWidget {
-//   const _CancelledTile({required this.date, this.recurring});
-//   final DateTime date;
-//   final Recurring? recurring;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return _BaseTile(
-//       borderColor: Colors.red,
-//       icon: Icons.block,
-//       iconColor: Colors.red,
-//       title: date,
-//       subtitle: context.tr('cancelledTransactionKey'),
-//       trailing: (date.isToday || date.isPast)
-//           ? _buildPaidButton(
-//               context,
-//               onTap: () {
-//                 showChangeStatusDialog(context, transaction: recurring, isPaid: true);
-//               },
-//             )
-//           : (date.isFuture)
-//           ? Column(
-//               mainAxisAlignment: MainAxisAlignment.end,
-//               crossAxisAlignment: .end,
-
-//               children: [
-//                 _buildPaidButton(
-//                   context,
-//                   onTap: () {
-//                     showChangeStatusDialog(context, transaction: recurring, isPaid: true);
-//                   },
-//                 ),
-//                 SizedBox(height: context.height * 0.003),
-//                 _buildUpcomingButton(
-//                   context,
-//                   onTap: () {
-//                     showChangeStatusDialog(context, transaction: recurring, isUpcoming: true);
-//                   },
-//                 ),
-//               ],
-//             )
-//           : const SizedBox(),
-//     );
-//   }
-// }
-
-// class _BaseTile extends StatelessWidget {
-//   const _BaseTile({
-//     required this.borderColor,
-//     required this.icon,
-//     required this.iconColor,
-//     required this.title,
-//     required this.subtitle,
-//     required this.trailing,
-//     this.strike = false,
-//   });
-//   final Color borderColor;
-//   final IconData icon;
-//   final Color iconColor;
-//   final DateTime title;
-//   final String subtitle;
-//   final bool strike;
-//   final Widget trailing;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final colorScheme = Theme.of(context).colorScheme;
-//     return Container(
-//       margin: const EdgeInsetsDirectional.only(bottom: 12),
-//       padding: EdgeInsetsDirectional.symmetric(horizontal: context.width * 0.04, vertical: context.height * 0.02),
-//       decoration: BoxDecoration(
-//         color: Colors.white,
-//         borderRadius: BorderRadius.circular(16),
-//         border: Border(left: BorderSide(color: borderColor, width: 4)),
-//       ),
-//       child: Row(
-//         children: [
-//           CircleAvatar(
-//             backgroundColor: iconColor.withOpacity(0.1),
-//             child: Icon(icon, color: iconColor),
-//           ),
-//           const SizedBox(width: 12),
-//           Expanded(
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 CustomTextView(
-//                   text: UiUtils.dateFormatter.format(title),
-//                   fontSize: 14.sp(context),
-//                   fontWeight: FontWeight.w600,
-//                 ),
-//                 SizedBox(height: context.height * 0.003),
-//                 CustomTextView(
-//                   text: subtitle,
-//                   fontSize: 13.sp(context),
-//                   color: colorScheme.surfaceDim,
-//                   // subtitle,
-//                   // style: const TextStyle(fontSize: 12, color: AppColors.muted),
-//                 ),
-//               ],
-//             ),
-//           ),
-//           trailing,
-//         ],
-//       ),
-//     );
-//   }
-// }
-
-// Widget _buildCancelButton(BuildContext context, {required void Function()? onTap}) {
-//   return GestureDetector(
-//     onTap: onTap,
-//     child: Container(
-//       padding: EdgeInsetsDirectional.symmetric(horizontal: context.width * 0.02, vertical: context.height * 0.005),
-//       decoration: BoxDecoration(
-//         color: Colors.red.withValues(alpha: 0.2),
-//         borderRadius: BorderRadius.circular(5),
-//       ),
-//       child: CustomTextView(text: context.tr('cancelKey'), fontSize: 10.sp(context), fontWeight: FontWeight.bold, color: Colors.red, letterspacing: 1),
-//     ),
-//   );
-// }
-
-// Widget _buildPaidButton(BuildContext context, {required void Function()? onTap}) {
-//   return GestureDetector(
-//     onTap: onTap,
-//     child: Container(
-//       padding: EdgeInsetsDirectional.symmetric(horizontal: context.width * 0.02, vertical: context.height * 0.005),
-//       decoration: BoxDecoration(
-//         color: Colors.green.withValues(alpha: 0.2),
-//         borderRadius: BorderRadius.circular(5),
-//       ),
-//       child: CustomTextView(text: context.tr('paidKey'), fontSize: 10.sp(context), fontWeight: FontWeight.bold, color: Colors.green, letterspacing: 1),
-//     ),
-//   );
-// }
-
-// Widget _buildUpcomingButton(BuildContext context, {required void Function()? onTap}) {
-//   final colorScheme = Theme.of(context).colorScheme;
-//   return GestureDetector(
-//     onTap: onTap,
-//     child: Container(
-//       padding: EdgeInsetsDirectional.symmetric(horizontal: context.width * 0.02, vertical: context.height * 0.005),
-//       decoration: BoxDecoration(
-//         color: colorScheme.primary.withValues(alpha: 0.2),
-//         borderRadius: BorderRadius.circular(5),
-//       ),
-//       child: CustomTextView(text: context.tr('upcomingKey'), fontSize: 10.sp(context), fontWeight: FontWeight.bold, color: colorScheme.primary, letterspacing: 1),
 //     ),
 //   );
 // }

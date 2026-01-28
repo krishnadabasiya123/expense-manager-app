@@ -30,11 +30,17 @@ class TransactionTabBarViewScreen extends StatefulWidget {
   }
 }
 
-class _TransactionTabBarViewScreenState extends State<TransactionTabBarViewScreen> with SingleTickerProviderStateMixin {
+class _TransactionTabBarViewScreenState extends State<TransactionTabBarViewScreen> {
   @override
   void initState() {
     super.initState();
     selectedTab.value = widget.transactionType;
+  }
+
+  @override
+  void dispose() {
+    selectedTab.dispose();
+    super.dispose();
   }
 
   ValueNotifier<TransactionType> selectedTab = ValueNotifier(TransactionType.EXPENSE);

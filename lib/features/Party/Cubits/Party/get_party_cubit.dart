@@ -46,12 +46,12 @@ class GetPartyCubit extends Cubit<GetPartyState> {
     }
   }
 
-  List<Party> getPartyBySearchName({String? searchText}) {
+  List<Party> getPartyBySearchName({String searchText = ''}) {
     if (state is! GetPartySuccess) return [];
 
     final partyList = (state as GetPartySuccess).party;
 
-    if (searchText == null || searchText.trim().isEmpty) {
+    if (searchText == '' || searchText.trim().isEmpty) {
       return partyList;
     }
 
@@ -59,7 +59,7 @@ class GetPartyCubit extends Cubit<GetPartyState> {
 
     return partyList
         .where(
-          (p) => p.name?.toLowerCase().contains(query) ?? false,
+          (p) => p.name.toLowerCase().contains(query),
         )
         .toList();
   }
@@ -104,17 +104,17 @@ class GetPartyCubit extends Cubit<GetPartyState> {
 
       final totalCredit = data.fold<double>(
         0,
-        (sum, item) => item.transaction!.fold<double>(
+        (sum, item) => item.transaction.fold<double>(
           sum,
-          (sum, item) => item.type == TransactionType.CREDIT ? sum + (item.amount ?? 0.0) : sum,
+          (sum, item) => item.type == TransactionType.CREDIT ? sum + (item.amount) : sum,
         ),
       );
 
       final totalDebit = data.fold<double>(
         0,
-        (sum, item) => item.transaction!.fold<double>(
+        (sum, item) => item.transaction.fold<double>(
           sum,
-          (sum, item) => item.type == TransactionType.DEBIT ? sum + (item.amount ?? 0.0) : sum,
+          (sum, item) => item.type == TransactionType.DEBIT ? sum + (item.amount) : sum,
         ),
       );
 
@@ -156,22 +156,19 @@ class GetPartyCubit extends Cubit<GetPartyState> {
 
         final filteredTransactions =
             partyTransaction.where((item) {
-              if (item.date == null) return false;
-
               if (date != null) {
-                final txnDate = dateFormat.parse(item.date!);
+                final txnDate = dateFormat.parse(item.date);
                 return txnDate.month == date.month && txnDate.year == date.year;
               }
               return true;
             }).toList()..sort((b, a) {
-              if (a.date == null || b.date == null) return 0;
-              return dateFormat.parse(a.date!).compareTo(dateFormat.parse(b.date!));
+              return dateFormat.parse(a.date).compareTo(dateFormat.parse(b.date));
             });
 
         final grouped = <String, List<PartyTransaction>>{};
 
         for (final item in filteredTransactions) {
-          grouped.putIfAbsent(item.date!, () => []);
+          grouped.putIfAbsent(item.date, () => []);
           grouped[item.date]!.add(item);
         }
 
@@ -194,7 +191,7 @@ class GetPartyCubit extends Cubit<GetPartyState> {
       final index = partyData.indexWhere((p) => p.id == partyId);
 
       if (index != -1) {
-        final newTransactionList = List<PartyTransaction>.from(partyData[index].transaction ?? []);
+        final newTransactionList = List<PartyTransaction>.from(partyData[index].transaction);
 
         partyData[index].transaction = newTransactionList;
         emit(GetPartySuccess(partyData));
@@ -208,7 +205,7 @@ class GetPartyCubit extends Cubit<GetPartyState> {
       final partyData = (state as GetPartySuccess).party;
       final index = partyData.indexWhere((p) => p.id == partyId);
       if (index != -1) {
-        final updateList = List<PartyTransaction>.from(currentState.party[index].transaction ?? []);
+        final updateList = List<PartyTransaction>.from(currentState.party[index].transaction);
         partyData[index].transaction = updateList;
         emit(GetPartySuccess(partyData));
       }
@@ -234,11 +231,10 @@ class GetPartyCubit extends Cubit<GetPartyState> {
       final index = partyData.indexWhere((p) => p.id == partyId);
 
       if (index != -1) {
-        return partyData[index].transaction?.fold<double>(
-              0,
-              (sum, item) => item.type == TransactionType.CREDIT ? sum + (item.amount ?? 0.0) : sum,
-            ) ??
-            0.0;
+        return partyData[index].transaction.fold<double>(
+          0,
+          (sum, item) => item.type == TransactionType.CREDIT ? sum + (item.amount) : sum,
+        );
       }
     }
     return 0;
@@ -250,11 +246,10 @@ class GetPartyCubit extends Cubit<GetPartyState> {
       final index = partyData.indexWhere((p) => p.id == partyId);
 
       if (index != -1) {
-        return partyData[index].transaction?.fold<double>(
-              0,
-              (sum, item) => item.type == TransactionType.DEBIT ? sum + (item.amount ?? 0.0) : sum,
-            ) ??
-            0.0;
+        return partyData[index].transaction.fold<double>(
+          0,
+          (sum, item) => item.type == TransactionType.DEBIT ? sum + (item.amount) : sum,
+        );
       }
     }
     return 0;
@@ -299,7 +294,7 @@ class GetPartyCubit extends Cubit<GetPartyState> {
       final transactions = (state as GetPartySuccess).party;
 
       for (final party in transactions) {
-        for (final transaction in party.transaction!) {
+        for (final transaction in party.transaction) {
           if (transaction.category == id) {
             transaction.category = '';
           }
@@ -313,42 +308,24 @@ class GetPartyCubit extends Cubit<GetPartyState> {
     partyTransactionLocalData.saveSoftDeletedPartytransactionById(transaction: transaction);
   }
 
-  // Future<void> deletePartyTransactionWhenDeleteAccount({
-  //   required String accountId,
-  // }) async {
-  //   await partyTransactionLocalData.updateAccountAndTransactionIdWhenAccountDelete(accountId: accountId);
-  //   final currentState = state;
-  //   if (currentState is GetPartySuccess) {
-  //     final transactions = (state as GetPartySuccess).party;
-  //     for (final data in transactions) {
-  //        final index = data.transaction!.indexWhere((element) => element.accountId == accountId);
-  //        if (index != -1) {
-  //          data.t
-  //        }
-
-  //       emit(currentState.copyWith(party: transactions));
-  //     }
-  //   }
-  // }
   Future<void> deletePartyTransactionWhenDeleteAccount({
     required String accountId,
   }) async {
-    // 1️⃣ Update Hive (local DB)
     await partyTransactionLocalData.updateAccountAndTransactionIdWhenAccountDelete(accountId: accountId);
 
     final currentState = state;
 
-    // 2️⃣ Update Bloc in-memory state
     if (currentState is GetPartySuccess) {
       final updatedPartyList = currentState.party.map((party) {
         final transactions = party.transaction;
 
-        if (transactions != null) {
+        if (transactions.isNotEmpty) {
           for (final txn in transactions) {
             if (txn.accountId == accountId) {
-              txn.accountId = null;
-              txn.mainTransactionId = null;
-              txn.isMainTransaction = false;
+              txn
+                ..accountId = ''
+                ..mainTransactionId = ''
+                ..isMainTransaction = false;
             }
           }
         }

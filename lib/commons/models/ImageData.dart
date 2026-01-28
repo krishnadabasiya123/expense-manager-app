@@ -6,13 +6,16 @@ part 'ImageData.g.dart';
 
 @HiveType(typeId: 5)
 class ImageData extends HiveObject {
-  ImageData({this.imageId, this.picture});
-
+ ImageData({
+    this.imageId = '',
+    Uint8List? picture,
+  }) : picture = picture ?? Uint8List(0);
+  
   @HiveField(0)
-  final String? imageId;
+  String imageId;
 
   @HiveField(1)
-  final Uint8List? picture;
+  Uint8List picture;
 
   Map<String, dynamic> toMap() => {'id': imageId, 'picture': picture};
 

@@ -20,8 +20,8 @@ class PartyAdapter extends TypeAdapter<Party> {
       createdAt: fields[3] as String,
       updatedAt: fields[4] as String,
       id: fields[0] as String,
-      name: fields[1] as String?,
-      transaction: (fields[2] as List?)?.cast<PartyTransaction>(),
+      name: fields[1] as String,
+      transaction: (fields[2] as List).cast<PartyTransaction>(),
     );
   }
 

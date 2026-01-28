@@ -98,6 +98,13 @@ extension AmountFormatter on num {
 //     return isNegative ? '-$formatted' : formatted;
 //   }
 // }
+extension DateOnly on DateTime {
+  DateTime get dateOnly => DateTime(year, month, day);
+
+  bool isSameOrBefore(DateTime other) {
+    return dateOnly.isBefore(other.dateOnly) || dateOnly.isAtSameMomentAs(other.dateOnly);
+  }
+}
 
 extension AppDialogExt on BuildContext {
   Future<T?> showAppDialog<T>({

@@ -3,7 +3,7 @@ import 'package:expenseapp/features/Home/Cubits/edit_home_cubit.dart';
 import 'package:expenseapp/features/Home/Screen/home_page.dart';
 import 'package:expenseapp/features/Profile/Screen/profile_screen.dart';
 import 'package:expenseapp/features/RecurringTransaction/Cubit/get_recurring_transaction_cubit.dart';
-import 'package:expenseapp/features/RecurringTransaction/Enums/RecurringTransactionStatus.dart';
+import 'package:expenseapp/features/RecurringTransaction/Model/Enums/RecurringTransactionStatus.dart';
 import 'package:expenseapp/features/RecurringTransaction/Model/Recurring.dart';
 import 'package:expenseapp/features/RecurringTransaction/Model/RecurringTransaction.dart';
 import 'package:expenseapp/features/Statistics/Screen/statistics_screen.dart';
@@ -21,7 +21,6 @@ class BottomNavigationPageChnage extends StatefulWidget {
   State<BottomNavigationPageChnage> createState() => _BottomNavigationPageChnageState();
 
   static Route route(RouteSettings routeSettings) {
-    final arguments = routeSettings.arguments! as Map<String, dynamic>;
     return CupertinoPageRoute(builder: (_) => const BottomNavigationPageChnage());
   }
 }
@@ -49,9 +48,14 @@ class _BottomNavigationPageChnageState extends State<BottomNavigationPageChnage>
   }
 
   @override
+  void dispose() {
+    selectedIndex.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-
     return ValueListenableBuilder(
       valueListenable: selectedIndex,
       builder: (context, value, child) {
@@ -66,51 +70,37 @@ class _BottomNavigationPageChnageState extends State<BottomNavigationPageChnage>
           child: BlocListener<GetRecurringTransactionCubit, GetRecurringTransactionState>(
             listener: (context, state) async {
               if (state is GetRecurringTransactionSuccess) {
-                final dueRecurrings = await context.read<GetRecurringTransactionCubit>().fetchDueRecurringTransactions();
+                final dueRecurrings = context.read<GetRecurringTransactionCubit>().getDueRecurringTransactions();
 
                 for (final recurring in dueRecurrings) {
                   log('recurring transaction to be added ${recurring.toJson()}');
                 }
 
                 for (final recurring in dueRecurrings) {
-                  for (final rt in recurring.recurringTransactions!) {
-                    if (rt.transactionId == null) {
-                      final transactionId = 'TR'.withDateTimeMillisRandom();
+                  for (final rt in recurring.recurringTransactions) {
+                    final transactionId = 'TR'.withDateTimeMillisRandom();
 
-                      // final alreadyPaid = recurring.recurringTransactions!.any((e) => e.scheduleDate == rt.scheduleDate && e.transactionId != null);
+                    context.read<GetTransactionCubit>().addTransactionsLocally([
+                      Transaction(
+                        id: transactionId,
+                        title: recurring.title,
+                        amount: recurring.amount,
+                        date: rt.scheduleDate,
+                        accountId: recurring.accountId,
+                        categoryId: recurring.categoryId,
+                        type: recurring.type,
+                        recurringId: recurring.recurringId,
+                        recurringTransactionId: rt.recurringTransactionId,
+                        addFromType: TransactionType.RECURRING,
+                      ),
+                    ]);
 
-                      // if (alreadyPaid) continue;
-
-                      log('recurring transaction id ${rt.recurringTransactionId}');
-
-                      context.read<GetTransactionCubit>().addTransactionsLocally([
-                        Transaction(
-                          id: transactionId,
-                          title: recurring.title,
-                          amount: recurring.amount,
-                          date: rt.scheduleDate,
-                          accountId: recurring.accountId,
-                          categoryId: recurring.categoryId,
-                          type: recurring.type,
-                          recurringId: recurring.recurringId,
-                          recurringTransactionId: rt.recurringTransactionId,
-                          addFromType: TransactionType.RECURRING,
-                        ),
-                      ]);
-
-                      // await context.read<GetRecurringTransactionCubit>().updateRecurringTransactionByStatus(
-                      //   transaction: ,
-                      //   recurringTransactionId: rt.recurringTransactionId!,
-                      //   status: RecurringTransactionStatus.PAID,
-                      //   transactionId: transactionId,
-                      // );
-                      await context.read<GetRecurringTransactionCubit>().updateRecurringTransactionByStatus(
-                        transaction: recurring,
-                        recurringTransactionId: rt.recurringTransactionId!,
-                        status: RecurringTransactionStatus.PAID,
-                        transactionId: transactionId,
-                      );
-                    }
+                    await context.read<GetRecurringTransactionCubit>().updateRecurringTransactionByStatus(
+                      transaction: recurring,
+                      recurringTransaction: rt,
+                      status: RecurringTransactionStatus.PAID,
+                      transactionId: transactionId,
+                    );
                   }
                 }
               }
@@ -119,13 +109,9 @@ class _BottomNavigationPageChnageState extends State<BottomNavigationPageChnage>
             child: Scaffold(
               resizeToAvoidBottomInset: false,
               body: IndexedStack(index: value, children: pages),
-
               floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-
               floatingActionButton: FloatingActionButton(
                 heroTag: null,
-
-                //  backgroundColor: colorScheme.primary,
                 shape: const CircleBorder(),
                 onPressed: () {
                   Navigator.of(context).pushNamed(Routes.transactionTabBarView);
@@ -139,7 +125,6 @@ class _BottomNavigationPageChnageState extends State<BottomNavigationPageChnage>
                 removeRight: true,
                 removeTop: true,
                 context: context,
-
                 child: BottomAppBar(
                   color: colorScheme.surface,
                   shape: const CircularNotchedRectangle(),
@@ -150,8 +135,7 @@ class _BottomNavigationPageChnageState extends State<BottomNavigationPageChnage>
                     children: [
                       _bottomItem(Icons.home_outlined, context.tr('homeKey'), 0),
                       _bottomItem(Icons.compare_arrows, context.tr('transactionsKey'), 1),
-
-                      const SizedBox(width: 40), // FAB space
+                      const SizedBox(width: 40),
                       _bottomItem(Icons.stacked_bar_chart, context.tr('statisticsKey'), 2),
                       _bottomItem(Icons.person_outline, context.tr('profileKey'), 3),
                     ],

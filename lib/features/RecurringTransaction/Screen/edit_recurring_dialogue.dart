@@ -6,47 +6,18 @@ import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
 
-// Future<void> showEditRecurringDialogue(BuildContext context, {required Recurring? recurring}) async {
-//   await showModalBottomSheet(
-//     context: context,
-//     isScrollControlled: true,
-//     barrierColor: Colors.black.withValues(alpha: 0.3),
-//     constraints: const BoxConstraints(),
-
-//     builder: (BuildContext context) {
-//       return EditRecurringDialogue(recurring: recurring);
-//     },
-//     // transitionDuration: const Duration(milliseconds: 250),
-//     // pageBuilder: (context, animation, secondaryAnimation) {
-//     //   return Center(
-//     //     child: ConstrainedBox(
-//     //       constraints: BoxConstraints(minWidth: context.width * 0.5, maxWidth: context.isDesktop ? context.width * 0.6 : double.infinity),
-//     //       child: EditRecurringDialogue(recurring: recurring),
-//     //     ),
-//     //   );
-//     // },
-//     // transitionBuilder: (context, animation, secondaryAnimation, child) {
-//     //   return Transform.scale(
-//     //     scale: Curves.easeOutBack.transform(animation.value),
-//     //     child: Opacity(opacity: animation.value, child: child),
-//     //   );
-//     // },
-//   );
-// }
-
 class EditRecurringScreen extends StatefulWidget {
-  const EditRecurringScreen({super.key, this.recurring});
-  final Recurring? recurring;
+  const EditRecurringScreen({required this.recurringId, super.key});
+  final String recurringId;
 
   @override
   State<EditRecurringScreen> createState() => EditRecurringDialogueState();
   static Route<dynamic>? route(RouteSettings routeSettings) {
     final args = routeSettings.arguments as Map<String, dynamic>?;
+    final recurring = args?['recurringId'] as String;
 
-    final recurring = args?['recurring'] as Recurring?;
-
-    return CupertinoPageRoute(
-      builder: (_) => EditRecurringScreen(recurring: recurring),
+    return MaterialPageRoute(
+      builder: (_) => EditRecurringScreen(recurringId: recurring),
     );
   }
 }
@@ -58,15 +29,25 @@ class EditRecurringDialogueState extends State<EditRecurringScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _oldEndsDateController = TextEditingController();
 
+  final FocusNode _endsDateControllerFocusNode = FocusNode();
   final FocusNode _titleControllerFocusNode = FocusNode();
   final FocusNode _amountControllerFocusNode = FocusNode();
   String? selectedAccountId;
   final TextEditingController accountController = TextEditingController();
   String? selectedCatgoryId;
   final TextEditingController categoryController = TextEditingController();
+  Recurring? recurring;
 
   @override
   void dispose() {
+    _endsDateController.dispose();
+    _amountController.dispose();
+    _titleController.dispose();
+    _oldEndsDateController.dispose();
+    _titleControllerFocusNode.dispose();
+    _amountControllerFocusNode.dispose();
+    accountController.dispose();
+    categoryController.dispose();
     super.dispose();
   }
 
@@ -75,14 +56,15 @@ class EditRecurringDialogueState extends State<EditRecurringScreen> {
   @override
   void initState() {
     super.initState();
-    _endsDateController.text = widget.recurring!.endDate ?? '';
-    _oldEndsDateController.text = widget.recurring!.endDate ?? '';
-    _amountController.text = widget.recurring!.amount.toString();
-    _titleController.text = widget.recurring!.title ?? '';
-    selectedAccountId = widget.recurring?.accountId ?? '';
-    accountController.text = context.read<GetAccountCubit>().getAccountName(id: widget.recurring?.accountId ?? '');
-    selectedCatgoryId = widget.recurring?.categoryId ?? '';
-    categoryController.text = context.read<GetCategoryCubit>().getCategoryName(widget.recurring?.categoryId ?? '');
+    recurring = context.read<GetRecurringTransactionCubit>().getRecurringTransactionById(recurringId: widget.recurringId);
+    _endsDateController.text = recurring!.endDate;
+    _oldEndsDateController.text = recurring!.endDate;
+    _amountController.text = recurring!.amount.toString();
+    _titleController.text = recurring!.title;
+    selectedAccountId = recurring!.accountId;
+    accountController.text = context.read<GetAccountCubit>().getAccountName(id: recurring!.accountId);
+    selectedCatgoryId = recurring!.categoryId;
+    categoryController.text = context.read<GetCategoryCubit>().getCategoryName(recurring!.categoryId);
   }
 
   @override
@@ -118,15 +100,6 @@ class EditRecurringDialogueState extends State<EditRecurringScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Center(
-                        //   child: CustomTextView(
-                        //     text: context.tr('editRecurringKey'),
-                        //     fontSize: 18.sp(context),
-                        //     fontWeight: FontWeight.bold,
-                        //     color: colorScheme.onSurface,
-                        //   ),
-                        // ),
-                        // SizedBox(height: context.height * 0.01),
                         CustomTextView(
                           text: context.tr('dateLbl'),
                           fontSize: 14.sp(context),
@@ -134,7 +107,16 @@ class EditRecurringDialogueState extends State<EditRecurringScreen> {
                           fontWeight: FontWeight.bold,
                         ),
                         SizedBox(height: context.height * 0.01),
-                        InkWell(
+                        CustomTextFormField(
+                          focusNode: _endsDateControllerFocusNode,
+                          nextFocusNode: _titleControllerFocusNode,
+                          textInputAction: TextInputAction.next,
+                          controller: _endsDateController,
+                          suffixIcon: const Icon(
+                            Icons.calendar_month,
+                            color: Colors.black,
+                          ),
+                          isReadOnly: true,
                           onTap: () async {
                             final pickedDate = await UiUtils.selectDate(context, _endsDateController, isChangeEndDate: true);
 
@@ -142,15 +124,6 @@ class EditRecurringDialogueState extends State<EditRecurringScreen> {
 
                             _endsDateController.text = DateFormat(dateFormat).format(pickedDate);
                           },
-                          child: IgnorePointer(
-                            child: CustomTextFormField(
-                              controller: _endsDateController,
-                              suffixIcon: const Icon(
-                                Icons.calendar_month,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
                         ),
                         SizedBox(height: context.height * 0.01),
                         CustomTextView(
@@ -163,6 +136,7 @@ class EditRecurringDialogueState extends State<EditRecurringScreen> {
                         CustomTextFormField(
                           focusNode: _titleControllerFocusNode,
                           nextFocusNode: _amountControllerFocusNode,
+                          textInputAction: TextInputAction.next,
                           controller: _titleController,
                           hintText: context.tr('titleKey'),
                         ),
@@ -177,6 +151,7 @@ class EditRecurringDialogueState extends State<EditRecurringScreen> {
                         CustomTextFormField(
                           focusNode: _amountControllerFocusNode,
                           controller: _amountController,
+                          textInputAction: TextInputAction.done,
                           hintText: context.tr('amountKey'),
                           keyboardType: TextInputType.number,
                         ),
@@ -252,11 +227,11 @@ class EditRecurringDialogueState extends State<EditRecurringScreen> {
                 child: BlocConsumer<UpdateRecurringTransactionCubit, UpdateRecurringTransactionState>(
                   listener: (context, state) {
                     if (state is UpdateRecurringTransactionSuccess) {
-                      Navigator.pop(context);
                       context.read<GetRecurringTransactionCubit>().updateRecurringTransactionLocally(recurringTransaction: state.transaction!);
-                      context.read<GetTransactionCubit>().updateRecurringDetailsLocally(recurring: state.transaction);
+                      context.read<GetTransactionCubit>().updateRecurringDetailsLocallyInTransaction(recurring: state.transaction!);
                       //if end date chnage create new transaction
                       context.read<GetRecurringTransactionCubit>().updateRecurringTransaction(state.transaction!);
+                      Navigator.pop(context);
                     }
                   },
                   builder: (context, state) {
@@ -267,7 +242,7 @@ class EditRecurringDialogueState extends State<EditRecurringScreen> {
                             onPressed: () {
                               if (_formKey.currentState!.validate()) {
                                 context.read<UpdateRecurringTransactionCubit>().updateRecurringTransaction(
-                                  recurringId: widget.recurring!.recurringId!,
+                                  recurringId: widget.recurringId,
                                   title: _titleController.text,
                                   amount: double.parse(_amountController.text),
                                   endDate: _endsDateController.text,

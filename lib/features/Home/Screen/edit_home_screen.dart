@@ -17,7 +17,7 @@ class _EditHomeScreenState extends State<EditHomeScreen> {
     context.read<EditHomeCubit>().loadMenu(UiUtils.homeMenuList);
   }
 
-  int? activeIndex;
+  int activeIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -111,8 +111,8 @@ class _EditHomeScreenState extends State<EditHomeScreen> {
 
                                   value: homeMenu.isOn,
                                   onChanged: (bool value) => setState(() {
-                                    if (activeIndex != null && activeIndex != index) {
-                                      homeMenuData[activeIndex!].isOn = false;
+                                    if (activeIndex != 0 && activeIndex != index) {
+                                      homeMenuData[activeIndex].isOn = false;
                                     }
 
                                     homeMenu.isOn = value;

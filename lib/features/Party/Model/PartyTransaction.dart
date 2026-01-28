@@ -5,63 +5,63 @@ part 'PartyTransaction.g.dart';
 @HiveType(typeId: 4)
 class PartyTransaction extends HiveObject {
   PartyTransaction({
-    required this.id,
-    this.date,
-    this.type,
-    this.amount,
-    this.description,
-    this.category,
+    this.id = '',
+    this.date = '',
+    this.type = TransactionType.CREDIT,
+    this.amount = 0,
+    this.description = '',
+    this.category = '',
     this.isMainTransaction = false,
-    this.accountId,
-    this.image,
-    this.createdAt,
-    this.updatedAt,
-    this.mainTransactionId,
-    this.partyId,
-    this.partyName,
+    this.accountId = '',
+    this.image = const [],
+    this.createdAt = '',
+    this.updatedAt = '',
+    this.mainTransactionId = '',
+    this.partyId = '',
+    this.partyName = '',
   });
 
   @HiveField(0)
   String id;
 
   @HiveField(1)
-  String? date;
+  String date;
 
   @HiveField(2)
-  TransactionType? type;
+  TransactionType type;
 
   @HiveField(4)
-  String? category;
+  String category;
 
   @HiveField(5)
-  double? amount;
+  double amount;
 
   @HiveField(6)
-  String? description;
+  String description;
 
   @HiveField(7)
-  bool? isMainTransaction;
+  bool isMainTransaction;
 
   @HiveField(8)
-  String? accountId;
+  String accountId;
 
   @HiveField(9)
-  List<ImageData>? image;
+  List<ImageData> image;
 
   @HiveField(10)
-  String? createdAt;
+  String createdAt;
 
   @HiveField(11)
   String? updatedAt;
 
   @HiveField(12)
-  String? mainTransactionId;
+  String mainTransactionId;
 
   @HiveField(13)
-  String? partyId;
+  String partyId;
 
   @HiveField(14)
-  String? partyName;
+  String partyName;
 
   Map<String, dynamic> toJson() {
     return {

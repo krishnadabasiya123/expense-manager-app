@@ -66,6 +66,8 @@ class _AccountCreateWidgetState extends State<_AccountCreateWidget> {
   void dispose() {
     _nameController.dispose();
     _balanceController.dispose();
+    _nameControllerFocusNode.dispose();
+    _balanceControllerFocusNode.dispose();
     super.dispose();
   }
 
@@ -94,9 +96,9 @@ class _AccountCreateWidgetState extends State<_AccountCreateWidget> {
                         focusNode: _nameControllerFocusNode,
                         nextFocusNode: _balanceControllerFocusNode,
                         controller: _nameController,
+                        textInputAction: TextInputAction.next,
                         hintText: context.tr('accountNameKey'),
                         prefixIcon: const Icon(Icons.wallet),
-                        validator: (value) => value == null || value.isEmpty ? context.tr('accountNameKyReq') : null,
                       ),
                       SizedBox(height: context.height * 0.01),
                       CustomTextFormField(
@@ -105,7 +107,6 @@ class _AccountCreateWidgetState extends State<_AccountCreateWidget> {
                         keyboardType: TextInputType.number,
                         hintText: context.tr('balanceKey'),
                         prefixIcon: const Icon(Icons.currency_bitcoin),
-                        validator: (value) => value == null || value.isEmpty ? context.tr('balanceReq') : null,
                       ),
                       const Spacer(),
                       BlocConsumer<UpdateAccountCubit, UpdateAccountState>(
@@ -147,18 +148,14 @@ class _AccountCreateWidgetState extends State<_AccountCreateWidget> {
                                     );
                                     return;
                                   }
-                                  if (_balanceController.text.isEmpty) {
-                                    UiUtils.showCustomSnackBar(context: context, errorMessage: context.tr('balanceReqKey'));
-                                    return;
-                                  }
 
                                   if (widget.isEdit!) {
                                     context.read<UpdateAccountCubit>().updateAccount(
-                                      account: Account(id: widget.account?.id ?? '', name: _nameController.text, amount: double.parse(_balanceController.text)),
+                                      account: Account(id: widget.account?.id ?? '', name: _nameController.text, amount: double.tryParse(_balanceController.text) ?? 0.0),
                                     );
                                   } else {
                                     context.read<AddAccountCubit>().addAccount(
-                                      account: Account(id: accountId, name: _nameController.text, amount: double.parse(_balanceController.text)),
+                                      account: Account(id: accountId, name: _nameController.text, amount: double.tryParse(_balanceController.text) ?? 0.0),
                                     );
                                   }
                                 },

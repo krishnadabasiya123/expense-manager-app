@@ -17,7 +17,6 @@ class RestoreDataScreen extends StatefulWidget {
 }
 
 class _RestoreTransactionScreenState extends State<RestoreDataScreen> with SingleTickerProviderStateMixin {
-  bool isDark = false;
 
   late TabController tabController;
 

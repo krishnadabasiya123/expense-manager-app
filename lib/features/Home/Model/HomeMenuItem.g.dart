@@ -1,44 +1,44 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'RecurringTransaction.dart';
+part of 'HomeMenuItem.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class RecurringTransactionAdapter extends TypeAdapter<RecurringTransaction> {
+class HomeMenuItemAdapter extends TypeAdapter<HomeMenuItem> {
   @override
-  final int typeId = 9;
+  final int typeId = 13;
 
   @override
-  RecurringTransaction read(BinaryReader reader) {
+  HomeMenuItem read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return RecurringTransaction(
-      recurringTransactionId: fields[0] as String,
-      transactionId: fields[1] as String,
-      recurringId: fields[2] as String,
-      scheduleDate: fields[3] as String,
-      status: fields[4] as RecurringTransactionStatus,
+    return HomeMenuItem(
+      id: fields[0] as int,
+      iconCode: fields[1] as int,
+      title: fields[2] as String,
+      type: fields[4] as HomeMenuType,
+      isOn: fields[3] as bool,
     );
   }
 
   @override
-  void write(BinaryWriter writer, RecurringTransaction obj) {
+  void write(BinaryWriter writer, HomeMenuItem obj) {
     writer
       ..writeByte(5)
       ..writeByte(0)
-      ..write(obj.recurringTransactionId)
+      ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.transactionId)
+      ..write(obj.iconCode)
       ..writeByte(2)
-      ..write(obj.recurringId)
+      ..write(obj.title)
       ..writeByte(3)
-      ..write(obj.scheduleDate)
+      ..write(obj.isOn)
       ..writeByte(4)
-      ..write(obj.status);
+      ..write(obj.type);
   }
 
   @override
@@ -47,7 +47,7 @@ class RecurringTransactionAdapter extends TypeAdapter<RecurringTransaction> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is RecurringTransactionAdapter &&
+      other is HomeMenuItemAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

@@ -1,13 +1,12 @@
+import 'package:expenseapp/core/app/all_import_file.dart';
+import 'package:expenseapp/features/Home/Model/enums/HomeMenuType.dart';
 import 'package:flutter/material.dart';
 
-enum HomeMenuType { NULL, HOME_PAGE_BANNER, BUDGETS, UPCOMING_TRANSACTION, GOALS, ACCOUNT_LIST, INCOME_EXPENSE, NET_WORTH, LOANS, GRAPHS, TRANSACTION_LIST }
+part 'HomeMenuItem.g.dart';
 
+@HiveType(typeId: 13)
 class HomeMenuItem {
   HomeMenuItem({required this.id, required this.iconCode, required this.title, required this.type, this.isOn = false});
-
-  // factory HomeMenuItem.fromJson(Map<String, dynamic> json) {
-  //   return HomeMenuItem(id: json['id'] as int, iconCode: json['iconCode'] as int, title: json['title'] as String, isOn: json['isOn'] ?? true, type: HomeMenuType.values[json['type']]);
-  // }
 
   factory HomeMenuItem.fromJson(Map<String, dynamic> json) {
     return HomeMenuItem(
@@ -18,10 +17,20 @@ class HomeMenuItem {
       type: HomeMenuType.values.firstWhere((e) => e.name == json['type'], orElse: () => HomeMenuType.NULL),
     );
   }
+
+  @HiveField(0)
   final int id;
+
+  @HiveField(1)
   final int iconCode;
+
+  @HiveField(2)
   final String title;
+
+  @HiveField(3)
   bool isOn;
+
+  @HiveField(4)
   final HomeMenuType type;
 
   IconData get icon => IconData(iconCode, fontFamily: 'MaterialIcons');

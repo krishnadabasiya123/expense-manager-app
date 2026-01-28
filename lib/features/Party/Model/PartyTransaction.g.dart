@@ -18,19 +18,19 @@ class PartyTransactionAdapter extends TypeAdapter<PartyTransaction> {
     };
     return PartyTransaction(
       id: fields[0] as String,
-      date: fields[1] as String?,
-      type: fields[2] as TransactionType?,
-      amount: fields[5] as double?,
-      description: fields[6] as String?,
-      category: fields[4] as String?,
-      isMainTransaction: fields[7] as bool?,
-      accountId: fields[8] as String?,
-      image: (fields[9] as List?)?.cast<ImageData>(),
-      createdAt: fields[10] as String?,
+      date: fields[1] as String,
+      type: fields[2] as TransactionType,
+      amount: fields[5] as double,
+      description: fields[6] as String,
+      category: fields[4] as String,
+      isMainTransaction: fields[7] as bool,
+      accountId: fields[8] as String,
+      image: (fields[9] as List).cast<ImageData>(),
+      createdAt: fields[10] as String,
       updatedAt: fields[11] as String?,
-      mainTransactionId: fields[12] as String?,
-      partyId: fields[13] as String?,
-      partyName: fields[14] as String?,
+      mainTransactionId: fields[12] as String,
+      partyId: fields[13] as String,
+      partyName: fields[14] as String,
     );
   }
 

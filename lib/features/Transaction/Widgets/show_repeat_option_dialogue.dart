@@ -1,6 +1,6 @@
 import 'package:expenseapp/commons/widgets/common_text_view.dart';
 import 'package:expenseapp/core/app/all_import_file.dart';
-import 'package:expenseapp/features/RecurringTransaction/Enums/RecurringFrequency.dart';
+import 'package:expenseapp/features/RecurringTransaction/Model/Enums/RecurringFrequency.dart';
 import 'package:expenseapp/utils/extensions/localization_extensions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

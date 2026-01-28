@@ -1,6 +1,5 @@
 import 'package:expenseapp/core/app/all_import_file.dart';
 
-
 class CategoryLocalStorage {
   Box get _box => Hive.box('categoryBox');
 

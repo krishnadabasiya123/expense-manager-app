@@ -70,7 +70,6 @@ class GetSoftDeletePartyTransactionCubit extends Cubit<GetSoftDeletePartyTransac
     if (state is GetSoftDeletePartyTransactionSuccess) {
       final transactions = (state as GetSoftDeletePartyTransactionSuccess).transactions;
 
-      log('party transactions ${transactions.firstWhere((t) => t.mainTransactionId == transactionId)}');
 
       return transactions.firstWhere((t) => t.mainTransactionId == transactionId);
     }

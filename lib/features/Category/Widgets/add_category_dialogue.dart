@@ -6,31 +6,35 @@ import 'package:expenseapp/features/Category/Cubits/update_category_cubit.dart';
 import 'package:flutter/material.dart';
 
 void showAddCategoryDialogue(BuildContext context, {bool isEdit = false, Category? category}) {
-  showGeneralDialog(
-    context: context,
-    barrierColor: Colors.black.withValues(alpha: 0.3),
-    transitionDuration: const Duration(milliseconds: 250),
-    pageBuilder: (context, animation, secondaryAnimation) {
-      return Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(minWidth: context.width * 0.5, maxWidth: context.isDesktop ? context.width * 0.6 : double.infinity),
-          child: MultiBlocProvider(
-            providers: [
-              BlocProvider(create: (context) => AddCategoryCubit()),
-              BlocProvider(create: (context) => UpdateCategoryCubit()),
-            ],
-            child: _AddCategoryWidget(isEdit: isEdit, category: category),
-          ),
-        ),
-        // child: _AddCategoryWidget(isEdit: isEdit),
-      );
-    },
-    transitionBuilder: (context, animation, secondaryAnimation, child) {
-      return Transform.scale(
-        scale: Curves.easeOutBack.transform(animation.value),
-        child: Opacity(opacity: animation.value, child: child),
-      );
-    },
+  context.showAppDialog(
+    child: MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => AddCategoryCubit()),
+        BlocProvider(create: (context) => UpdateCategoryCubit()),
+      ],
+      child: Builder(
+        builder: (dialoguContext) {
+          return Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minWidth: context.width * 0.5, maxWidth: context.isDesktop ? context.width * 0.6 : double.infinity),
+              child: PopScope(
+                canPop: false,
+                onPopInvokedWithResult: (didPop, result) {
+                  if (didPop) return;
+                  if (dialoguContext.read<AddCategoryCubit>().state is! AddCategoryLoading && dialoguContext
+                  .read<UpdateCategoryCubit>().state is! UpdateCategoryLoading) {
+                    Navigator.of(dialoguContext).pop();
+                    return;
+                  }
+                },
+                child: _AddCategoryWidget(isEdit: isEdit, category: category),
+              ),
+            ),
+            // child: _AddCategoryWidget(isEdit: isEdit),
+          );
+        },
+      ),
+    ),
   );
 }
 
@@ -61,6 +65,7 @@ class __AddCategoryWidgetState extends State<_AddCategoryWidget> {
   void dispose() {
     super.dispose();
     _nameController.dispose();
+    selectedType.dispose();
   }
 
   @override
@@ -90,7 +95,7 @@ class __AddCategoryWidgetState extends State<_AddCategoryWidget> {
               CustomTextFormField(
                 controller: _nameController,
                 hintText: context.tr('categoryNameKey'),
-                validator: (value) => value == null || value.isEmpty ? context.tr('categoryNameKyReq') : null,
+                validator: (value) => value!.isEmpty ? context.tr('categoryNameKyReq') : '',
                 hintTextSize: 17.sp(context),
               ),
               const SizedBox(height: 24),
@@ -98,8 +103,8 @@ class __AddCategoryWidgetState extends State<_AddCategoryWidget> {
               BlocConsumer<UpdateCategoryCubit, UpdateCategoryState>(
                 listener: (context, updateCategoryState) {
                   if (updateCategoryState is UpdateCategorySuccess) {
-                    Navigator.pop(context);
                     context.read<GetCategoryCubit>().updateCategoryLocally(updateCategoryState.category);
+                    Navigator.pop(context);
                   }
                   if (updateCategoryState is UpdateCategoryFailure) {
                     Navigator.pop(context);
@@ -110,11 +115,8 @@ class __AddCategoryWidgetState extends State<_AddCategoryWidget> {
                   return BlocConsumer<AddCategoryCubit, AddCategoryState>(
                     listener: (context, addCategoryState) {
                       if (addCategoryState is AddCategorySuccess) {
-                        Navigator.pop(context);
-
-                        //   context.read<GetCategoryCubit>().getAllCategory();
-
                         context.read<GetCategoryCubit>().addCategoryLocally(addCategoryState.category);
+                        Navigator.pop(context);
                       }
                       if (addCategoryState is AddCategoryFailure) {
                         Navigator.pop(context);

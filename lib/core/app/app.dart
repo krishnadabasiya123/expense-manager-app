@@ -7,6 +7,7 @@ import 'package:expenseapp/core/theme/app_theme.dart';
 import 'package:expenseapp/features/Account/Cubits/add_account_cubit.dart';
 import 'package:expenseapp/features/Account/Cubits/update_account_cubit.dart';
 import 'package:expenseapp/features/Home/Cubits/edit_home_cubit.dart';
+import 'package:expenseapp/features/Home/LocalStorage/home_local_storage.dart';
 import 'package:expenseapp/features/Party/Cubits/PartyTransaction/delete_party_transaction_cubit.dart';
 import 'package:expenseapp/features/Party/Cubits/PartyTransaction/get_soft_delete_party_transaction_cubit.dart';
 import 'package:expenseapp/features/RecurringTransaction/Cubit/get_recurring_transaction_cubit.dart';
@@ -32,6 +33,7 @@ Future<Widget> initializeApp() async {
   await PartyTransactionLocalData.init();
   await CategoryLocalStorage.init();
   await RecurringTransactionLocalData.init();
+  await HomeLocalStorage.init();
 
   // Hive
   //   ..registerAdapter(TransactionAdapter())
@@ -94,8 +96,6 @@ class _MyAppState extends State<MyApp> {
           BlocProvider(create: (context) => UpdateTrasansactionCubit()),
           BlocProvider(create: (context) => AddTransactionCubit()),
 
-          BlocProvider(create: (context) => DeletePartyTransactionCubit()),
-
           BlocProvider(create: (context) => GetCategoryCubit()),
 
           BlocProvider(create: (context) => GetSoftDeleteTransactionsCubit()),
@@ -106,7 +106,6 @@ class _MyAppState extends State<MyApp> {
           BlocProvider(create: (context) => GetSoftDeletePartyTransactionCubit()),
 
           //BlocProvider(create: (context) => DeleteTransactionsCubit()),
-
           BlocProvider(create: (context) => GetRecurringTransactionCubit()),
 
           BlocProvider(create: (context) => UpdateRecurringTransactionCubit()),

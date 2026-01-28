@@ -21,6 +21,8 @@ class RecurringFrequencyAdapter extends TypeAdapter<RecurringFrequency> {
         return RecurringFrequency.yearly;
       case 4:
         return RecurringFrequency.daily;
+      case 5:
+        return RecurringFrequency.none;
       default:
         return RecurringFrequency.weekly;
     }
@@ -40,6 +42,9 @@ class RecurringFrequencyAdapter extends TypeAdapter<RecurringFrequency> {
         break;
       case RecurringFrequency.daily:
         writer.writeByte(4);
+        break;
+      case RecurringFrequency.none:
+        writer.writeByte(5);
         break;
     }
   }

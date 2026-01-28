@@ -1,7 +1,7 @@
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:flutter/material.dart';
 
-class CustomTextFormField extends StatelessWidget {
+class CustomTextFormField extends StatefulWidget {
   const CustomTextFormField({
     required this.controller,
     super.key,
@@ -22,6 +22,9 @@ class CustomTextFormField extends StatelessWidget {
     this.unfocusOnDone = true,
     this.onDoneKeyPressed,
     this.onChanged,
+    this.isReadOnly = false,
+    this.onTap,
+    this.textInputAction,
   });
 
   final TextEditingController controller;
@@ -42,42 +45,54 @@ class CustomTextFormField extends StatelessWidget {
   final bool unfocusOnDone;
   final VoidCallback? onDoneKeyPressed;
   final void Function(String)? onChanged;
+  final bool isReadOnly;
+  final VoidCallback? onTap;
+  final TextInputAction? textInputAction;
 
+  @override
+  State<CustomTextFormField> createState() => _CustomTextFormFieldState();
+}
+
+class _CustomTextFormFieldState extends State<CustomTextFormField> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
     return TextFormField(
-      focusNode: focusNode,
-      maxLines: maxLines ?? 1,
+      readOnly: widget.isReadOnly,
+      focusNode: widget.focusNode,
+      maxLines: widget.maxLines ?? 1,
       cursorColor: colorScheme.onTertiary,
-      controller: controller,
-      keyboardType: keyboardType,
-      validator: validator,
+      controller: widget.controller,
+      keyboardType: widget.keyboardType,
+      validator: widget.validator,
       onTapOutside: (event) {
         FocusManager.instance.primaryFocus?.unfocus();
       },
+      textInputAction: widget.textInputAction,
+
+      onTap: widget.onTap,
       onFieldSubmitted: (value) {
-        onFieldSubmitted?.call(value);
-        if (nextFocusNode != null) {
-          FocusScope.of(context).requestFocus(nextFocusNode);
+        widget.onFieldSubmitted?.call(value);
+        if (widget.nextFocusNode != null) {
+          FocusScope.of(context).requestFocus(widget.nextFocusNode);
         } else {
-          if (unfocusOnDone) focusNode?.unfocus();
-          onDoneKeyPressed?.call();
+          if (widget.unfocusOnDone) widget.focusNode?.unfocus();
+          widget.onDoneKeyPressed?.call();
         }
       },
-      onChanged: onChanged,
+      onChanged: widget.onChanged,
       style: TextStyle(color: colorScheme.onTertiary.withValues(alpha: 0.8), fontSize: 16, fontWeight: FontWeights.regular),
       decoration: InputDecoration(
         errorMaxLines: 3,
-        suffixIcon: suffixIcon,
+        suffixIcon: widget.suffixIcon,
         fillColor: colorScheme.surface.withValues(alpha: 0.8),
         filled: true,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(radius ?? 8), borderSide: borderSide ?? BorderSide.none),
-        prefixIcon: prefixIcon,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(widget.radius ?? 8), borderSide: widget.borderSide ?? BorderSide.none),
+        prefixIcon: widget.prefixIcon,
         prefixIconColor: colorScheme.onTertiary.withValues(alpha: 0.4),
-        hintText: hintText,
-        hintStyle: TextStyle(color: colorScheme.onTertiary.withValues(alpha: 0.4), fontSize: hintTextSize, fontWeight: FontWeights.regular),
+        hintText: widget.hintText,
+        hintStyle: TextStyle(color: colorScheme.onTertiary.withValues(alpha: 0.4), fontSize: widget.hintTextSize, fontWeight: FontWeights.regular),
         contentPadding: const EdgeInsetsDirectional.all(16),
       ),
     );

@@ -15,4 +15,7 @@ enum RecurringFrequency {
 
   @HiveField(4)
   daily,
+
+  @HiveField(5)
+  none,
 }

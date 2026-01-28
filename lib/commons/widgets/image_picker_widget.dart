@@ -1,4 +1,3 @@
-
 import 'package:expenseapp/commons/widgets/DashBoardContainer.dart';
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +14,11 @@ class ImagePickerWidget extends StatefulWidget {
 }
 
 class _ImagePickerWidgetState extends State<ImagePickerWidget> {
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   Future<void> _pickMultipleImages() async {
     UiUtils.hasStoragePermissionGiven().then((value) async {
       final pickedFiles = await widget.picker.pickMultiImage(imageQuality: 100, maxHeight: 1000, maxWidth: 1000);

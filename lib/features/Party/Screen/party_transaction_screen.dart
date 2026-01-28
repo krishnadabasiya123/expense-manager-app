@@ -43,7 +43,7 @@ class _PartyTransactionScreenState extends State<PartyTransactionScreen> {
         backgroundColor: colorScheme.primary,
         title: Center(
           child: CustomTextView(
-            text: partyDetails!.name!,
+            text: partyDetails!.name,
             fontSize: 20.sp(context),
             color: colorScheme.surface,
             fontWeight: FontWeight.bold,
@@ -97,9 +97,9 @@ class _PartyTransactionScreenState extends State<PartyTransactionScreen> {
             color: Colors.white,
             child: BlocBuilder<GetPartyCubit, GetPartyState>(
               builder: (context, state) {
-                final totalCredit = state is GetPartySuccess ? context.read<GetPartyCubit>().getTotalPartyTransactionCredit(partyId: partyDetails!.id).formatAmt() : '0';
-                final totalDebit = state is GetPartySuccess ? context.read<GetPartyCubit>().getTotalPartyTransactionDebit(partyId: partyDetails!.id).formatAmt() : '0';
-                final totalBalance = state is GetPartySuccess ? context.read<GetPartyCubit>().getTotalPartyTransactionBalance(partyId: partyDetails!.id).formatAmt() : '0';
+                final totalCredit = context.read<GetPartyCubit>().getTotalPartyTransactionCredit(partyId: partyDetails!.id).formatAmt();
+                final totalDebit = context.read<GetPartyCubit>().getTotalPartyTransactionDebit(partyId: partyDetails!.id).formatAmt();
+                final totalBalance = context.read<GetPartyCubit>().getTotalPartyTransactionBalance(partyId: partyDetails!.id).formatAmt();
 
                 return Row(
                   mainAxisAlignment: .spaceEvenly,
@@ -154,13 +154,13 @@ class LedgerList extends StatelessWidget {
       bottomPadding: 5,
       leftPadding: context.width * 0.05,
       rightPadding: context.width * 0.05,
-      //  child: const Text(''),
-      child: ListView(
+      child: ListView.builder(
         padding: EdgeInsetsDirectional.zero,
-        children: partyTransactions.map((entry) {
+        itemCount: partyTransactions.length,
+        itemBuilder: (context, index) {
+          final entry = partyTransactions[index];
           final date = entry['date'] as String;
           final dateItems = entry['transactions'] as List<PartyTransaction>;
-
           return Column(
             children: [
               Row(
@@ -191,8 +191,8 @@ class LedgerList extends StatelessWidget {
                           if (idx != 0) const CustomHorizontalDivider(padding: EdgeInsetsDirectional.all(0), endOpacity: 0.4),
                           LedgerItemRow(
                             index: idx,
-                            credit: item.type! == TransactionType.CREDIT ? item.amount! : 0.0,
-                            debit: item.type! == TransactionType.DEBIT ? item.amount! : 0.0,
+                            credit: item.type == TransactionType.CREDIT ? item.amount : 0.0,
+                            debit: item.type == TransactionType.DEBIT ? item.amount : 0.0,
                             party: item,
                             partyId: partyId,
                           ),
@@ -204,7 +204,7 @@ class LedgerList extends StatelessWidget {
               ),
             ],
           );
-        }).toList(),
+        },
       ),
     );
   }
@@ -229,7 +229,7 @@ class _LedgerItemRowState extends State<LedgerItemRow> {
   @override
   void initState() {
     super.initState();
-    type = widget.party.type!;
+    type = widget.party.type;
     isCredit = type == TransactionType.CREDIT;
   }
 
@@ -280,68 +280,6 @@ class _LedgerItemRowState extends State<LedgerItemRow> {
           ],
         ),
       ),
-    );
-  }
-
-  void showDeleteAlertDialog(BuildContext context) {
-    showGeneralDialog(
-      context: context,
-      barrierLabel: 'Delete',
-      barrierColor: Colors.black.withValues(alpha: .3),
-      transitionDuration: const Duration(milliseconds: 300),
-
-      transitionBuilder: (context, animation, secondaryAnimation, child) {
-        return Transform.scale(
-          scale: Curves.easeOutBack.transform(animation.value),
-          child: Opacity(opacity: animation.value, child: child),
-        );
-      },
-
-      pageBuilder: (context, animation, secondaryAnimation) {
-        final size = MediaQuery.of(context).size;
-
-        return Center(
-          child: AlertDialog(
-            constraints: BoxConstraints(maxHeight: size.height * 0.45, maxWidth: size.width * 0.85),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            title: CustomTextView(text: context.tr('deleteTransactionKey'), fontWeight: FontWeight.bold),
-            content: CustomTextView(text: context.tr('deleteTransactionDialogMsg'), softWrap: true, maxLines: 3),
-            actions: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).primaryColor,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        //  padding: const EdgeInsetsDirectional.symmetric(vertical: 14),
-                      ),
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: CustomTextView(text: context.tr('deleteAccountCancelKey'), fontSize: 15.sp(context), color: Colors.white, textAlign: TextAlign.center),
-                    ),
-                  ),
-                  const SizedBox(width: 15),
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).primaryColor,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        //padding: const EdgeInsetsDirectional.symmetric(vertical: 14),
-                      ),
-                      onPressed: () {
-                        Navigator.pop(context);
-                        // context.read<LogoutCubit>().logout();
-                      },
-                      child: CustomTextView(text: context.tr('deleteAccountConfirmKey'), fontSize: 15.sp(context), color: Colors.white, textAlign: TextAlign.center),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 }

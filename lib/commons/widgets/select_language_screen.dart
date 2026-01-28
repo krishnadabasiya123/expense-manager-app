@@ -17,7 +17,6 @@ class _InitialLanguageSelectionScreenState extends State<InitialLanguageSelectio
     super.dispose();
   }
 
-  var currLang = '';
   final TextEditingController _searchController = TextEditingController();
 
   @override

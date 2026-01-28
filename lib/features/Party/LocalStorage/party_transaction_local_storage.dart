@@ -20,9 +20,9 @@ class PartyTransactionLocalData {
   }) async {
     final party = partybox.values.firstWhere(
       (p) => p.id == partyId,
-    )..transaction ??= [];
+    )..transaction;
 
-    party.transaction!.add(transaction);
+    party.transaction.add(transaction);
 
     await party.save();
   }
@@ -32,7 +32,7 @@ class PartyTransactionLocalData {
       (p) => p.id == party.id,
     );
 
-    return partyData.transaction ?? [];
+    return partyData.transaction;
   }
 
   Future<void> updatePartyTransaction({
@@ -41,11 +41,11 @@ class PartyTransactionLocalData {
   }) async {
     final party = partybox.values.firstWhere((p) => p.id == partyId);
 
-    final index = party.transaction?.indexWhere((e) => e.id == transaction.id) ?? -1;
+    final index = party.transaction.indexWhere((e) => e.id == transaction.id) ?? -1;
 
     if (index == -1) return;
 
-    party.transaction![index] = transaction;
+    party.transaction[index] = transaction;
 
     await party.save();
   }
@@ -58,11 +58,11 @@ class PartyTransactionLocalData {
       (p) => p.id == partyId,
     );
 
-    final index = party.transaction?.indexWhere((e) => e.id == transaction.id) ?? -1;
+    final index = party.transaction.indexWhere((e) => e.id == transaction.id);
 
     if (index == -1) return;
 
-    party.transaction!.removeAt(index);
+    party.transaction.removeAt(index);
 
     await party.save();
   }
@@ -94,7 +94,7 @@ class PartyTransactionLocalData {
 
     if (key != null) {
       await softDeleteBox.delete(key);
-      await addPartyTransaction(partyId: transaction.partyId!, transaction: transaction);
+      await addPartyTransaction(partyId: transaction.partyId, transaction: transaction);
     }
   }
 
@@ -148,12 +148,13 @@ class PartyTransactionLocalData {
     for (final party in partyList) {
       final transactions = party.transaction;
 
-      if (transactions != null) {
+      if (transactions.isNotEmpty) {
         for (final txn in transactions) {
           if (txn.accountId == accountId) {
-            txn..accountId = null
-            ..mainTransactionId = null
-            ..isMainTransaction = false;
+            txn
+              ..accountId = ''
+              ..mainTransactionId = ''
+              ..isMainTransaction = false;
           }
         }
       }

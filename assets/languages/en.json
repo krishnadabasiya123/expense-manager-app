@@ -228,7 +228,7 @@
  "startKey": "Starts",
  "selectStartDate": "Select Start Date",
  "selectEndDate": "Select End Date",
- "recurringDialogueMsg": "This transaction is under recurring flow and can't be edited. Do you want to delete it instead?",
+ "recurringDialogueMsg": "Deleting this recurring will permanently remove all related recurring transactions.",
  "transactionRestrictionKey": "Transaction Restriction",
  "okKey": "Ok",
  "restoreTitleKey": "Confirm Restore",
@@ -253,5 +253,18 @@
  "confirmTransactionKey": "Are you sure you want to mark the transaction for {date} as {title}?",
  "editRecurringKey": "Edit Recurring",
  "titleLbl": "Title",
- "endDateRestrictionKey": "End Date should be greater than previous end date"
+ "endDateRestrictionKey": "End Date should be greater than previous end date",
+ "allLbl": "All",
+ "expenseLbl": "Expense",
+ "incomeLbl": "Income",
+ "transferLbl": "Transfer",
+ "debitLbl": "Debit",
+ "creditLbl": "Credit",
+ "loanLbl": "Loan",
+ "loanInterestLbl": "Loan Interest",
+ "recurringLbl": "Recurring",
+ "paidLbl": "Paid",
+ "cancelledLbl": "Cancelled",
+ "upcomingLbl": "Upcoming",
+ "keepAsNormalTransactionKey": "Keep as a Main transaction"
 }

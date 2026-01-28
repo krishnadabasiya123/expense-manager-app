@@ -5,75 +5,75 @@ part 'Transaction.g.dart';
 @HiveType(typeId: 0)
 class Transaction extends HiveObject {
   Transaction({
-    this.id,
-    this.date,
-    this.title,
-    this.type,
-    this.amount,
-    this.description,
-    this.categoryId,
-    this.time,
-    this.accountId,
-    this.recurringId,
-    this.accountFromId,
-    this.accountToId,
-    this.image,
-    this.partyId,
-    this.partyTransactionId,
-    this.addFromType,
-    this.recurringTransactionId,
+    this.id = '',
+    this.date = '',
+    this.title = '',
+    this.type = TransactionType.NONE,
+    this.amount = 0,
+    this.description = '',
+    this.categoryId = '',
+    this.time = '',
+    this.accountId = '',
+    this.recurringId = '',
+    this.accountFromId = '',
+    this.accountToId = '',
+    this.image = const [],
+    this.partyId = '',
+    this.partyTransactionId = '',
+    this.addFromType = TransactionType.NONE,
+    this.recurringTransactionId = '',
   });
 
   @HiveField(0)
-  String? id;
+  String id;
 
   @HiveField(1)
-  String? date;
+  String date;
 
   @HiveField(2)
-  String? time;
+  String time;
 
   @HiveField(3)
-  String? title;
+  String title;
 
   @HiveField(4)
-  TransactionType? type;
+  TransactionType type;
 
   @HiveField(5)
-  double? amount;
+  double amount;
 
   @HiveField(6)
-  String? description;
+  String description;
 
   @HiveField(7)
-  String? categoryId;
+  String categoryId;
 
   @HiveField(8)
-  String? accountId;
+  String accountId;
 
   @HiveField(9)
-  String? recurringId;
+  String recurringId;
 
   @HiveField(10)
-  String? accountFromId;
+  String accountFromId;
 
   @HiveField(11)
-  String? accountToId;
+  String accountToId;
 
   @HiveField(12)
-  List<ImageData>? image;
+  List<ImageData> image;
 
   @HiveField(13)
-  String? partyId;
+  String partyId;
 
   @HiveField(14)
-  String? partyTransactionId;
+  String partyTransactionId;
 
   @HiveField(15)
-  TransactionType? addFromType;
+  TransactionType addFromType;
 
   @HiveField(16)
-  String? recurringTransactionId;
+  String recurringTransactionId;
 
   Map<String, dynamic> toJson() {
     return {
@@ -138,11 +138,10 @@ class Transaction extends HiveObject {
   }
 }
 
-
 extension TransactionFiltering on List<Transaction> {
   // Filter by Type
   List<Transaction> filterByType(TransactionType? type) {
-    if (type == null || type == TransactionType.ALL) return this;
+    if (type == TransactionType.NONE || type == TransactionType.ALL) return this;
     return where((t) => t.type == type).toList();
   }
 
@@ -157,8 +156,7 @@ extension TransactionFiltering on List<Transaction> {
   List<Transaction> filterByMonth(DateTime? date) {
     if (date == null) return this;
     return where((t) {
-      if (t.date == null) return false;
-      final txDate = DateFormat('dd.MM.yyyy').parse(t.date!);
+      final txDate = DateFormat('dd.MM.yyyy').parse(t.date);
       return txDate.month == date.month && txDate.year == date.year;
     }).toList();
   }
@@ -167,21 +165,17 @@ extension TransactionFiltering on List<Transaction> {
   List<Transaction> sortByDate() {
     // We create a copy so we don't mutate the original list
     return [...this]..sort((a, b) {
-      return b.date!.split('.').reversed.join().compareTo(a.date!.split('.').reversed.join());
+      return b.date.split('.').reversed.join().compareTo(a.date.split('.').reversed.join());
     });
   }
 
   // Take count
-  List<Transaction> maybeTake(int count) {
-    if (count == null || count >= length) return this;
-    return take(count).toList();
-  }
 
   // Group into List<Map>
   List<Map<String, dynamic>> groupByDate() {
     final grouped = <String, List<Transaction>>{};
     for (final t in this) {
-      grouped.putIfAbsent(t.date!, () => []).add(t);
+      grouped.putIfAbsent(t.date, () => []).add(t);
     }
     return grouped.entries
         .map(
@@ -191,5 +185,10 @@ extension TransactionFiltering on List<Transaction> {
           },
         )
         .toList();
+  }
+
+  List<Transaction> maybeTake(int count) {
+    if (count == 0) return this;
+    return take(count).toList();
   }
 }

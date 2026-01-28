@@ -5,21 +5,21 @@ part 'Party.g.dart';
 @HiveType(typeId: 7)
 class Party extends HiveObject {
   Party({
-    required this.createdAt,
-    required this.updatedAt,
-    required this.id,
-    this.name,
-    this.transaction,
+    this.createdAt = '',
+    this.updatedAt = '',
+    this.id = '',
+    this.name = '',
+    this.transaction = const [],
   });
 
   @HiveField(0)
   String id;
 
   @HiveField(1)
-  String? name;
+  String name;
 
   @HiveField(2)
-  List<PartyTransaction>? transaction;
+  List<PartyTransaction> transaction;
 
   @HiveField(3)
   String createdAt;
@@ -31,7 +31,7 @@ class Party extends HiveObject {
     return {
       'id': id,
       'name': name,
-      'transaction': transaction?.map((t) => t.toJson()).toList() ?? [],
+      'transaction': transaction.map((t) => t.toJson()).toList(),
       'createdAt': createdAt,
       'updatedAt': updatedAt,
     };

@@ -72,6 +72,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
   ValueNotifier<bool> isAboutOpen = ValueNotifier<bool>(false);
   final LocalAuthentication auth = LocalAuthentication();
 
+  @override
+  void dispose() {
+    isDataManaKeyDiologueOpen.dispose();
+    isAppSettingsOpen.dispose();
+    isAccountSettingsOpen.dispose();
+    isAboutOpen.dispose();
+
+    super.dispose();
+  }
+
   Future<bool> authenticateUser() async {
     try {
       return await auth.authenticate(
@@ -448,125 +458,93 @@ class _ProfileScreenState extends State<ProfileScreen> {
 }
 
 void showDeleteAlertDialog(BuildContext context) {
-  showGeneralDialog(
-    context: context,
-    barrierLabel: 'Delete',
-    barrierColor: Colors.black.withValues(alpha: 0.3),
-    transitionDuration: const Duration(milliseconds: 300),
-
-    transitionBuilder: (context, animation, secondaryAnimation, child) {
-      return Transform.scale(
-        scale: Curves.easeOutBack.transform(animation.value),
-        child: Opacity(opacity: animation.value, child: child),
-      );
-    },
-
-    pageBuilder: (context, animation, secondaryAnimation) {
-      final size = MediaQuery.of(context).size;
-
-      return Center(
-        child: AlertDialog(
-          constraints: BoxConstraints(maxHeight: size.height * 0.45, maxWidth: size.width * 0.85),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text(context.tr('deletedAccountKey'), style: const TextStyle(fontWeight: FontWeight.bold)),
-          content: Text(context.tr('deleteAccDescKey'), softWrap: true, maxLines: 3),
-          actions: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).primaryColor,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      //  padding: const EdgeInsetsDirectional.symmetric(vertical: 14),
-                    ),
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: CustomTextView(text: context.tr('deleteAccountCancelKey'), fontSize: 15.sp(context), color: Colors.white, textAlign: TextAlign.center),
+  context.showAppDialog(
+    child: Center(
+      child: AlertDialog(
+        constraints: BoxConstraints(maxHeight: context.height * 0.45, maxWidth: context.width * 0.85),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(context.tr('deletedAccountKey'), style: const TextStyle(fontWeight: FontWeight.bold)),
+        content: Text(context.tr('deleteAccDescKey'), softWrap: true, maxLines: 3),
+        actions: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    //  padding: const EdgeInsetsDirectional.symmetric(vertical: 14),
                   ),
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: CustomTextView(text: context.tr('deleteAccountCancelKey'), fontSize: 15.sp(context), color: Colors.white, textAlign: TextAlign.center),
                 ),
-                const SizedBox(width: 15),
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).primaryColor,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      //padding: const EdgeInsetsDirectional.symmetric(vertical: 14),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                      // context.read<LogoutCubit>().logout();
-                    },
-                    child: CustomTextView(text: context.tr('deleteAccountConfirmKey'), fontSize: 15.sp(context), color: Colors.white, textAlign: TextAlign.center),
+              ),
+              const SizedBox(width: 15),
+              Expanded(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    //padding: const EdgeInsetsDirectional.symmetric(vertical: 14),
                   ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    // context.read<LogoutCubit>().logout();
+                  },
+                  child: CustomTextView(text: context.tr('deleteAccountConfirmKey'), fontSize: 15.sp(context), color: Colors.white, textAlign: TextAlign.center),
                 ),
-              ],
-            ),
-          ],
-        ),
-      );
-    },
+              ),
+            ],
+          ),
+        ],
+      ),
+    ),
   );
 }
 
 void showSignOutDialog(BuildContext context) {
-  showGeneralDialog(
-    context: context,
-    barrierLabel: 'Sign Out',
-    barrierColor: Colors.black.withValues(alpha: 0.3),
-    transitionDuration: const Duration(milliseconds: 300),
-
-    transitionBuilder: (context, animation, secondaryAnimation, child) {
-      return Transform.scale(
-        scale: Curves.easeOutBack.transform(animation.value),
-        child: Opacity(opacity: animation.value, child: child),
-      );
-    },
-
-    pageBuilder: (context, animation, secondaryAnimation) {
-      final size = MediaQuery.of(context).size;
-
-      return Center(
-        child: AlertDialog(
-          constraints: BoxConstraints(maxHeight: size.height * 0.45, maxWidth: size.width * 0.85),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text(context.tr('signOutKey'), style: const TextStyle(fontWeight: FontWeight.bold)),
-          content: Text(context.tr('signOutDescKey'), softWrap: true, maxLines: 3),
-          actions: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).primaryColor,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      //  padding: const EdgeInsetsDirectional.symmetric(vertical: 14),
-                    ),
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: CustomTextView(text: context.tr('deleteAccountCancelKey'), fontSize: 15.sp(context), color: Colors.white, textAlign: TextAlign.center),
+  context.showAppDialog(
+    child: Center(
+      child: AlertDialog(
+        constraints: BoxConstraints(maxHeight: context.height * 0.45, maxWidth: context.width * 0.85),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(context.tr('signOutKey'), style: const TextStyle(fontWeight: FontWeight.bold)),
+        content: Text(context.tr('signOutDescKey'), softWrap: true, maxLines: 3),
+        actions: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    //  padding: const EdgeInsetsDirectional.symmetric(vertical: 14),
                   ),
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: CustomTextView(text: context.tr('deleteAccountCancelKey'), fontSize: 15.sp(context), color: Colors.white, textAlign: TextAlign.center),
                 ),
-                const SizedBox(width: 15),
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).primaryColor,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      //padding: const EdgeInsetsDirectional.symmetric(vertical: 14),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                      // context.read<LogoutCubit>().logout();
-                    },
-                    child: CustomTextView(text: context.tr('deleteAccountConfirmKey'), fontSize: 15.sp(context), color: Colors.white, textAlign: TextAlign.center),
+              ),
+              const SizedBox(width: 15),
+              Expanded(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    //padding: const EdgeInsetsDirectional.symmetric(vertical: 14),
                   ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    // context.read<LogoutCubit>().logout();
+                  },
+                  child: CustomTextView(text: context.tr('deleteAccountConfirmKey'), fontSize: 15.sp(context), color: Colors.white, textAlign: TextAlign.center),
                 ),
-              ],
-            ),
-          ],
-        ),
-      );
-    },
+              ),
+            ],
+          ),
+        ],
+      ),
+    ),
   );
 }

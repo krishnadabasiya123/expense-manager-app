@@ -5,7 +5,8 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:expenseapp/commons/widgets/ErrorOverlayWidget.dart';
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/features/Home/Model/HomeMenuItem.dart';
-import 'package:expenseapp/features/RecurringTransaction/Enums/RecurringFrequency.dart';
+import 'package:expenseapp/features/Home/Model/enums/HomeMenuType.dart';
+import 'package:expenseapp/features/RecurringTransaction/Model/Enums/RecurringFrequency.dart';
 import 'package:flutter/material.dart';
 import 'package:marquee/marquee.dart';
 import 'package:path_provider/path_provider.dart';
@@ -28,6 +29,8 @@ class UiUtils {
         return 'Monthly';
       case RecurringFrequency.yearly:
         return 'Yearly';
+      case RecurringFrequency.none:
+        return 'None';
     }
   }
 
@@ -41,6 +44,8 @@ class UiUtils {
         return RecurringFrequency.yearly;
       case 'Daily':
         return RecurringFrequency.daily;
+      case 'None':
+        return RecurringFrequency.none;
     }
     return null;
   }

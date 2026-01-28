@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
-import 'package:expenseapp/features/RecurringTransaction/Enums/RecurringTransactionStatus.dart';
+import 'package:expenseapp/features/RecurringTransaction/Model/Enums/RecurringTransactionStatus.dart';
 import 'package:expenseapp/features/RecurringTransaction/LocalStorage/recurring_transaction_local_data.dart';
 import 'package:expenseapp/features/RecurringTransaction/Model/Recurring.dart';
 import 'package:expenseapp/features/RecurringTransaction/Model/RecurringTransaction.dart';
@@ -29,24 +29,24 @@ final class UpdateRecurringTransactionSuccess extends UpdateRecurringTransaction
   UpdateRecurringTransactionSuccess({
     this.transaction,
     this.status,
-    this.recurringTransactionId,
+    this.recurringTransaction,
     this.transactionId,
   });
   final Recurring? transaction;
   final RecurringTransactionStatus? status;
-  final String? recurringTransactionId;
+  final RecurringTransaction? recurringTransaction;
   final String? transactionId;
 
   UpdateRecurringTransactionSuccess copyWith({
     Recurring? transaction,
     RecurringTransactionStatus? status,
-    String? recurringTransactionId,
+    RecurringTransaction? recurringTransaction,
     String? transactionId,
   }) {
     return UpdateRecurringTransactionSuccess(
       transaction: transaction ?? this.transaction,
       status: status ?? this.status,
-      recurringTransactionId: recurringTransactionId ?? this.recurringTransactionId,
+      recurringTransaction: recurringTransaction ?? this.recurringTransaction,
       transactionId: transactionId ?? this.transactionId,
     );
   }
@@ -65,7 +65,7 @@ class UpdateRecurringTransactionCubit extends Cubit<UpdateRecurringTransactionSt
   Future<void> changeRecurringTransactionStatus({
     required Recurring transaction,
     required RecurringTransactionStatus status,
-    required String recurringTransactionId,
+    required RecurringTransaction recurringTransaction,
     required String transactionId,
   }) async {
     emit(UpdateRecurringTransactionLoading());
@@ -76,7 +76,7 @@ class UpdateRecurringTransactionCubit extends Cubit<UpdateRecurringTransactionSt
           UpdateRecurringTransactionSuccess(
             transaction: transaction,
             status: status,
-            recurringTransactionId: recurringTransactionId,
+            recurringTransaction: recurringTransaction,
             transactionId: transactionId,
           ),
         );
@@ -86,11 +86,18 @@ class UpdateRecurringTransactionCubit extends Cubit<UpdateRecurringTransactionSt
     });
   }
 
-  Future<void> updateRecurringTransaction({required String recurringId, required String title, required double amount, required String endDate , String? accountId, String? categoryId}) async {
+  Future<void> updateRecurringTransaction({required String recurringId, required String title, required double amount, required String endDate, String? accountId, String? categoryId}) async {
     emit(UpdateRecurringTransactionLoading());
     Future.delayed(const Duration(seconds: 5), () async {
       try {
-        final recurringTransaction = await recurringTransactionLocalData.updateRecurringTitleAmtDate(recurring: recurringId, title: title, amount: amount, endDate: endDate , accountId: accountId, categoryId: categoryId);
+        final recurringTransaction = await recurringTransactionLocalData.updateRecurringTitleAmtDate(
+          recurring: recurringId,
+          title: title,
+          amount: amount,
+          endDate: endDate,
+          accountId: accountId,
+          categoryId: categoryId,
+        );
         emit(UpdateRecurringTransactionSuccess(transaction: recurringTransaction));
       } catch (e) {
         emit(UpdateRecurringTransactionFailure(e.toString()));

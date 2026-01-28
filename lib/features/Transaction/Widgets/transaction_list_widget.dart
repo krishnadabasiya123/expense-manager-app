@@ -27,14 +27,15 @@ class _TransactionListState extends State<TransactionList> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return ListView(
+    return ListView.builder(
       shrinkWrap: true,
       physics: widget.isScrollable ? const AlwaysScrollableScrollPhysics() : const NeverScrollableScrollPhysics(),
       padding: EdgeInsetsDirectional.zero,
-      children: widget.transactions.map((entry) {
+      itemCount: widget.transactions.length,
+      itemBuilder: (context, index) {
+        final entry = widget.transactions[index];
         final date = entry['date'] as String;
         final dateItems = entry['transactions'] as List<Transaction>;
-
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -56,21 +57,15 @@ class _TransactionListState extends State<TransactionList> {
             ...dateItems.map((item) {
               final type = item.type;
               final subtitle = item.title;
-              final categoryName = context.read<GetCategoryCubit>().getCategoryName(item.categoryId ?? '');
-              final accountName = context.read<GetAccountCubit>().getAccountName(id: item.accountId ?? '');
-              final recurringType = item.recurringId ?? '';
-              final accountFromName = context.read<GetAccountCubit>().getAccountName(id: item.accountFromId ?? '');
-              final accountToName = context.read<GetAccountCubit>().getAccountName(id: item.accountToId ?? '');
+              final categoryName = context.read<GetCategoryCubit>().getCategoryName(item.categoryId);
+              final accountName = context.read<GetAccountCubit>().getAccountName(id: item.accountId);
+              final accountFromName = context.read<GetAccountCubit>().getAccountName(id: item.accountFromId);
+              final accountToName = context.read<GetAccountCubit>().getAccountName(id: item.accountToId);
               final amount = item.amount;
               final isIncome = type == TransactionType.INCOME;
 
               return GestureDetector(
                 onTap: () {
-                  // if (item.recurringId != null) {
-                  //   showRecurringWarningDialog(context: context, transaction: item);
-                  // } else {
-                  //   showTransactionDetailsBottomSheet(context, transaction: item);
-                  // }
                   showTransactionDetailsBottomSheet(context, transaction: item);
                 },
                 child: Container(
@@ -125,11 +120,12 @@ class _TransactionListState extends State<TransactionList> {
                             mainAxisAlignment: .center,
                             children: [
                               // CustomTextView(
-                              //   text: item.date!,
+                              //   text: item.recurringTransactionId,
                               //   fontWeight: FontWeight.bold,
                               //   color: Colors.black,
                               //   fontSize: context.isTablet ? 18.sp(context) : 15.sp(context),
-                              //   maxLines: 2,
+                              //   maxLines: 3,
+                              //   softWrap: true,
                               // ),
                               if (categoryName.isNotEmpty && (type == TransactionType.EXPENSE || type == TransactionType.INCOME)) ...[
                                 CustomTextView(
@@ -150,7 +146,7 @@ class _TransactionListState extends State<TransactionList> {
                                   ),
                                 ],
                               ],
-                              if (subtitle!.isNotEmpty) ...[
+                              if (subtitle.isNotEmpty) ...[
                                 CustomTextView(
                                   text: subtitle,
                                   color: Colors.black,
@@ -167,12 +163,12 @@ class _TransactionListState extends State<TransactionList> {
                           children: [
                             Row(
                               children: [
-                                if (item.recurringId != null) ...[
+                                if (item.recurringId.isNotEmpty) ...[
                                   Icon(Icons.repeat, color: Colors.black, size: 15.sp(context)),
                                 ],
                                 SizedBox(width: context.width * 0.02),
                                 CustomTextView(
-                                  text: amount!.formatAmt(),
+                                  text: amount.formatAmt(),
                                   fontWeight: FontWeight.bold,
                                   color: isIncome
                                       ? Colors.green
@@ -194,7 +190,7 @@ class _TransactionListState extends State<TransactionList> {
             }),
           ],
         );
-      }).toList(),
+      },
     );
   }
 }

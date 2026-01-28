@@ -1,43 +1,54 @@
 import 'package:expenseapp/core/app/all_import_file.dart';
-import 'package:expenseapp/features/RecurringTransaction/Enums/RecurringTransactionStatus.dart';
+import 'package:expenseapp/features/RecurringTransaction/Model/Enums/RecurringTransactionStatus.dart';
 import 'package:expenseapp/features/RecurringTransaction/Model/RecurringTransaction.dart';
-import 'package:expenseapp/features/RecurringTransaction/Enums/RecurringFrequency.dart';
+import 'package:expenseapp/features/RecurringTransaction/Model/Enums/RecurringFrequency.dart';
 
 part 'Recurring.g.dart';
 
 @HiveType(typeId: 8)
 class Recurring extends HiveObject {
-  Recurring({this.recurringId, this.title, this.frequency, this.startDate, this.endDate, this.amount, this.accountId, this.categoryId, this.type, this.recurringTransactions});
+  Recurring({
+    this.recurringId = '',
+    this.title = '',
+    this.frequency = RecurringFrequency.none,
+    this.startDate = '',
+    this.endDate = '',
+    this.amount = 0,
+    this.accountId = '',
+    this.categoryId = '',
+    this.type = TransactionType.NONE,
+    this.recurringTransactions = const [],
+  });
 
   @HiveField(0)
-  String? recurringId;
+  String recurringId;
 
   @HiveField(1)
-  String? title;
+  String title;
 
   @HiveField(2)
-  RecurringFrequency? frequency;
+  RecurringFrequency frequency;
 
   @HiveField(3)
-  String? startDate;
+  String startDate;
 
   @HiveField(4)
-  String? endDate;
+  String endDate;
 
   @HiveField(5)
-  double? amount;
+  double amount;
 
   @HiveField(6)
-  String? accountId;
+  String accountId;
 
   @HiveField(7)
-  String? categoryId;
+  String categoryId;
 
   @HiveField(8)
-  TransactionType? type;
+  TransactionType type;
 
   @HiveField(9)
-  List<RecurringTransaction>? recurringTransactions;
+  List<RecurringTransaction> recurringTransactions;
 
   Map<String, dynamic> toJson() {
     return {
@@ -50,7 +61,7 @@ class Recurring extends HiveObject {
       'accountId': accountId,
       'categoryId': categoryId,
       'type': type,
-      'recurringTransactions': recurringTransactions?.map((e) => e.toJson()).toList(),
+      'recurringTransactions': recurringTransactions.map((e) => e.toJson()).toList(),
     };
   }
 
@@ -76,7 +87,6 @@ class Recurring extends HiveObject {
       accountId: accountId ?? this.accountId,
       categoryId: categoryId ?? this.categoryId,
       type: type ?? this.type,
-
       recurringTransactions: recurringTransactions ?? this.recurringTransactions,
     );
   }

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/features/RecurringTransaction/Model/Recurring.dart';
 
@@ -121,7 +123,7 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
       try {
         final totalExpense = transactions.fold<double>(
           0,
-          (sum, item) => item.type == TransactionType.EXPENSE ? sum + (item.amount ?? 0.0) : sum,
+          (sum, item) => item.type == TransactionType.EXPENSE ? sum + (item.amount) : sum,
         );
 
         return totalExpense;
@@ -139,16 +141,16 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
 
       return transactions
           .where((tx) {
-            if (tx.date == null) return false;
+            if (tx.date.isEmpty) return false;
 
-            final txDate = _parseDate(tx.date!);
+            final txDate = _parseDate(tx.date);
 
             return txDate.year == focusedDay.year && txDate.month == focusedDay.month && tx.type == TransactionType.EXPENSE;
           })
           // 🔹 sum
           .fold<double>(
             0,
-            (sum, tx) => sum + (tx.amount ?? 0),
+            (sum, tx) => sum + (tx.amount),
           );
     }
     return 0;
@@ -160,15 +162,13 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
 
       return transactions
           .where((tx) {
-            if (tx.date == null) return false;
-
-            final txDate = _parseDate(tx.date!);
+            final txDate = _parseDate(tx.date);
 
             return txDate.year == focusedDay.year && txDate.month == focusedDay.month && tx.type == TransactionType.INCOME;
           })
           .fold<double>(
             0,
-            (sum, tx) => sum + (tx.amount ?? 0),
+            (sum, tx) => sum + (tx.amount),
           );
     }
     return 0;
@@ -181,7 +181,7 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
       try {
         final totalIncome = transactions.fold<double>(
           0,
-          (sum, item) => item.type == TransactionType.INCOME ? sum + (item.amount ?? 0.0) : sum,
+          (sum, item) => item.type == TransactionType.INCOME ? sum + (item.amount) : sum,
         );
 
         return totalIncome;
@@ -272,7 +272,7 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
   // }
   List<Map<String, dynamic>> getTransactionByFilterDate({
     required TransactionType selectedTab,
-    int count = 5,
+    int count = 0,
     DateTime? date,
     String searchText = '',
   }) {
@@ -301,11 +301,11 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
         final sortedTransactions = [...transactions];
 
         final filteredTransactions = sortedTransactions.where((item) => item.accountId == accountId || item.accountFromId == accountId || item.accountToId == accountId).toList()
-          ..sort((b, a) => a.date!.compareTo(b.date!));
+          ..sort((b, a) => a.date.compareTo(b.date));
 
         for (final item in filteredTransactions) {
-          grouped.putIfAbsent(item.date!, () => []);
-          grouped[item.date!]!.add(item);
+          grouped.putIfAbsent(item.date, () => []);
+          grouped[item.date]!.add(item);
         }
 
         return grouped.entries.map((entry) {
@@ -330,7 +330,7 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
         return (minDate: now, maxDate: now);
       }
 
-      final dates = transactions.where((e) => e.date != null && e.date!.isNotEmpty).map((e) => _parseDate(e.date!)).toList();
+      final dates = transactions.where((e) => e.date.isNotEmpty).map((e) => _parseDate(e.date)).toList();
 
       if (dates.isEmpty) {
         final now = DateTime.now();
@@ -413,7 +413,7 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
       final transactions = (state as GetTransactionSuccess).transactions;
 
       return transactions.fold<double>(0, (sum, item) {
-        final amount = item.amount ?? 0.0;
+        final amount = item.amount;
 
         if (item.type == TransactionType.INCOME && item.accountId == accountId) {
           return sum + amount;
@@ -436,7 +436,7 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
       final transactions = (state as GetTransactionSuccess).transactions;
 
       return transactions.fold<double>(0, (sum, item) {
-        final amount = item.amount ?? 0.0;
+        final amount = item.amount;
 
         if (item.type == TransactionType.EXPENSE && item.accountId == accountId) {
           return sum + amount;
@@ -454,8 +454,8 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
     return 0;
   }
 
-  Future<void> updateRecurringDetailsLocally({
-    required Recurring? recurring,
+  Future<void> updateRecurringDetailsLocallyInTransaction({
+    required Recurring recurring,
   }) async {
     transactionLocalData.updateRecurringDetails(
       recurring: recurring,
@@ -464,11 +464,36 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
       final transactions = (state as GetTransactionSuccess).transactions;
 
       for (final transaction in transactions) {
-        if (transaction.recurringId == recurring!.recurringId) {
+        if (transaction.recurringId == recurring.recurringId) {
           final index = transactions.indexOf(transaction);
           transactions[index] = transaction.copyWith(title: recurring.title, amount: recurring.amount, accountId: recurring.accountId, categoryId: recurring.categoryId);
         }
       }
+      emit(GetTransactionSuccess(transactions));
+    }
+  }
+
+  Future<void> setNullRecurringTransactionId({required String recurringId}) async {
+    await transactionLocalData.setNullRecurringTransactionId(recurringId: recurringId);
+    if (state is GetTransactionSuccess) {
+      final transactions = (state as GetTransactionSuccess).transactions;
+
+      for (final transaction in transactions) {
+        if (transaction.recurringId == recurringId) {
+          transaction
+            ..recurringId = ''
+            ..recurringTransactionId = ''
+            ..addFromType = TransactionType.NONE;
+          emit(GetTransactionSuccess(transactions));
+        }
+      }
+    }
+  }
+
+  Future<void> permanentlyDeleteRecurringTransaction({required String recurringId}) async {
+    await transactionLocalData.permanentlyDeleteRecurringTransaction(recurringId: recurringId);
+    if (state is GetTransactionSuccess) {
+      final transactions = (state as GetTransactionSuccess).transactions..removeWhere((element) => element.recurringId == recurringId);
       emit(GetTransactionSuccess(transactions));
     }
   }

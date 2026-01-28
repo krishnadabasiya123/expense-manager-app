@@ -19,6 +19,12 @@ class _PswdTextFieldState extends State<PswdTextField> {
   final ValueNotifier<bool> _obscureText = ValueNotifier(true);
 
   @override
+  void dispose() {
+    _obscureText.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final textColor = Theme.of(context).colorScheme.onTertiary;
 

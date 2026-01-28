@@ -16,6 +16,12 @@ class _IntrosliderScreenState extends State<IntrosliderScreen> {
 
   final ValueNotifier<int> _currentPage = ValueNotifier(0);
   final PageController _pageController = PageController();
+  
+  @override
+  void dispose() {
+    _currentPage.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

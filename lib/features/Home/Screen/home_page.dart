@@ -2,6 +2,7 @@ import 'package:expenseapp/commons/widgets/BottomNavigationPageChange.dart';
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/features/Home/Cubits/edit_home_cubit.dart';
 import 'package:expenseapp/features/Home/Model/HomeMenuItem.dart';
+import 'package:expenseapp/features/Home/Model/enums/HomeMenuType.dart';
 import 'package:expenseapp/features/Transaction/Widgets/transaction_list_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -20,7 +21,12 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
-  final List<String>? savedOrder = [];
+  @override
+  void dispose() {
+    selectedAccountId.dispose();
+    selectedTab.dispose();
+    super.dispose();
+  }
 
   String? lastDate;
   String? previousDate;
@@ -161,9 +167,9 @@ class _HomePageState extends State<HomePage> {
           width: context.width,
           child: BlocBuilder<GetTransactionCubit, GetTransactionState>(
             builder: (context, state) {
-              final totalBalance = state is GetTransactionSuccess ? context.read<GetTransactionCubit>().getTotalBalance().formatAmt() : '0';
-              final incomeTransactionCount = state is GetTransactionSuccess ? context.read<GetTransactionCubit>().totalIncomeTransactionCount() : 0;
-              final expenseTransactionCount = state is GetTransactionSuccess ? context.read<GetTransactionCubit>().totalExpenseTransactionCount() : 0;
+              final totalBalance = context.read<GetTransactionCubit>().getTotalBalance().formatAmt();
+              final incomeTransactionCount = context.read<GetTransactionCubit>().totalIncomeTransactionCount();
+              final expenseTransactionCount = context.read<GetTransactionCubit>().totalExpenseTransactionCount();
 
               final count = incomeTransactionCount + expenseTransactionCount;
               return _buildCard(text: context.tr('netWorthKey'), amount: totalBalance, count: count);
@@ -214,7 +220,7 @@ class _HomePageState extends State<HomePage> {
           listener: (context, state) {},
           builder: (context, state) {
             if (state is GetTransactionSuccess) {
-              final transactions = context.read<GetTransactionCubit>().getTransactionByFilterDate(selectedTab: selectedTab.value);
+              final transactions = context.read<GetTransactionCubit>().getTransactionByFilterDate(selectedTab: selectedTab.value, count: 5);
               return Column(
                 crossAxisAlignment: .start,
                 children: [

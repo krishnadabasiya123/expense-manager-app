@@ -1,6 +1,4 @@
-
 import 'package:expenseapp/core/app/all_import_file.dart';
-
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -32,6 +30,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void dispose() {
     firstNameController.dispose();
     lastNameController.dispose();
+    _selectedImage.dispose();
     super.dispose();
   }
 

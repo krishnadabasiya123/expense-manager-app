@@ -28,11 +28,11 @@ class UpdatePartyCubit extends Cubit<UpdatePartyState> {
 
   Future<void> updateParty(
     Party party, {
-    required String createdAt,
-    required String updatedAt,
-    required String id,
-    String? name,
-    List<PartyTransaction>? transaction,
+    String createdAt = '',
+    String updatedAt = '',
+    String id = '',
+    String name = '',
+    List<PartyTransaction> transaction = const [],
   }) async {
     emit(UpdatePartyLoading());
     Future.delayed(const Duration(seconds: 5), () async {

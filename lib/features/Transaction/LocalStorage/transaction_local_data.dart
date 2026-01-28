@@ -16,12 +16,11 @@ class TransactionLocalData {
   }
 
   Future<void> saveTransaction(Transaction transaction) async {
-    log('call here in saveTransaction');
+    log('saveTransaction ${transaction.toJson()}');
     await box.add(transaction);
   }
 
   Future<void> saveTransactions(List<Transaction> transactions) async {
-    log('call here in saveTransactions');
     for (final transaction in transactions) {
       await box.add(transaction);
     }
@@ -123,24 +122,42 @@ class TransactionLocalData {
     }
   }
 
-  Future<void> updateRecurringDetails({
-    required Recurring? recurring,
-  }) async {
-    final key = box.keys.firstWhere(
-      (k) => box.get(k)?.recurringId == recurring!.recurringId,
-      orElse: () => null,
-    );
+  // Future<void> updateRecurringDetails({
+  //   required Recurring? recurring,
+  // }) async {
+  //   final key = box.keys.firstWhere(
+  //     (k) => box.get(k)?.recurringId == recurring!.recurringId,
+  //     orElse: () => null,
+  //   );
 
-    if (key != null) {
+  //   if (key != null) {
+  //     final transaction = box.get(key);
+
+  //     if (transaction != null) {
+  //       final updatedTransaction = transaction.copyWith(
+  //         title: recurring!.title,
+  //         amount: recurring.amount,
+  //         accountId: recurring.accountId,
+  //         categoryId: recurring.categoryId,
+  //       );
+  //       await box.put(key, updatedTransaction);
+  //     }
+  //   }
+  // }
+  Future<void> updateRecurringDetails({
+    required Recurring recurring,
+  }) async {
+    for (final key in box.keys) {
       final transaction = box.get(key);
 
-      if (transaction != null) {
-        final updatedTransaction = transaction.copyWith(
-          title: recurring!.title,
+      if (transaction?.recurringId == recurring.recurringId) {
+        final updatedTransaction = transaction!.copyWith(
+          title: recurring.title,
           amount: recurring.amount,
           accountId: recurring.accountId,
           categoryId: recurring.categoryId,
         );
+
         await box.put(key, updatedTransaction);
       }
     }
@@ -206,6 +223,34 @@ class TransactionLocalData {
 
     if (keysToDelete.isNotEmpty) {
       await softDeleteBox.deleteAll(keysToDelete);
+    }
+  }
+
+  Future<void> setNullRecurringTransactionId({required String recurringId}) async {
+    for (final key in box.keys) {
+      final transaction = box.get(key);
+
+      if (transaction?.recurringId == recurringId) {
+        final updatedTransaction = transaction!.copyWith(
+          recurringId: '',
+          recurringTransactionId: '',
+          addFromType: TransactionType.NONE,
+        );
+
+        await box.put(key, updatedTransaction);
+      }
+    }
+  }
+
+  Future<void> permanentlyDeleteRecurringTransaction({required String recurringId}) async {
+    final keysToDelete = box.keys
+        .where(
+          (k) => box.get(k)?.recurringId == recurringId,
+        )
+        .toList();
+
+    if (keysToDelete.isNotEmpty) {
+      await box.deleteAll(keysToDelete);
     }
   }
 }

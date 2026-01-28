@@ -44,7 +44,7 @@ class SoftDeletePartyTransactionList extends StatelessWidget {
   }
 }
 
-class ResporePartyCard extends StatelessWidget {
+class ResporePartyCard extends StatefulWidget {
   const ResporePartyCard({
     required this.party,
 
@@ -53,12 +53,27 @@ class ResporePartyCard extends StatelessWidget {
   final PartyTransaction party;
 
   @override
+  State<ResporePartyCard> createState() => _ResporePartyCardState();
+}
+
+class _ResporePartyCardState extends State<ResporePartyCard> {
+  bool isCredit = false;
+  bool isDebit = false;
+  String accountName = '';
+  String categoryName = '';
+
+  @override
+  void initState() {
+    super.initState();
+    isCredit = widget.party.type == TransactionType.CREDIT;
+    isDebit = widget.party.type == TransactionType.DEBIT;
+    accountName = context.read<GetAccountCubit>().getAccountName(id: widget.party.accountId ?? '');
+    categoryName = context.read<GetCategoryCubit>().getCategoryName(widget.party.category ?? '');
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final isCredit = party.type == TransactionType.CREDIT;
-    final isDebit = party.type == TransactionType.DEBIT;
     final color = isCredit ? Colors.green : Colors.red;
-    final accountName = context.read<GetAccountCubit>().getAccountName(id: party.accountId ?? '');
-    final categoryName = context.read<GetCategoryCubit>().getCategoryName(party.category ?? '');
 
     return Opacity(
       opacity: 1,
@@ -97,21 +112,12 @@ class ResporePartyCard extends StatelessWidget {
                       mainAxisAlignment: .center,
                       children: [
                         CustomTextView(
-                          text: party.partyName ?? '',
+                          text: widget.party.partyName,
                           fontWeight: FontWeight.bold,
                           color: Colors.black,
                           fontSize: 15,
                           maxLines: 2,
                         ),
-                        SizedBox(height: context.height * 0.005),
-                        if (categoryName.isNotEmpty) ...[
-                          CustomTextView(
-                            text: categoryName,
-                            color: Colors.black,
-                            fontSize: 15,
-                            maxLines: 2,
-                          ),
-                        ],
                       ],
                     ),
                   ),
@@ -121,7 +127,7 @@ class ResporePartyCard extends StatelessWidget {
 
                     children: [
                       CustomTextView(
-                        text: party.amount!.formatAmt(),
+                        text: widget.party.amount.formatAmt(),
                         fontWeight: FontWeight.bold,
                         color: color,
                       ),
@@ -150,7 +156,7 @@ class ResporePartyCard extends StatelessWidget {
                       textStyle: TextStyle(color: Colors.green, fontSize: 14.sp(context)),
                       borderSide: const BorderSide(color: Colors.green),
                       onPressed: () {
-                        showPartyTransactionRestoreAlertDialog(context: context, transaction: party);
+                        showPartyTransactionRestoreAlertDialog(context: context, transaction: widget.party);
                       },
                     ),
                   ),
@@ -165,7 +171,7 @@ class ResporePartyCard extends StatelessWidget {
                       textStyle: TextStyle(color: Colors.red, fontSize: 14.sp(context)),
                       borderSide: const BorderSide(color: Colors.red),
                       onPressed: () {
-                        showPartyTransactionDeleteAlertDialog(context: context, transaction: party);
+                        showPartyTransactionDeleteAlertDialog(context: context, transaction: widget.party);
                       },
                     ),
                   ),
@@ -179,46 +185,136 @@ class ResporePartyCard extends StatelessWidget {
   }
 
   Future<void> showPartyTransactionDeleteAlertDialog({required PartyTransaction transaction, required BuildContext context}) async {
-    await showGeneralDialog(
-      context: context,
-      barrierLabel: 'Delete',
-      barrierColor: Colors.black.withValues(alpha: .3),
-      transitionDuration: const Duration(milliseconds: 300),
+    context.showAppDialog(
+      child: BlocProvider(
+        create: (context) => PermenantlyDeletePartyTransactionCubit(),
+        child: Builder(
+          builder: (diologContext) {
+            return Center(
+              child: PopScope(
+                canPop: false,
+                onPopInvokedWithResult: (didPop, result) {
+                  if (didPop) return;
+                  if (diologContext.read<PermenantlyDeletePartyTransactionCubit>().state is! PermenantlyDeletePartyTransactionLoading) {
+                    Navigator.of(diologContext).pop();
+                    return;
+                  }
+                },
+                child: AlertDialog(
+                  constraints: BoxConstraints(maxHeight: context.height * 0.45, maxWidth: context.width * 0.85),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  title: CustomTextView(text: context.tr('deleteAccountTitleKey'), fontWeight: FontWeight.bold, fontSize: 18.sp(context)),
+                  content: CustomTextView(text: context.tr('deleteRestoreTransactionDialogMsg'), softWrap: true, maxLines: 3),
+                  actions: [
+                    BlocConsumer<PermenantlyDeletePartyTransactionCubit, PermenantlyDeletePartyTransactionState>(
+                      listener: (context, state) {
+                        if (state is PermenantlyDeletePartyTransactionSuccess) {
+                          Navigator.of(context).pop();
+                          context.read<GetSoftDeletePartyTransactionCubit>().getSoftDeletePartyTransactionLocally(transaction: transaction);
+                          context.read<GetSoftDeleteTransactionsCubit>().updateSoftDeleteTransactionLocally(transaction: Transaction(id: transaction.mainTransactionId));
+                        }
+                      },
+                      builder: (context, state) {
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: CustomRoundedButton(
+                                onPressed: () {
+                                  if (state is! PermenantlyDeletePartyTransactionLoading) {
+                                    Navigator.pop(context);
+                                  }
+                                },
+                                width: 1,
+                                backgroundColor: Theme.of(context).primaryColor,
+                                text: context.tr('cancelKey'),
+                                borderRadius: BorderRadius.circular(8),
+                                //showBorder: false,
+                                height: 40.sp(context),
+                                textStyle: TextStyle(fontSize: 18.sp(context)),
 
-      transitionBuilder: (context, animation, secondaryAnimation, child) {
-        return Transform.scale(
-          scale: Curves.easeOutBack.transform(animation.value),
-          child: Opacity(opacity: animation.value, child: child),
-        );
-      },
+                                //isLoading: widget.isEdit ? updateCategoryState is UpdateCategoryLoading : addCategoryState is AddCategoryLoading,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: CustomRoundedButton(
+                                onPressed: () {
+                                  context.read<PermenantlyDeletePartyTransactionCubit>().permenantlyDeletePartyTransaction(transaction: transaction);
+                                },
+                                width: 1,
+                                backgroundColor: Theme.of(context).primaryColor,
+                                text: context.tr('deleteKey'),
+                                borderRadius: BorderRadius.circular(8),
+                                height: 40.sp(context),
+                                textStyle: TextStyle(
+                                  fontSize: 18.sp(context),
+                                ),
+                                isLoading: state is PermenantlyDeletePartyTransactionLoading,
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
 
-      pageBuilder: (context, animation, secondaryAnimation) {
-        final size = MediaQuery.of(context).size;
-
-        return Center(
-          child: PopScope(
-            canPop: false,
-            onPopInvokedWithResult: (didPop, result) {
-              if (didPop) return;
-              if (context.read<PermenantlyDeletePartyTransactionCubit>().state is! PermenantlyDeletePartyTransactionLoading) {
-                Navigator.of(context).pop();
-                return;
-              }
-            },
-            child: AlertDialog(
-              constraints: BoxConstraints(maxHeight: size.height * 0.45, maxWidth: size.width * 0.85),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              title: CustomTextView(text: context.tr('deleteAccountTitleKey'), fontWeight: FontWeight.bold, fontSize: 18.sp(context)),
-              content: CustomTextView(text: context.tr('deleteRestoreTransactionDialogMsg'), softWrap: true, maxLines: 3),
-              actions: [
-                BlocProvider(
-                  create: (context) => PermenantlyDeletePartyTransactionCubit(),
-                  child: BlocConsumer<PermenantlyDeletePartyTransactionCubit, PermenantlyDeletePartyTransactionState>(
+Future<void> showPartyTransactionRestoreAlertDialog({required PartyTransaction transaction, required BuildContext context}) async {
+  context.showAppDialog(
+    child: BlocProvider(
+      create: (context) => RestorePartyTransactionCubit(),
+      child: Builder(
+        builder: (dialogContext) {
+          return Center(
+            child: PopScope(
+              canPop: false,
+              onPopInvokedWithResult: (didPop, result) {
+                if (didPop) return;
+                if (dialogContext.read<RestorePartyTransactionCubit>().state is! RestorePartyTransactionLoading) {
+                  Navigator.of(dialogContext).pop();
+                  return;
+                }
+              },
+              child: AlertDialog(
+                constraints: BoxConstraints(maxHeight: context.height * 0.45, maxWidth: context.width * 0.85),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                title: CustomTextView(text: context.tr('restoreTitleKey'), fontWeight: FontWeight.bold, fontSize: 18.sp(context)),
+                content: CustomTextView(text: context.tr('confirmRestoreDialogMsg'), softWrap: true, maxLines: 3),
+                actions: [
+                  BlocConsumer<RestorePartyTransactionCubit, RestorePartyTransactionState>(
                     listener: (context, state) {
-                      if (state is PermenantlyDeletePartyTransactionSuccess) {
-                        Navigator.of(context).pop();
+                      if (state is RestorePartyTransactionSuccess) {
                         context.read<GetSoftDeletePartyTransactionCubit>().getSoftDeletePartyTransactionLocally(transaction: transaction);
-                        context.read<GetSoftDeleteTransactionsCubit>().updateSoftDeleteTransactionLocally(transaction: Transaction(id: transaction.mainTransactionId));
+
+                        UiUtils.showCustomSnackBar(
+                          context: context,
+                          errorMessage: context.tr('partyTransactionRestoredSuccessfullyKey'),
+                        );
+
+                        if (transaction.mainTransactionId.isNotEmpty) {
+                          final transactionModel = context.read<GetSoftDeleteTransactionsCubit>().getTransaction(partyTransactionId: transaction.id);
+                          // this method is for if in party transaction party data restore then from transaction forcefully restore transaction
+                          //(same transaction id available in main transaction list)
+                          context.read<GetSoftDeleteTransactionsCubit>().getSoftDeleteTransactionLocally(transactionModel);
+
+                          context.read<GetTransactionCubit>().addTransactionLocally(transactionModel);
+                        }
+                        Navigator.pop(context);
+                      }
+
+                      if (state is RestorePartyTransactionFailure) {
+                        UiUtils.showCustomSnackBar(
+                          context: context,
+                          errorMessage: state.errorMessage,
+                        );
                       }
                     },
                     builder: (context, state) {
@@ -227,7 +323,7 @@ class ResporePartyCard extends StatelessWidget {
                           Expanded(
                             child: CustomRoundedButton(
                               onPressed: () {
-                                if (state is! PermenantlyDeletePartyTransactionLoading) {
+                                if (state is! RestorePartyTransactionLoading) {
                                   Navigator.pop(context);
                                 }
                               },
@@ -246,143 +342,29 @@ class ResporePartyCard extends StatelessWidget {
                           Expanded(
                             child: CustomRoundedButton(
                               onPressed: () {
-                                context.read<PermenantlyDeletePartyTransactionCubit>().permenantlyDeletePartyTransaction(transaction: transaction);
+                                context.read<RestorePartyTransactionCubit>().restorePartyTransaction(transaction);
                               },
                               width: 1,
                               backgroundColor: Theme.of(context).primaryColor,
-                              text: context.tr('deleteKey'),
+                              text: context.tr('restoreKey'),
                               borderRadius: BorderRadius.circular(8),
                               height: 40.sp(context),
                               textStyle: TextStyle(
                                 fontSize: 18.sp(context),
                               ),
-                              isLoading: state is PermenantlyDeletePartyTransactionLoading,
+                              isLoading: state is RestorePartyTransactionLoading,
                             ),
                           ),
                         ],
                       );
                     },
                   ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-Future<void> showPartyTransactionRestoreAlertDialog({required PartyTransaction transaction, required BuildContext context}) async {
-  await showGeneralDialog(
-    context: context,
-    barrierLabel: 'Delete',
-    barrierColor: Colors.black.withValues(alpha: .3),
-    transitionDuration: const Duration(milliseconds: 300),
-
-    transitionBuilder: (context, animation, secondaryAnimation, child) {
-      return Transform.scale(
-        scale: Curves.easeOutBack.transform(animation.value),
-        child: Opacity(opacity: animation.value, child: child),
-      );
-    },
-
-    pageBuilder: (context, animation, secondaryAnimation) {
-      final size = MediaQuery.of(context).size;
-
-      return Center(
-        child: PopScope(
-          canPop: false,
-          onPopInvokedWithResult: (didPop, result) {
-            if (didPop) return;
-            if (context.read<RestorePartyTransactionCubit>().state is! RestorePartyTransactionLoading) {
-              Navigator.of(context).pop();
-              return;
-            }
-          },
-          child: AlertDialog(
-            constraints: BoxConstraints(maxHeight: size.height * 0.45, maxWidth: size.width * 0.85),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            title: CustomTextView(text: context.tr('restoreTitleKey'), fontWeight: FontWeight.bold, fontSize: 18.sp(context)),
-            content: CustomTextView(text: context.tr('confirmRestoreDialogMsg'), softWrap: true, maxLines: 3),
-            actions: [
-              BlocProvider(
-                create: (context) => RestorePartyTransactionCubit(),
-                child: BlocConsumer<RestorePartyTransactionCubit, RestorePartyTransactionState>(
-                  listener: (context, state) {
-                    if (state is RestorePartyTransactionSuccess) {
-                      Navigator.pop(context);
-                      context.read<GetSoftDeletePartyTransactionCubit>().getSoftDeletePartyTransactionLocally(transaction: transaction);
-
-                      UiUtils.showCustomSnackBar(
-                        context: context,
-                        errorMessage: context.tr('partyTransactionRestoredSuccessfullyKey'),
-                      );
-
-                      if (transaction.mainTransactionId != null) {
-                        final transactionModel = context.read<GetSoftDeleteTransactionsCubit>().getTransaction(partyTransactionId: transaction.id);
-                        // this method is for if in party transaction party data restore then from transaction forcefully restore transaction
-                        //(same transaction id available in main transaction list)
-                        context.read<GetSoftDeleteTransactionsCubit>().getSoftDeleteTransactionLocally(transactionModel);
-
-                        context.read<GetTransactionCubit>().addTransactionLocally(transactionModel);
-                      }
-                    }
-
-                    if (state is RestorePartyTransactionFailure) {
-                      UiUtils.showCustomSnackBar(
-                        context: context,
-                        errorMessage: state.errorMessage,
-                      );
-                    }
-                  },
-                  builder: (context, state) {
-                    return Row(
-                      children: [
-                        Expanded(
-                          child: CustomRoundedButton(
-                            onPressed: () {
-                              if (state is! RestorePartyTransactionLoading) {
-                                Navigator.pop(context);
-                              }
-                            },
-                            width: 1,
-                            backgroundColor: Theme.of(context).primaryColor,
-                            text: context.tr('cancelKey'),
-                            borderRadius: BorderRadius.circular(8),
-                            //showBorder: false,
-                            height: 40.sp(context),
-                            textStyle: TextStyle(fontSize: 18.sp(context)),
-
-                            //isLoading: widget.isEdit ? updateCategoryState is UpdateCategoryLoading : addCategoryState is AddCategoryLoading,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: CustomRoundedButton(
-                            onPressed: () {
-                              context.read<RestorePartyTransactionCubit>().restorePartyTransaction(transaction);
-                            },
-                            width: 1,
-                            backgroundColor: Theme.of(context).primaryColor,
-                            text: context.tr('restoreKey'),
-                            borderRadius: BorderRadius.circular(8),
-                            height: 40.sp(context),
-                            textStyle: TextStyle(
-                              fontSize: 18.sp(context),
-                            ),
-                            isLoading: state is RestorePartyTransactionLoading,
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
+                ],
               ),
-            ],
-          ),
-        ),
-      );
-    },
+            ),
+          );
+        },
+      ),
+    ),
   );
 }

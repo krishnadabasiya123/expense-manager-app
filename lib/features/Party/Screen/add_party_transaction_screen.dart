@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/features/Party/Cubits/PartyTransaction/add_party_transaction_cubit.dart';
 import 'package:expenseapp/features/Party/Cubits/PartyTransaction/update_party_transaction_cubit.dart';
@@ -44,12 +46,12 @@ class _AddPartyTransactionWidgetState extends State<AddPartyTransactionWidget> {
   final TextEditingController _descriptionController = TextEditingController();
   TransactionType selectedType = TransactionType.CREDIT;
   bool isMainTransaction = false;
-  String? selectedAccountId;
+  String selectedAccountId = '';
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController accountController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
   final ValueNotifier<List<File>> _selectedImage = ValueNotifier([]);
-  ValueNotifier<String> selectedCategoryId = ValueNotifier('-1');
+  ValueNotifier<String> selectedCategoryId = ValueNotifier('');
   final categoryController = TextEditingController();
 
   @override
@@ -57,30 +59,39 @@ class _AddPartyTransactionWidgetState extends State<AddPartyTransactionWidget> {
     super.initState();
     final tomorrow = DateTime.now().add(const Duration(days: 1));
     _dateController.text = DateFormat(dateFormat).format(tomorrow);
-
     _dateController.text = widget.isEdit ? widget.partyTransaction?.date ?? '' : DateFormat(dateFormat).format(tomorrow);
     selectedType = widget.isEdit ? widget.partyTransaction?.type ?? TransactionType.CREDIT : TransactionType.CREDIT;
     isMainTransaction = widget.isEdit && (widget.partyTransaction?.isMainTransaction ?? false);
     _amountController.text = widget.isEdit ? widget.partyTransaction?.amount.toString() ?? '' : '';
     _descriptionController.text = widget.isEdit ? widget.partyTransaction?.description ?? '' : '';
-    selectedCategoryId.value = widget.isEdit ? widget.partyTransaction!.category ?? '' : '-1';
-    categoryController.text = widget.isEdit ? context.read<GetCategoryCubit>().getCategoryName(widget.partyTransaction!.category ?? '')  : '';
-
+    selectedCategoryId.value = widget.isEdit ? widget.partyTransaction!.category : '';
+    categoryController.text = widget.isEdit ? context.read<GetCategoryCubit>().getCategoryName(widget.partyTransaction!.category) : '';
     selectedAccountId = widget.isEdit ? widget.partyTransaction?.accountId ?? '' : '';
     accountController.text = context.read<GetAccountCubit>().getAccountName(id: widget.partyTransaction?.accountId ?? '');
 
     loadImages();
   }
 
-  Future<void> loadImages() async {
-    if (widget.isEdit && widget.partyTransaction!.image != null) {
-      final files = <File>[];
+  @override
+  void dispose() {
+    _selectedImage.dispose();
+    selectedCategoryId.dispose();
+    _dateController.dispose();
+    _amountController.dispose();
+    _descriptionController.dispose();
+    accountController.dispose();
+    categoryController.dispose();
+    super.dispose();
+  }
 
-      for (final img in widget.partyTransaction!.image!) {
-        if (img.picture != null) {
+  Future<void> loadImages() async {
+    if (widget.isEdit && widget.partyTransaction!.image != []) {
+      final files = <File>[];
+      for (final img in widget.partyTransaction!.image) {
+        if (img.picture != Uint8List(0)) {
           final file = await UiUtils.uint8ListToFile(
-            img.picture!,
-            img.imageId ?? DateTime.now().millisecondsSinceEpoch.toString(),
+            img.picture,
+            img.imageId,
           );
           files.add(file);
         }
@@ -94,17 +105,6 @@ class _AddPartyTransactionWidgetState extends State<AddPartyTransactionWidget> {
 
   final String partyTransactionId = 'PTR'.withDateTimeMillisRandom();
   final String transactionId = 'TR'.withDateTimeMillisRandom();
-
-  @override
-  void dispose() {
-    _dateController.dispose();
-    _amountController.dispose();
-    _descriptionController.dispose();
-    accountController.dispose();
-    categoryController.dispose();
-
-    super.dispose();
-  }
 
   Future<List<ImageData>> getPartyImages(List<File> imageFiles) async {
     final images = <ImageData>[];
@@ -168,7 +168,10 @@ class _AddPartyTransactionWidgetState extends State<AddPartyTransactionWidget> {
                         ),
                         SizedBox(height: context.height * 0.01),
 
-                        InkWell(
+                        CustomTextFormField(
+                          isReadOnly: true,
+                          controller: _dateController,
+                          suffixIcon: const Icon(Icons.calendar_month),
                           onTap: () async {
                             final pickedDate = await UiUtils.selectDate(context, _dateController);
 
@@ -176,12 +179,6 @@ class _AddPartyTransactionWidgetState extends State<AddPartyTransactionWidget> {
 
                             _dateController.text = DateFormat(dateFormat).format(pickedDate);
                           },
-                          child: IgnorePointer(
-                            child: CustomTextFormField(
-                              controller: _dateController,
-                              suffixIcon: const Icon(Icons.calendar_month),
-                            ),
-                          ),
                         ),
                         SizedBox(height: context.height * 0.02),
                         Column(
@@ -205,18 +202,16 @@ class _AddPartyTransactionWidgetState extends State<AddPartyTransactionWidget> {
                           ],
                         ),
                         SizedBox(height: context.height * 0.01),
-                        GestureDetector(
+                        CustomTextFormField(
+                          isReadOnly: true,
+
+                          controller: categoryController,
+                          hintText: context.tr('selectCategoryLbl'),
+
+                          radius: 15,
                           onTap: () {
                             showCategoryBottomSheet(context, selectedCategoryId: selectedCategoryId, categoryController: categoryController);
                           },
-                          child: AbsorbPointer(
-                            child: CustomTextFormField(
-                              controller: categoryController,
-                              hintText: context.tr('selectCategoryLbl'),
-
-                              radius: 15,
-                            ),
-                          ),
                         ),
 
                         SizedBox(height: context.height * 0.01),
@@ -230,7 +225,6 @@ class _AddPartyTransactionWidgetState extends State<AddPartyTransactionWidget> {
                         CustomTextFormField(
                           controller: _amountController,
                           hintText: context.tr('amtHintKey'),
-                          validator: (value) => value == null || value.isEmpty ? context.tr('amountReqKey') : null,
                           keyboardType: TextInputType.number,
                         ),
                         SizedBox(height: context.height * 0.02),
@@ -251,7 +245,7 @@ class _AddPartyTransactionWidgetState extends State<AddPartyTransactionWidget> {
                                     border: Border.all(color: isMainTransaction ? colorScheme.primary : Colors.grey, width: 2),
                                     color: isMainTransaction ? colorScheme.primary : Colors.transparent,
                                   ),
-                                  child: isMainTransaction ? Icon(Icons.check, color: Colors.white, size: 14.sp(context)) : null,
+                                  child: isMainTransaction ? Icon(Icons.check, color: Colors.white, size: 14.sp(context)) : const SizedBox.shrink(),
                                 ),
                               ),
                               const SizedBox(width: 12),
@@ -298,8 +292,6 @@ class _AddPartyTransactionWidgetState extends State<AddPartyTransactionWidget> {
                           controller: _descriptionController,
 
                           hintText: context.tr('descriptionHintKey'),
-
-                          validator: (value) => value == null || value.isEmpty ? context.tr('descriptionReqKey') : null,
                         ),
                         SizedBox(height: context.height * 0.02),
                         ImagePickerWidget(picker: _picker, selectedImage: _selectedImage),
@@ -315,7 +307,7 @@ class _AddPartyTransactionWidgetState extends State<AddPartyTransactionWidget> {
               listener: (context, updateState) async {
                 if (updateState is UpdatePartyTransactionSuccess) {
                   Navigator.of(context).pop();
-                  context.read<GetPartyCubit>().updatePartyTransactinLocally(transaction: updateState.transaction, partyId: updateState.transaction.partyId!);
+                  context.read<GetPartyCubit>().updatePartyTransactinLocally(transaction: updateState.transaction, partyId: updateState.transaction.partyId);
 
                   if (isMainTransaction && widget.isEdit) {
                     context.read<GetTransactionCubit>().updateTransactionLocally(
@@ -345,7 +337,7 @@ class _AddPartyTransactionWidgetState extends State<AddPartyTransactionWidget> {
                 return BlocConsumer<AddPartyTransactionCubit, AddPartyTransactionState>(
                   listener: (context, addPartyState) async {
                     if (addPartyState is AddPartyTransactionSuccess) {
-                      context.read<GetPartyCubit>().addPartyTransactionLocally(transaction: addPartyState.transaction, partyId: addPartyState.transaction.partyId!);
+                      context.read<GetPartyCubit>().addPartyTransactionLocally(transaction: addPartyState.transaction, partyId: addPartyState.transaction.partyId);
 
                       // if transaction is main then add in transaction List after add record in party transaction
                       if (isMainTransaction) {
@@ -399,53 +391,54 @@ class _AddPartyTransactionWidgetState extends State<AddPartyTransactionWidget> {
 
                                 if (_amountController.text.isEmpty) {
                                   await UiUtils.showCustomSnackBar(context: context, errorMessage: context.tr('amountKey'));
-                                } else if (isMainTransaction && selectedAccountId == '') {
+                                  return;
+                                }
+                                if (isMainTransaction && selectedAccountId == '') {
                                   await UiUtils.showCustomSnackBar(context: context, errorMessage: context.tr('plzSelectAccountKey'));
-                                } else {
-                                  if (widget.isEdit) {
-                                    await context.read<UpdatePartyTransactionCubit>().updatePartyTransaction(
+                                  return;
+                                }
+                                if (widget.isEdit) {
+                                  await context.read<UpdatePartyTransactionCubit>().updatePartyTransaction(
+                                    partyId: widget.partyTransaction!.partyId,
+                                    transaction: PartyTransaction(
+                                      id: widget.partyTransaction!.id,
+                                      partyName: widget.partyTransaction!.partyName,
+
+                                      date: _dateController.text,
+                                      type: selectedType,
+                                      image: await partyImages,
+                                      category: selectedCategoryId.value,
+                                      isMainTransaction: isMainTransaction,
+                                      accountId: selectedAccountId,
+                                      amount: double.parse(_amountController.text),
+                                      description: _descriptionController.text,
+                                      createdAt: widget.partyTransaction!.createdAt,
+                                      updatedAt: DateTime.now().toString(),
+                                      mainTransactionId: isMainTransaction ? widget.partyTransaction!.mainTransactionId : '',
                                       partyId: widget.partyTransaction!.partyId,
-                                      transaction: PartyTransaction(
-                                        id: widget.partyTransaction!.id,
-                                        partyName: widget.partyTransaction!.partyName,
+                                    ),
+                                  );
+                                } else {
+                                  await context.read<AddPartyTransactionCubit>().addPartyTransaction(
+                                    partyId: widget.partyId!.id,
+                                    transaction: PartyTransaction(
+                                      id: partyTransactionId,
+                                      partyName: widget.partyId!.name,
 
-                                        date: _dateController.text,
-                                        type: selectedType,
-                                        image: await partyImages,
-                                        category: selectedCategoryId.value,
-                                        isMainTransaction: isMainTransaction,
-                                        accountId: selectedAccountId,
-                                        amount: double.parse(_amountController.text),
-                                        description: _descriptionController.text,
-                                        createdAt: widget.partyTransaction!.createdAt,
-                                        updatedAt: DateTime.now().toString(),
-                                        mainTransactionId: isMainTransaction ? widget.partyTransaction!.mainTransactionId : '',
-                                        partyId: widget.partyTransaction!.partyId,
-                                        
-                                      ),
-                                    );
-                                  } else {
-                                    await context.read<AddPartyTransactionCubit>().addPartyTransaction(
+                                      date: _dateController.text,
+                                      type: selectedType,
+                                      image: await partyImages,
+                                      category: selectedCategoryId.value,
+                                      isMainTransaction: isMainTransaction,
+                                      accountId: selectedAccountId,
+                                      amount: double.parse(_amountController.text),
+                                      description: _descriptionController.text,
+                                      createdAt: DateTime.now().toString(),
+                                      updatedAt: DateTime.now().toString(),
+                                      mainTransactionId: isMainTransaction ? transactionId : '',
                                       partyId: widget.partyId!.id,
-                                      transaction: PartyTransaction(
-                                        id: partyTransactionId,
-                                        partyName: widget.partyId!.name,
-
-                                        date: _dateController.text,
-                                        type: selectedType,
-                                        image: await partyImages,
-                                        category: selectedCategoryId.value,
-                                        isMainTransaction: isMainTransaction,
-                                        accountId: selectedAccountId,
-                                        amount: double.parse(_amountController.text),
-                                        description: _descriptionController.text,
-                                        createdAt: DateTime.now().toString(),
-                                        updatedAt: DateTime.now().toString(),
-                                        mainTransactionId: isMainTransaction ? transactionId : '',
-                                        partyId: widget.partyId!.id,
-                                      ),
-                                    );
-                                  }
+                                    ),
+                                  );
                                 }
                               },
                               width: 1,

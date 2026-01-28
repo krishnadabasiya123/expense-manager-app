@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:expenseapp/commons/widgets/date_time_card.dart';
 import 'package:expenseapp/core/app/all_import_file.dart';
 
@@ -6,9 +8,6 @@ import 'package:expenseapp/features/RecurringTransaction/Cubit/get_recurring_tra
 import 'package:expenseapp/features/Transaction/Cubits/add_transaction_cubit.dart';
 import 'package:expenseapp/features/Transaction/Cubits/update_trasansaction_cubit.dart';
 import 'package:expenseapp/features/RecurringTransaction/Model/Recurring.dart';
-import 'package:expenseapp/features/RecurringTransaction/Model/RecurringTransaction.dart';
-import 'package:expenseapp/features/RecurringTransaction/Enums/RecurringFrequency.dart';
-import 'package:expenseapp/features/RecurringTransaction/Enums/RecurringTransactionStatus.dart';
 
 import 'package:expenseapp/features/Transaction/Widgets/show_category_dialogue.dart';
 import 'package:expenseapp/features/Transaction/Widgets/show_repeat_option_dialogue.dart';
@@ -35,22 +34,22 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
   final dateController = TextEditingController();
   final TextEditingController categoryController = TextEditingController();
   final timeController = TextEditingController(text: DateFormat(timeFormat).format(DateTime.now()));
-  ValueNotifier<String> selectedCategoryId = ValueNotifier('-1');
+  ValueNotifier<String> selectedCategoryId = ValueNotifier('');
   TimeOfDay? picked;
   String? selectedAccountId;
   final ValueNotifier<List<File>> _selectedImage = ValueNotifier([]);
   //final selectedRecurring = ValueNotifier<Recurring>(Recurring.no);
   final ImagePicker _picker = ImagePicker();
-  final ValueNotifier<String?> selectedAccId = ValueNotifier(null);
-  final ValueNotifier<String?> selectedAccFromId = ValueNotifier(null);
-  final ValueNotifier<String?> selectedAccToId = ValueNotifier(null);
+  final ValueNotifier<String> selectedAccId = ValueNotifier('');
+  final ValueNotifier<String> selectedAccFromId = ValueNotifier('');
+  final ValueNotifier<String> selectedAccToId = ValueNotifier('');
   var index = -1;
   ValueNotifier<String> selectedValue = ValueNotifier('');
   final categoryLocalStorage = CategoryLocalStorage();
   ValueNotifier<bool> isCheck = ValueNotifier(false);
   final TextEditingController _startDateController = TextEditingController();
   final TextEditingController _endDateController = TextEditingController();
-  String? repeat;
+  String repeat = '';
 
   final FocusNode _titleControllerFocusNode = FocusNode();
   final FocusNode _descriptionControllerFocusNode = FocusNode();
@@ -61,27 +60,13 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
   bool isTransfer = false;
 
   @override
-  void dispose() {
-    _amountController!.dispose();
-    _titleController.dispose();
-    _descriptionController.dispose();
-    accountController.dispose();
-    dateController.dispose();
-    timeController.dispose();
-    categoryController.dispose();
-    _startDateController.dispose();
-    _endDateController.dispose();
-    super.dispose();
-  }
-
-  @override
   void initState() {
     super.initState();
     final tomorrow = DateTime.now();
     dateController.text = widget.isEdit ? widget.transaction?.date ?? '' : DateFormat(dateFormat).format(tomorrow);
 
     _amountController = TextEditingController(
-      text: widget.transaction?.amount?.toString() ?? '',
+      text: widget.transaction?.amount.toString() ?? '',
     );
 
     _titleController.text = widget.isEdit ? widget.transaction?.title ?? '' : '';
@@ -89,7 +74,7 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
     selectedAccFromId.value = widget.isEdit ? widget.transaction?.accountFromId ?? '' : '';
     selectedAccToId.value = widget.isEdit ? widget.transaction?.accountToId ?? '' : '';
     categoryController.text = context.read<GetCategoryCubit>().getCategoryName(widget.transaction?.categoryId ?? '');
-    selectedCategoryId.value = widget.isEdit ? widget.transaction!.categoryId! : '-1';
+    selectedCategoryId.value = widget.isEdit ? widget.transaction!.categoryId : '';
     selectedAccId.value = widget.isEdit ? widget.transaction?.accountId ?? '' : '';
     isExpense = widget.type == TransactionType.EXPENSE;
     isIncome = widget.type == TransactionType.INCOME;
@@ -98,14 +83,14 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
   }
 
   Future<void> loadImages() async {
-    if (widget.isEdit && widget.transaction?.image != null) {
+    if (widget.isEdit && widget.transaction?.image != []) {
       final files = <File>[];
 
-      for (final img in widget.transaction!.image!) {
-        if (img.picture != null) {
+      for (final img in widget.transaction!.image) {
+        if (img.picture != Uint8List(0)) {
           final file = await UiUtils.uint8ListToFile(
-            img.picture!,
-            img.imageId ?? DateTime.now().millisecondsSinceEpoch.toString(),
+            img.picture,
+            img.imageId,
           );
           files.add(file);
         }
@@ -149,6 +134,28 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
   }
 
   @override
+  void dispose() {
+    _amountController!.dispose();
+    _titleController.dispose();
+    _descriptionController.dispose();
+    accountController.dispose();
+    dateController.dispose();
+    timeController.dispose();
+    categoryController.dispose();
+    _startDateController.dispose();
+    _endDateController.dispose();
+    selectedCategoryId.dispose();
+    selectedAccId.dispose();
+    selectedAccFromId.dispose();
+    selectedAccToId.dispose();
+    isCheck.dispose();
+    _titleControllerFocusNode.dispose();
+    _descriptionControllerFocusNode.dispose();
+    _amountControllerFocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return Form(
@@ -168,6 +175,7 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                       focusNode: _titleControllerFocusNode,
                       nextFocusNode: _amountControllerFocusNode,
                       controller: _titleController,
+                      textInputAction: TextInputAction.next,
                       hintText: isExpense
                           ? context.tr('expenseNameKeyLbl')
                           : isIncome
@@ -183,6 +191,8 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                       focusNode: _amountControllerFocusNode,
                       nextFocusNode: _descriptionControllerFocusNode,
                       controller: _amountController ?? TextEditingController(),
+                      textInputAction: TextInputAction.next,
+
                       hintText: context.tr('amountLbl'),
                       radius: 15,
                       keyboardType: TextInputType.number,
@@ -200,18 +210,14 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                       Column(
                         children: [
                           SizedBox(height: context.height * 0.02),
-                          GestureDetector(
+                          CustomTextFormField(
+                            isReadOnly: true,
+                            controller: categoryController,
+                            hintText: context.tr('selectCategoryLbl'),
+                            radius: 15,
                             onTap: () {
                               showCategoryBottomSheet(context, selectedCategoryId: selectedCategoryId, categoryController: categoryController);
                             },
-                            child: AbsorbPointer(
-                              child: CustomTextFormField(
-                                controller: categoryController,
-                                hintText: context.tr('selectCategoryLbl'),
-
-                                radius: 15,
-                              ),
-                            ),
                           ),
                         ],
                       ),
@@ -286,14 +292,18 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                                 if (isCheck.value) ...[
                                   const CustomHorizontalDivider(endOpacity: 0.2, padding: EdgeInsetsDirectional.only()),
                                   SizedBox(height: context.height * 0.01),
-                                  InkWell(
+                                  CustomTextFormField(
+                                    hintText: context.tr('selectStartDate'),
+                                    controller: _startDateController,
+                                    borderSide: const BorderSide(color: Colors.grey),
+                                    isReadOnly: true,
                                     onTap: () async {
                                       final pickedDate = await UiUtils.selectDate(context, _startDateController);
 
                                       if (pickedDate == null) return;
 
                                       if (isCheck.value) {
-                                        repeat = await showRepeatOptionDialogue(context: context);
+                                        repeat = (await showRepeatOptionDialogue(context: context))!;
 
                                         _startDateController.text =
                                             '${context.tr('startKey')} : '
@@ -302,33 +312,26 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                                         _startDateController.text = DateFormat(dateFormat).format(pickedDate);
                                       }
                                     },
-                                    child: IgnorePointer(
-                                      child: CustomTextFormField(
-                                        hintText: 'Select Start Date',
-                                        controller: _startDateController,
-                                        borderSide: const BorderSide(color: Colors.grey),
-                                      ),
-                                    ),
                                   ),
                                   SizedBox(height: context.height * 0.01),
                                   InkWell(
-                                    onTap: () async {
-                                      final pickedDate = await UiUtils.selectDate(context, _endDateController);
+                                    onTap: () async {},
+                                    child: CustomTextFormField(
+                                      hintText: context.tr('selectEndDate'),
+                                      controller: _endDateController,
+                                      borderSide: const BorderSide(color: Colors.grey),
+                                      isReadOnly: true,
+                                      onTap: () async {
+                                        final pickedDate = await UiUtils.selectDate(context, _endDateController);
 
-                                      final startDate = _getStartDate();
+                                        final startDate = _getStartDate();
 
-                                      if (pickedDate!.isBefore(startDate!)) {
-                                        UiUtils.showCustomSnackBar(context: context, errorMessage: context.tr('endDateLessThanStartDate'));
-                                      } else {
-                                        _endDateController.text = DateFormat(dateFormat).format(pickedDate);
-                                      }
-                                    },
-                                    child: IgnorePointer(
-                                      child: CustomTextFormField(
-                                        hintText: 'Select End Date',
-                                        controller: _endDateController,
-                                        borderSide: const BorderSide(color: Colors.grey),
-                                      ),
+                                        if (pickedDate!.isBefore(startDate!)) {
+                                          UiUtils.showCustomSnackBar(context: context, errorMessage: context.tr('endDateLessThanStartDate'));
+                                        } else {
+                                          _endDateController.text = DateFormat(dateFormat).format(pickedDate);
+                                        }
+                                      },
                                     ),
                                   ),
                                 ],
@@ -416,39 +419,35 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                 return BlocConsumer<AddTransactionCubit, AddTransactionState>(
                   listener: (context, addState) async {
                     if (addState is AddTransactionSuccess) {
-                      await context.read<GetTransactionCubit>().addTransactionLocally(addState.transaction);
-                      context.read<GetAccountCubit>().getTotalAccountBalance(type: addState.transaction.type!, accountId: addState.transaction.accountId, amount: addState.transaction.amount!);
-                      UiUtils.showCustomSnackBar(context: context, errorMessage: context.tr('transactionAddSucess'));
                       Navigator.pop(context);
-                      if (addState.transaction.recurringId != null) {
-                        //TODO: add context.addtranstaioncubit addTransaction method
+                      await context.read<GetTransactionCubit>().addTransactionLocally(addState.transaction);
+                      context.read<GetAccountCubit>().getTotalAccountBalance(type: addState.transaction.type, accountId: addState.transaction.accountId, amount: addState.transaction.amount);
+                      UiUtils.showCustomSnackBar(context: context, errorMessage: context.tr('transactionAddSucess'));
 
-                        //TODO: call context getrequreing trascation cubit add one more method create recureing
+                      await context.read<GetRecurringTransactionCubit>().createRecurringTransaction(
+                        Recurring(
+                          recurringId: addState.transaction.recurringId,
+                          title: addState.transaction.title,
+                          frequency: UiUtils.convertStringToRecurringFrequency(repeat)!,
+                          startDate: UiUtils.getFormatedDate(_startDateController)!,
+                          endDate: _endDateController.text,
+                          amount: double.parse(_amountController!.text),
+                          accountId: addState.transaction.accountId,
+                          categoryId: addState.transaction.categoryId,
+                          type: addState.transaction.type,
+                        ),
+                      );
 
-                        await context.read<GetRecurringTransactionCubit>().createRecurringTransaction(
-                          Recurring(
-                            recurringId: addState.transaction.recurringId,
-                            title: addState.transaction.title,
-                            frequency: UiUtils.convertStringToRecurringFrequency(repeat!),
-                            startDate: UiUtils.getFormatedDate(_startDateController),
-                            endDate: _endDateController.text,
-                            amount: double.parse(_amountController!.text),
-                            accountId: addState.transaction.accountId,
-                            categoryId: addState.transaction.categoryId,
-                            type: addState.transaction.type,
-                          ),
-                        );
-
-                        context.read<GetRecurringTransactionCubit>().attachTransactionIdToRecurring(
-                          recurringId: addState.transaction.recurringId!,
-                          scheduleDate: UiUtils.getFormatedDate(_startDateController)!,
-                          transactionId: addState.transaction.id!,
-                          recurringTransactionId: addState.transaction.recurringTransactionId!,
-                        );
-                      }
+                      context.read<GetRecurringTransactionCubit>().attachTransactionIdToRecurring(
+                        recurringId: addState.transaction.recurringId,
+                        scheduleDate: UiUtils.getFormatedDate(_startDateController)!,
+                        transactionId: addState.transaction.id,
+                        recurringTransactionId: addState.transaction.recurringTransactionId,
+                      );
                     }
                     if (addState is AddTransactionFailure) {
                       UiUtils.showCustomSnackBar(context: context, errorMessage: addState.errorMessage);
+                      Navigator.pop(context);
                     }
                   },
                   builder: (context, addState) {
@@ -463,55 +462,61 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
 
                               if (_amountController!.text.isEmpty) {
                                 UiUtils.showCustomSnackBar(context: context, errorMessage: context.tr('amountKey'));
-                              } else if ((isIncome && selectedAccId.value == '') || (isExpense && selectedAccId.value == '')) {
+                                return;
+                              }
+                              if ((isIncome && selectedAccId.value == '') || (isExpense && selectedAccId.value == '')) {
                                 UiUtils.showCustomSnackBar(context: context, errorMessage: context.tr('plzSelectAccountKey'));
-                              } else if (isTransfer && (selectedAccFromId.value == '0' || selectedAccToId.value == '0')) {
+                                return;
+                              }
+                              if (isTransfer && (selectedAccFromId.value == '0' || selectedAccToId.value == '0')) {
                                 UiUtils.showCustomSnackBar(context: context, errorMessage: context.tr('selectAccountLbl'));
-                              } else if (isTransfer && selectedAccFromId.value == selectedAccToId.value) {
+                                return;
+                              }
+                              if (isTransfer && selectedAccFromId.value == selectedAccToId.value) {
                                 UiUtils.showCustomSnackBar(context: context, errorMessage: context.tr('sameAccountKey'));
-                              } else {
-                                final transactionId = 'TR'.withDateTimeMillisRandom();
-                                final reccuringID = 'R'.withDateTimeMillisRandom();
+                                return;
+                              }
+                              final transactionId = 'TR'.withDateTimeMillisRandom();
+                              final reccuringID = 'R'.withDateTimeMillisRandom();
 
-                                if (widget.isEdit) {
-                                  await context.read<UpdateTrasansactionCubit>().updateTransaction(
-                                    Transaction(
-                                      id: widget.transaction!.id,
-                                      date: dateController.text,
-                                      title: _titleController.text,
-                                      type: widget.type,
-                                      amount: double.parse(_amountController!.text),
-                                      description: _descriptionController.text,
-                                      categoryId: selectedCategoryId.value,
-                                      accountId: selectedAccId.value,
-                                      recurringId: isCheck.value ? reccuringID : null,
-                                      accountFromId: selectedAccFromId.value,
-                                      accountToId: selectedAccToId.value,
-                                      image: partyImages,
-                                      addFromType: isCheck.value ? TransactionType.RECURRING : TransactionType.NONE,
-                                      recurringTransactionId: isCheck.value ? widget.transaction?.recurringTransactionId ?? 'RT'.withDateTimeMillisRandom() : null,
-                                    ),
-                                  );
-                                } else {
-                                  await context.read<AddTransactionCubit>().addTransaction(
-                                    Transaction(
-                                      id: transactionId,
-                                      date: dateController.text,
-                                      title: _titleController.text,
-                                      type: widget.type,
-                                      amount: double.parse(_amountController!.text),
-                                      description: _descriptionController.text,
-                                      categoryId: selectedCategoryId.value,
-                                      accountId: selectedAccId.value,
-                                      recurringId: isCheck.value ? reccuringID : null,
-                                      accountFromId: selectedAccFromId.value,
-                                      accountToId: selectedAccToId.value,
-                                      image: partyImages,
-                                      addFromType: isCheck.value ? TransactionType.RECURRING : TransactionType.NONE,
-                                      recurringTransactionId: isCheck.value ? 'RT'.withDateTimeMillisRandom() : null,
-                                    ),
-                                  );
-                                }
+                              if (widget.isEdit) {
+                                await context.read<UpdateTrasansactionCubit>().updateTransaction(
+                                  Transaction(
+                                    id: widget.transaction!.id,
+                                    date: dateController.text,
+                                    title: _titleController.text,
+                                    type: widget.type,
+                                    amount: double.parse(_amountController!.text),
+                                    description: _descriptionController.text,
+                                    categoryId: selectedCategoryId.value,
+                                    accountId: selectedAccId.value,
+                                    recurringId: isCheck.value ? reccuringID : '',
+                                    accountFromId: selectedAccFromId.value,
+                                    accountToId: selectedAccToId.value,
+                                    image: partyImages,
+                                    addFromType: isCheck.value ? TransactionType.RECURRING : TransactionType.NONE,
+                                    recurringTransactionId: isCheck.value ? widget.transaction?.recurringTransactionId ?? 'RT'.withDateTimeMillisRandom() : '',
+                                  ),
+                                );
+                              } else {
+                                await context.read<AddTransactionCubit>().addTransaction(
+                                  Transaction(
+                                    id: transactionId,
+                                    date: dateController.text,
+                                    title: _titleController.text,
+                                    type: widget.type,
+                                    amount: double.parse(_amountController!.text),
+                                    description: _descriptionController.text,
+                                    categoryId: selectedCategoryId.value,
+                                    accountId: selectedAccId.value,
+                                    recurringId: isCheck.value ? reccuringID : '',
+                                    accountFromId: selectedAccFromId.value,
+                                    accountToId: selectedAccToId.value,
+                                    image: partyImages,
+                                    addFromType: isCheck.value ? TransactionType.RECURRING : TransactionType.NONE,
+                                    recurringTransactionId: isCheck.value ? 'RT'.withDateTimeMillisRandom() : '',
+                                  ),
+                                );
                               }
                             },
                             width: 1,

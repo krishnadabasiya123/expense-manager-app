@@ -39,9 +39,9 @@ class SoftDeleteTransactionList extends StatelessWidget {
               return RestoreTransactionCard(
                 transaction: transaction,
                 subtitle: transaction.title ?? '',
-                amount: transaction.amount!.formatAmt(),
+                amount: transaction.amount.formatAmt(),
                 account: accountName,
-                type: transaction.type!,
+                type: transaction.type,
                 accountFromName: accountFromName,
                 accountToName: accountToName,
                 categoryName: categoryName,
@@ -286,49 +286,139 @@ class _RestoreTransactionCardState extends State<RestoreTransactionCard> {
   }
 
   Future<void> showDeleteAlertDialog({required Transaction transaction, required BuildContext context}) async {
-    await showGeneralDialog(
-      context: context,
-      barrierLabel: 'Delete',
-      barrierColor: Colors.black.withValues(alpha: .3),
-      transitionDuration: const Duration(milliseconds: 300),
+    context.showAppDialog(
+      child: BlocProvider(
+        create: (context) => SoftDeleteTransactionCubit(),
+        child: Builder(
+          builder: (dialogContext) {
+            return Center(
+              child: PopScope(
+                canPop: false,
+                onPopInvokedWithResult: (didPop, result) {
+                  if (didPop) return;
+                  if (dialogContext.read<SoftDeleteTransactionCubit>().state is! SoftDeleteTransactionLoading) {
+                    Navigator.of(dialogContext).pop();
+                    return;
+                  }
+                },
+                child: AlertDialog(
+                  constraints: BoxConstraints(maxHeight: context.height * 0.45, maxWidth: context.width * 0.85),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  title: CustomTextView(text: context.tr('deleteAccountTitleKey'), fontWeight: FontWeight.bold, fontSize: 18.sp(context)),
+                  content: CustomTextView(text: context.tr('deleteRestoreTransactionDialogMsg'), softWrap: true, maxLines: 3),
+                  actions: [
+                    BlocConsumer<SoftDeleteTransactionCubit, SoftDeleteTransactionState>(
+                      listener: (context, state) {
+                        if (state is SoftDeleteTransactionSuccess) {
+                          context.read<GetSoftDeleteTransactionsCubit>().getSoftDeleteTransactionLocally(transaction);
 
-      transitionBuilder: (context, animation, secondaryAnimation, child) {
-        return Transform.scale(
-          scale: Curves.easeOutBack.transform(animation.value),
-          child: Opacity(opacity: animation.value, child: child),
-        );
-      },
+                          if (state.transaction.partyTransactionId.isNotEmpty) {
+                            context.read<GetSoftDeletePartyTransactionCubit>().updateSoftDeletePartyTransactionLocally(partyTransaactioId: transaction.partyTransactionId);
+                          }
+                          Navigator.pop(context);
+                        }
+                      },
+                      builder: (context, state) {
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: CustomRoundedButton(
+                                onPressed: () {
+                                  if (state is! SoftDeleteTransactionLoading) {
+                                    Navigator.pop(context);
+                                  }
+                                },
+                                width: 1,
+                                backgroundColor: Theme.of(context).primaryColor,
+                                text: context.tr('cancelKey'),
+                                borderRadius: BorderRadius.circular(8),
+                                //showBorder: false,
+                                height: 40.sp(context),
+                                textStyle: TextStyle(fontSize: 18.sp(context)),
 
-      pageBuilder: (context, animation, secondaryAnimation) {
-        final size = MediaQuery.of(context).size;
+                                //isLoading: widget.isEdit ? updateCategoryState is UpdateCategoryLoading : addCategoryState is AddCategoryLoading,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: CustomRoundedButton(
+                                onPressed: () {
+                                  context.read<SoftDeleteTransactionCubit>().softDeleteTransaction(transaction);
+                                },
+                                width: 1,
+                                backgroundColor: Theme.of(context).primaryColor,
+                                text: context.tr('deleteKey'),
+                                borderRadius: BorderRadius.circular(8),
+                                height: 40.sp(context),
+                                textStyle: TextStyle(
+                                  fontSize: 18.sp(context),
+                                ),
+                                isLoading: state is SoftDeleteTransactionLoading,
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
 
-        return Center(
-          child: PopScope(
-            canPop: false,
-            onPopInvokedWithResult: (didPop, result) {
-              if (didPop) return;
-              if (context.read<SoftDeleteTransactionCubit>().state is! SoftDeleteTransactionLoading) {
-                Navigator.of(context).pop();
-                return;
-              }
-            },
-            child: AlertDialog(
-              constraints: BoxConstraints(maxHeight: size.height * 0.45, maxWidth: size.width * 0.85),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              title: CustomTextView(text: context.tr('deleteAccountTitleKey'), fontWeight: FontWeight.bold, fontSize: 18.sp(context)),
-              content: CustomTextView(text: context.tr('deleteRestoreTransactionDialogMsg'), softWrap: true, maxLines: 3),
-              actions: [
-                BlocProvider(
-                  create: (context) => SoftDeleteTransactionCubit(),
-                  child: BlocConsumer<SoftDeleteTransactionCubit, SoftDeleteTransactionState>(
+Future<void> showRestoreDialogue({required Transaction transaction, required BuildContext context}) async {
+  context.showAppDialog(
+    child: BlocProvider(
+      create: (context) => RestoreTransactionCubit(),
+      child: Builder(
+        builder: (dialogContext) {
+          return Center(
+            child: PopScope(
+              canPop: false,
+              onPopInvokedWithResult: (didPop, result) {
+                if (didPop) return;
+                if (dialogContext.read<RestoreTransactionCubit>().state is! RestoreTransactionLoading) {
+                  Navigator.of(dialogContext).pop();
+                  return;
+                }
+              },
+              child: AlertDialog(
+                constraints: BoxConstraints(maxHeight: context.height * 0.45, maxWidth: context.width * 0.85),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                title: CustomTextView(text: context.tr('restoreTitleKey'), fontWeight: FontWeight.bold, fontSize: 18.sp(context)),
+                content: CustomTextView(text: context.tr('confirmRestoreDialogMsg'), softWrap: true, maxLines: 3),
+                actions: [
+                  BlocConsumer<RestoreTransactionCubit, RestoreTransactionState>(
                     listener: (context, state) {
-                      if (state is SoftDeleteTransactionSuccess) {
-                        Navigator.pop(context);
+                      if (state is RestoreTransactionSuccess) {
                         context.read<GetSoftDeleteTransactionsCubit>().getSoftDeleteTransactionLocally(transaction);
 
-                        if (state.transaction.partyTransactionId != null) {
-                          context.read<GetSoftDeletePartyTransactionCubit>().updateSoftDeletePartyTransactionLocally(partyTransaactioId: transaction.partyTransactionId!);
-                        }
+                        context.read<GetTransactionCubit>().addTransactionLocally(transaction);
+
+                        UiUtils.showCustomSnackBar(
+                          context: context,
+                          errorMessage: context.tr('transactionRestoredSuccessfullyKey'),
+                        );
+
+                        final partyTransactionmodel = context.read<GetSoftDeletePartyTransactionCubit>().getPartyTransaction(transactionId: state.transaction.id);
+
+                        // this method is for if in transaction party data restore then from party transaction forcefully restore party transaction
+                        //(same party transaction id available in party transaction list)
+
+                        context.read<GetSoftDeletePartyTransactionCubit>().getSoftDeletePartyTransactionLocally(transaction: partyTransactionmodel);
+                        Navigator.pop(context);
+                      }
+
+                      if (state is RestoreTransactionFailure) {
+                        UiUtils.showCustomSnackBar(
+                          context: context,
+                          errorMessage: state.errorMessage,
+                        );
                       }
                     },
                     builder: (context, state) {
@@ -337,7 +427,7 @@ class _RestoreTransactionCardState extends State<RestoreTransactionCard> {
                           Expanded(
                             child: CustomRoundedButton(
                               onPressed: () {
-                                if (state is! SoftDeleteTransactionLoading) {
+                                if (state is! RestoreTransactionLoading) {
                                   Navigator.pop(context);
                                 }
                               },
@@ -356,145 +446,29 @@ class _RestoreTransactionCardState extends State<RestoreTransactionCard> {
                           Expanded(
                             child: CustomRoundedButton(
                               onPressed: () {
-                                context.read<SoftDeleteTransactionCubit>().softDeleteTransaction(transaction);
+                                context.read<RestoreTransactionCubit>().restoreTransaction(transaction);
                               },
                               width: 1,
                               backgroundColor: Theme.of(context).primaryColor,
-                              text: context.tr('deleteKey'),
+                              text: context.tr('restoreKey'),
                               borderRadius: BorderRadius.circular(8),
                               height: 40.sp(context),
                               textStyle: TextStyle(
                                 fontSize: 18.sp(context),
                               ),
-                              isLoading: state is SoftDeleteTransactionLoading,
+                              isLoading: state is RestoreTransactionLoading,
                             ),
                           ),
                         ],
                       );
                     },
                   ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-Future<void> showRestoreDialogue({required Transaction transaction, required BuildContext context}) async {
-  await showGeneralDialog(
-    context: context,
-    barrierLabel: 'Restore',
-    barrierColor: Colors.black.withValues(alpha: .3),
-    transitionDuration: const Duration(milliseconds: 300),
-
-    transitionBuilder: (context, animation, secondaryAnimation, child) {
-      return Transform.scale(
-        scale: Curves.easeOutBack.transform(animation.value),
-        child: Opacity(opacity: animation.value, child: child),
-      );
-    },
-
-    pageBuilder: (context, animation, secondaryAnimation) {
-      final size = MediaQuery.of(context).size;
-
-      return Center(
-        child: PopScope(
-          canPop: false,
-          onPopInvokedWithResult: (didPop, result) {
-            if (didPop) return;
-            if (context.read<RestoreTransactionCubit>().state is! RestoreTransactionLoading) {
-              Navigator.of(context).pop();
-              return;
-            }
-          },
-          child: AlertDialog(
-            constraints: BoxConstraints(maxHeight: size.height * 0.45, maxWidth: size.width * 0.85),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            title: CustomTextView(text: context.tr('restoreTitleKey'), fontWeight: FontWeight.bold, fontSize: 18.sp(context)),
-            content: CustomTextView(text: context.tr('confirmRestoreDialogMsg'), softWrap: true, maxLines: 3),
-            actions: [
-              BlocProvider(
-                create: (context) => RestoreTransactionCubit(),
-                child: BlocConsumer<RestoreTransactionCubit, RestoreTransactionState>(
-                  listener: (context, state) {
-                    if (state is RestoreTransactionSuccess) {
-                      Navigator.pop(context);
-                      context.read<GetSoftDeleteTransactionsCubit>().getSoftDeleteTransactionLocally(transaction);
-
-                      context.read<GetTransactionCubit>().addTransactionLocally(transaction);
-
-                      UiUtils.showCustomSnackBar(
-                        context: context,
-                        errorMessage: context.tr('transactionRestoredSuccessfullyKey'),
-                      );
-
-                      if (state.transaction.partyTransactionId != null) {
-                        final partyTransactionmodel = context.read<GetSoftDeletePartyTransactionCubit>().getPartyTransaction(transactionId: state.transaction.id!);
-
-                        // this method is for if in transaction party data restore then from party transaction forcefully restore party transaction
-                        //(same party transaction id available in party transaction list)
-
-                        context.read<GetSoftDeletePartyTransactionCubit>().getSoftDeletePartyTransactionLocally(transaction: partyTransactionmodel);
-                      }
-                    }
-
-                    if (state is RestoreTransactionFailure) {
-                      UiUtils.showCustomSnackBar(
-                        context: context,
-                        errorMessage: state.errorMessage,
-                      );
-                    }
-                  },
-                  builder: (context, state) {
-                    return Row(
-                      children: [
-                        Expanded(
-                          child: CustomRoundedButton(
-                            onPressed: () {
-                              if (state is! RestoreTransactionLoading) {
-                                Navigator.pop(context);
-                              }
-                            },
-                            width: 1,
-                            backgroundColor: Theme.of(context).primaryColor,
-                            text: context.tr('cancelKey'),
-                            borderRadius: BorderRadius.circular(8),
-                            //showBorder: false,
-                            height: 40.sp(context),
-                            textStyle: TextStyle(fontSize: 18.sp(context)),
-
-                            //isLoading: widget.isEdit ? updateCategoryState is UpdateCategoryLoading : addCategoryState is AddCategoryLoading,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: CustomRoundedButton(
-                            onPressed: () {
-                              context.read<RestoreTransactionCubit>().restoreTransaction(transaction);
-                            },
-                            width: 1,
-                            backgroundColor: Theme.of(context).primaryColor,
-                            text: context.tr('restoreKey'),
-                            borderRadius: BorderRadius.circular(8),
-                            height: 40.sp(context),
-                            textStyle: TextStyle(
-                              fontSize: 18.sp(context),
-                            ),
-                            isLoading: state is RestoreTransactionLoading,
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
+                ],
               ),
-            ],
-          ),
-        ),
-      );
-    },
+            ),
+          );
+        },
+      ),
+    ),
   );
 }

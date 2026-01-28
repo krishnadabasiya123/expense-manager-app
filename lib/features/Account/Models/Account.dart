@@ -7,13 +7,13 @@ class Account extends HiveObject {
   Account({required this.id, required this.name, required this.amount});
 
   @HiveField(0)
-  final String id;
+  String id = '';
 
   @HiveField(1)
-  final String name;
+  String name = '';
 
   @HiveField(2)
-  final double amount;
+  double amount = 0;
 
   Map<String, dynamic> toJson() {
     return {
