@@ -1,3 +1,4 @@
+import 'package:expenseapp/commons/widgets/custom_app_bar.dart';
 import 'package:expenseapp/core/app/all_import_file.dart';
 
 import 'package:flutter/material.dart';
@@ -49,13 +50,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: colorScheme.primary,
+      appBar: QAppBar(
         title: CustomTextView(
           text: context.tr('editProfileKey'),
           color: Colors.white,
-          fontSize: 18.sp(context),
+          fontSize: 20.sp(context),
         ),
       ),
       body: ResponsivePadding(

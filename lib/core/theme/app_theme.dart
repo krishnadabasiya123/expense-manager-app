@@ -12,11 +12,13 @@ final Map<AppThemeType, ThemeData> appThemeData = {
     useMaterial3: true,
     scaffoldBackgroundColor: Color.lerp(Colors.white, const Color(0xFF1E3A8A), 0.1),
     shadowColor: Colors.white,
-
     brightness: Brightness.light,
     primaryColor: AppThemeColors.lightPrimaryColor,
     secondaryHeaderColor: AppThemeColors.lightTextColor,
-
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      selectedLabelStyle: GoogleFonts.nunito(),
+      unselectedLabelStyle: GoogleFonts.nunito(),
+    ),
     textSelectionTheme: const TextSelectionThemeData(cursorColor: AppThemeColors.lightPrimaryColor, selectionHandleColor: AppThemeColors.lightPrimaryColor),
     colorScheme: const ColorScheme(
       onTertiary: AppThemeColors.darkTextColor,
@@ -45,7 +47,14 @@ final Map<AppThemeType, ThemeData> appThemeData = {
     primaryColor: AppThemeColors.darkPrimaryColor,
     secondaryHeaderColor: AppThemeColors.darkTextColor,
     scaffoldBackgroundColor: AppThemeColors.darkSurfaceColor,
-
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      selectedLabelStyle: GoogleFonts.nunito(
+        fontWeight: FontWeight.w600,
+      ),
+      unselectedLabelStyle: GoogleFonts.nunito(
+        fontWeight: FontWeight.w400,
+      ),
+    ),
     textSelectionTheme: const TextSelectionThemeData(cursorColor: AppThemeColors.darkPrimaryColor, selectionHandleColor: AppThemeColors.darkPrimaryColor),
     colorScheme: const ColorScheme(
       brightness: Brightness.dark,

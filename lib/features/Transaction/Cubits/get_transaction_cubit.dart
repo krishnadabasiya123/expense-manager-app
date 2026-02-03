@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/features/RecurringTransaction/Model/Recurring.dart';
 
@@ -39,6 +37,26 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
     } catch (e) {
       emit(GetTransactionFailure(e.toString()));
     }
+  }
+
+  bool hasExpense(DateTime day, List<Transaction> transactions) {
+    if (state is GetTransactionSuccess) {
+      return transactions.any((tx) {
+        final txDate = _parseDate(tx.date);
+        return isSameDate(txDate, day) && tx.type == TransactionType.EXPENSE;
+      });
+    }
+    return false;
+  }
+
+  bool hasIncome(DateTime day, List<Transaction> transactions) {
+    if (state is GetTransactionSuccess) {
+      return transactions.any((tx) {
+        final txDate = _parseDate(tx.date);
+        return isSameDate(txDate, day) && tx.type == TransactionType.INCOME;
+      });
+    }
+    return false;
   }
 
   Future<void> addTransactionLocallyTest(
@@ -197,79 +215,6 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
     return getTotalIncome() - getTotalExpense();
   }
 
-  // List<Map<String, dynamic>> getTransactionByFilterDate({
-  //   int count = 0,
-  //   DateTime? date,
-  //   TransactionType? selectedTab,
-  //   String searchText = '',
-  // }) {
-  //   if (state is GetTransactionSuccess) {
-  //     final transactions = (state as GetTransactionSuccess).transactions;
-
-  //     try {
-  //       final grouped = <String, List<Transaction>>{};
-  //       final dateFormat = DateFormat('dd.MM.yyyy');
-  //       final categoryList = CategoryLocalStorage().getAll();
-
-  //       final sortedTransactions = [...transactions]
-  //         ..sort((a, b) {
-  //           if (a.date == null || b.date == null) return 0;
-  //           return dateFormat
-  //               .parse(a.date!)
-  //               .compareTo(
-  //                 dateFormat.parse(b.date!),
-  //               );
-  //         });
-
-  //       final limitedTransactions = count == 0 ? sortedTransactions : sortedTransactions.take(count).toList();
-
-  //       final filteredTransactions =
-  //           limitedTransactions
-  //               .where((item) {
-  //                 if (item.date == null) return false;
-
-  //                 if (date != null) {
-  //                   final txnDate = dateFormat.parse(item.date!);
-  //                   if (txnDate.month != date.month || txnDate.year != date.year) {
-  //                     return false;
-  //                   }
-  //                 }
-
-  //                 return true;
-  //               })
-  //               .where((item) {
-  //                 if (selectedTab == null || selectedTab == TransactionType.ALL) {
-  //                   return true;
-  //                 }
-  //                 return item.type == selectedTab;
-  //               })
-  //               .where((item) {
-  //                 if (searchText.isNotEmpty) {
-  //                   final categoryName = item.categoryId != null ? categoryList.firstWhere((element) => element.id == item.categoryId).name : '';
-  //                   return categoryName.toLowerCase().contains(searchText.toLowerCase());
-  //                 }
-  //                 return true;
-  //               })
-  //               .toList()
-  //             ..sort((b, a) => a.date!.compareTo(b.date!));
-
-  //       for (final item in filteredTransactions) {
-  //         grouped.putIfAbsent(item.date!, () => []);
-  //         grouped[item.date!]!.add(item);
-  //       }
-
-  //       return grouped.entries.map((entry) {
-  //         return {
-  //           'date': entry.key,
-  //           'transactions': entry.value,
-  //         };
-  //       }).toList();
-  //     } catch (e, st) {
-  //       return [];
-  //     }
-  //   }
-  //   return [];
-  // }
   List<Map<String, dynamic>> getTransactionByFilterDate({
     required TransactionType selectedTab,
     int count = 0,
@@ -287,6 +232,26 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
         .sortByDate()
         .maybeTake(count)
         .groupByDate(); // Returns the List<Map<String, dynamic>>
+  }
+
+  List<Transaction> getTransactionByDate({
+    required DateTime focusedDay,
+  }) {
+    if (state is! GetTransactionSuccess) return [];
+
+    final transactions = (state as GetTransactionSuccess).transactions;
+
+    final data = transactions.where((tx) {
+      final txDate = _parseDate(tx.date);
+      return isSameDate(txDate, focusedDay);
+    }).toList();
+
+    log('filtered data count: ${data.length}');
+    return data;
+  }
+
+  bool isSameDate(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
   List<Map<String, dynamic>> getTransactionByAccountId({
@@ -496,5 +461,104 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
       final transactions = (state as GetTransactionSuccess).transactions..removeWhere((element) => element.recurringId == recurringId);
       emit(GetTransactionSuccess(transactions));
     }
+  }
+
+  List<double> getMonthlyExpenseAmountsOnly() {
+    if (state is GetTransactionSuccess) {
+      final transactions = (state as GetTransactionSuccess).transactions;
+      final monthlyAmounts = List<double>.filled(12, 0);
+      final currentYear = DateTime.now().year;
+
+      for (final tx in transactions) {
+        final txDate = _parseDate(tx.date);
+        if (tx.type != TransactionType.EXPENSE) continue;
+        if (txDate.year != currentYear) continue;
+
+        final monthIndex = txDate.month - 1;
+        monthlyAmounts[monthIndex] += tx.amount;
+      }
+      log('monthlyAmounts $monthlyAmounts');
+      return monthlyAmounts;
+    }
+    return [];
+  }
+
+  List<Map<String, double>> getMonthlyIncomeExpenseOnly() {
+    final transactions = (state as GetTransactionSuccess).transactions;
+    final currentYear = DateTime.now().year;
+
+    // Jan–Dec with default 0
+    final result = List<Map<String, double>>.generate(
+      12,
+      (_) => {
+        'expense': 0.0,
+        'income': 0.0,
+      },
+    );
+
+    for (final tx in transactions) {
+      final txDate = _parseDate(tx.date);
+      if (txDate.year != currentYear) continue;
+
+      final index = txDate.month - 1;
+
+      if (tx.type == TransactionType.EXPENSE) {
+        result[index]['expense'] = result[index]['expense']! + tx.amount;
+      } else if (tx.type == TransactionType.INCOME) {
+        result[index]['income'] = result[index]['income']! + tx.amount;
+      }
+    }
+
+    log('result $result');
+
+    return result;
+  }
+
+  double getTotalBudgetSpent({
+    required List<String> categoryIds,
+  }) {
+    double total = 0;
+    if (state is GetTransactionSuccess) {
+      final transactions = (state as GetTransactionSuccess).transactions;
+      for (final tx in transactions) {
+        if (categoryIds.contains(tx.categoryId)) {
+          total += tx.amount;
+        }
+      }
+    }
+
+    return total;
+  }
+
+  List<Map<String, dynamic>> getTransactionByCategoryId({
+    required List<String> categoryIds,
+  }) {
+    if (state is GetTransactionSuccess) {
+      final transactions = (state as GetTransactionSuccess).transactions;
+
+      try {
+        final grouped = <String, List<Transaction>>{};
+
+        final sortedTransactions = [...transactions];
+
+        final filteredTransactions = sortedTransactions.where((item) => categoryIds.contains(item.categoryId)).toList()..sort((b, a) => a.date.compareTo(b.date));
+
+        for (final item in filteredTransactions) {
+          grouped.putIfAbsent(item.categoryId, () => []);
+          grouped[item.categoryId]!.add(item);
+        }
+
+        return grouped.entries.map((entry) {
+          return {
+            'categoryId': entry.key,
+            'total': entry.value.fold<double>(0, (sum, item) => sum + item.amount),
+            'transactions': entry.value,
+          };
+        }).toList();
+      } catch (e, st) {
+        return [];
+      }
+    }
+    return [];
   }
 }

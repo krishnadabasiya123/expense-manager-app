@@ -1,3 +1,4 @@
+import 'package:expenseapp/commons/widgets/custom_app_bar.dart';
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/features/Transaction/Cubits/add_transaction_cubit.dart';
 import 'package:expenseapp/features/Transaction/Cubits/update_trasansaction_cubit.dart';
@@ -59,9 +60,7 @@ class _TransactionTabBarViewScreenState extends State<TransactionTabBarViewScree
       },
       child: Scaffold(
         resizeToAvoidBottomInset: false,
-        appBar: AppBar(
-          iconTheme: IconThemeData(color: colorScheme.surface),
-          backgroundColor: colorScheme.primary,
+        appBar: QAppBar(
           title: CustomTextView(text: widget.isEdit ? context.tr('editTransactionKey') : context.tr('addTransactionKey'), color: colorScheme.surface, fontSize: 20.sp(context)),
         ),
         body: ValueListenableBuilder(

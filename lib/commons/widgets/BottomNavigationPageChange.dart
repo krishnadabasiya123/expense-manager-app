@@ -68,16 +68,28 @@ class _BottomNavigationPageChnageState extends State<BottomNavigationPageChnage>
             }
           },
           child: BlocListener<GetRecurringTransactionCubit, GetRecurringTransactionState>(
+            listenWhen: (previous, current) {
+              return previous is! GetRecurringTransactionSuccess && current is GetRecurringTransactionSuccess;
+            },
             listener: (context, state) async {
-              if (state is GetRecurringTransactionSuccess) {
-                final dueRecurrings = context.read<GetRecurringTransactionCubit>().getDueRecurringTransactions();
+              if (state is! GetRecurringTransactionSuccess) return;
+
+              final recurringCubit = context.read<GetRecurringTransactionCubit>();
+
+              // 🔒 Prevent re-entry
+              if (recurringCubit.isProcessing) return;
+              recurringCubit.startProcessing();
+
+              try {
+                final dueRecurrings = recurringCubit.getDueRecurringTransactions();
 
                 for (final recurring in dueRecurrings) {
                   log('recurring transaction to be added ${recurring.toJson()}');
-                }
 
-                for (final recurring in dueRecurrings) {
                   for (final rt in recurring.recurringTransactions) {
+                    // 🛡 Extra safety: skip if already processed
+                    if (rt.transactionId.isNotEmpty) continue;
+
                     final transactionId = 'TR'.withDateTimeMillisRandom();
 
                     context.read<GetTransactionCubit>().addTransactionsLocally([
@@ -95,7 +107,7 @@ class _BottomNavigationPageChnageState extends State<BottomNavigationPageChnage>
                       ),
                     ]);
 
-                    await context.read<GetRecurringTransactionCubit>().updateRecurringTransactionByStatus(
+                    await recurringCubit.updateRecurringTransactionByStatus(
                       transaction: recurring,
                       recurringTransaction: rt,
                       status: RecurringTransactionStatus.PAID,
@@ -103,6 +115,11 @@ class _BottomNavigationPageChnageState extends State<BottomNavigationPageChnage>
                     );
                   }
                 }
+              } catch (e, st) {
+                log('Recurring processing failed', error: e, stackTrace: st);
+              } finally {
+                // ✅ ONLY HERE
+                recurringCubit.endProcessing();
               }
             },
 
@@ -179,12 +196,13 @@ class _BottomNavigationPageChnageState extends State<BottomNavigationPageChnage>
                 const SizedBox(height: 2),
                 AnimatedDefaultTextStyle(
                   duration: const Duration(milliseconds: 200),
-                  style: TextStyle(
+                  style: const TextStyle(),
+                  child: CustomTextView(
+                    text: label,
                     fontSize: 12.sp(context),
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                     color: isSelected ? Theme.of(context).colorScheme.primary : Colors.grey,
                   ),
-                  child: Text(label),
                 ),
               ],
             ),

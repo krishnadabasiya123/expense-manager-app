@@ -8,6 +8,8 @@ const klPageBackgroundColor = Color(0xfff3f7fa);
 const klPrimaryColor = Color.fromARGB(255, 0, 0, 0);
 const klPrimaryTextColor = Color(0xff45536d);
 const klBoarderColor = Color(0xff515151);
+const MaterialColor lexpenseColor = Colors.red;
+const MaterialColor lincomeColor = Colors.green;
 
 /// Dark Theme
 const kdSecondaryColor = Color(0xff848484);
@@ -17,6 +19,8 @@ const kdPageBackgroundColor = Color.fromARGB(255, 0, 0, 0);
 const kdPrimaryColor = Color.fromARGB(255, 1, 1, 1);
 const kdPrimaryTextColor = Color(0xfffefefe);
 const kdBoarderColor = Color(0xff515151);
+const dexpenseColor = Color.fromARGB(255, 222, 91, 82);
+const dincomeColor = Color.fromARGB(255, 100, 177, 103);
 
 extension AppColors on ColorScheme {
   Color get backgroundColor => brightness == Brightness.light ? klBackgroundColor : kdBackgroundColor;
@@ -32,6 +36,10 @@ extension AppColors on ColorScheme {
   Color get primaryTextColor => brightness == Brightness.light ? klPrimaryTextColor : kdPrimaryTextColor;
 
   Color get secondaryColor => brightness == Brightness.light ? lightGreyColor : kdSecondaryColor;
+
+  Color get expenseColor => brightness == Brightness.light ? lexpenseColor : dexpenseColor;
+
+  Color get incomeColor => brightness == Brightness.light ? lincomeColor : dincomeColor;
 
   Color get lightGreyColor => const Color(0xff8B8B8B);
 

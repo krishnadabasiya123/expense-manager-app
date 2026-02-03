@@ -1,4 +1,5 @@
 import 'package:expenseapp/commons/widgets/BottomNavigationPageChange.dart';
+import 'package:expenseapp/commons/widgets/custom_app_bar.dart';
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/features/Home/Cubits/edit_home_cubit.dart';
 import 'package:expenseapp/features/Home/Model/HomeMenuItem.dart';
@@ -39,26 +40,8 @@ class _HomePageState extends State<HomePage> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).primaryColor,
-
-        automaticallyImplyLeading: false,
-        title: BlocBuilder<EditHomeCubit, EditHomeState>(
-          builder: (context, state) {
-            if (state is EditHomeSuccess) {
-              if (context.read<EditHomeCubit>().isHomeBannerEnabled()) {
-                return CustomTextView(
-                  text: context.tr(''),
-                  fontSize: 25.sp(context),
-                  fontWeight: FontWeight.bold,
-                );
-              }
-            }
-
-            return CustomTextView(text: context.tr('homeKey'), fontSize: 25.sp(context), fontWeight: FontWeight.bold, color: Colors.white);
-          },
-        ),
-
+      appBar: QAppBar(
+        title: CustomTextView(text: context.tr('homeKey'), fontSize: 25.sp(context), fontWeight: FontWeight.bold, color: colorScheme.surface),
         actions: [
           IconButton(
             onPressed: () {
@@ -106,9 +89,6 @@ class _HomePageState extends State<HomePage> {
   Widget getWidgetByType(HomeMenuType type, ValueNotifier<String> selectedAccountId) {
     final colorScheme = Theme.of(context).colorScheme;
     switch (type) {
-      case HomeMenuType.HOME_PAGE_BANNER:
-        return CustomTextView(text: context.tr('homeKey'), fontSize: 38.sp(context), color: colorScheme.onTertiary, fontWeight: FontWeight.bold);
-
       case HomeMenuType.TRANSACTION_LIST:
         return _displayTransactionList();
 
@@ -195,11 +175,11 @@ class _HomePageState extends State<HomePage> {
             return Row(
               children: [
                 Expanded(
-                  child: _buildCard(text: context.tr('expenseKey'), amount: totalExpense, color: Colors.red, count: expenseTransactionCount),
+                  child: _buildCard(text: context.tr('expenseKey'), amount: totalExpense, color: context.colorScheme.expenseColor, count: expenseTransactionCount),
                 ),
                 SizedBox(width: context.width * 0.03),
                 Expanded(
-                  child: _buildCard(text: context.tr('incomeKey'), amount: totalIncome, color: Colors.green, count: incomeTransactionCount),
+                  child: _buildCard(text: context.tr('incomeKey'), amount: totalIncome, color: context.colorScheme.incomeColor, count: incomeTransactionCount),
                 ),
               ],
             );

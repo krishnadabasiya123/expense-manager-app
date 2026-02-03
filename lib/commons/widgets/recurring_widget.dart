@@ -39,7 +39,7 @@ class _PopupMenuExampleState extends State<PopupMenuExample> {
             value: context.tr('deleteKey'),
             child: Row(
               children: [
-                Icon(Icons.delete, color: Colors.red, size: 20.sp(context)),
+                Icon(Icons.delete, color: context.colorScheme.expenseColor, size: 20.sp(context)),
                 const SizedBox(width: 8),
 
                 CustomTextView(text: context.tr('deleteKey')),

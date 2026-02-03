@@ -1,3 +1,4 @@
+import 'package:expenseapp/commons/widgets/custom_app_bar.dart';
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/features/RecurringTransaction/Cubit/delete_recurring_transaction_cubit.dart';
 import 'package:expenseapp/features/RecurringTransaction/Cubit/get_recurring_transaction_cubit.dart';
@@ -5,7 +6,7 @@ import 'package:expenseapp/features/RecurringTransaction/Model/Enums/RecurringFr
 import 'package:expenseapp/features/RecurringTransaction/Model/Enums/RecurringTransactionStatus.dart';
 import 'package:expenseapp/features/RecurringTransaction/Model/Recurring.dart';
 import 'package:expenseapp/features/RecurringTransaction/Model/RecurringTransaction.dart';
-import 'package:expenseapp/features/RecurringTransaction/Screen/edit_recurring_dialogue.dart';
+import 'package:expenseapp/features/RecurringTransaction/Screen/edit_recurring_screen.dart';
 import 'package:expenseapp/features/RecurringTransaction/Widget/delete_recurring_dialogue.dart';
 import 'package:flutter/material.dart';
 
@@ -35,21 +36,29 @@ class _RecurringTransactionListState extends State<RecurringTransactionList> {
       return context.tr('endedKey');
     }
 
-    final upcoming = transactions.where((e) => e.status == RecurringTransactionStatus.UPCOMING || e.status == RecurringTransactionStatus.CANCELLED).toList();
+    final upcoming = transactions.where((e) => e.status == RecurringTransactionStatus.UPCOMING).toList();
+
+    final ifCancel = transactions.where((e) => e.status == RecurringTransactionStatus.CANCELLED).toList();
 
     if (upcoming.isEmpty) return null;
 
     upcoming.sort((a, b) => UiUtils.parseDate(a.scheduleDate).compareTo(UiUtils.parseDate(b.scheduleDate)));
+    ifCancel.sort((a, b) => UiUtils.parseDate(a.scheduleDate).compareTo(UiUtils.parseDate(b.scheduleDate)));
 
-    return upcoming.first.scheduleDate;
+    if (upcoming.isNotEmpty) {
+      return upcoming.first.scheduleDate;
+    }
+
+    if (ifCancel.isNotEmpty) {
+      return ifCancel.first.scheduleDate;
+    }
+    return null;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: Theme.of(context).primaryColor,
+      appBar: QAppBar(
         title: CustomTextView(text: context.tr('recurringKey'), fontSize: 20.sp(context), color: Colors.white),
       ),
       body: BlocConsumer<GetRecurringTransactionCubit, GetRecurringTransactionState>(
@@ -88,8 +97,8 @@ class _RecurringTransactionListState extends State<RecurringTransactionList> {
                     },
                     child: RecurringCard(
                       icon: item.type == TransactionType.EXPENSE ? Icons.arrow_upward : Icons.arrow_downward,
-                      iconBg: item.type == TransactionType.EXPENSE ? Colors.red.withValues(alpha: 0.15) : Colors.green.withValues(alpha: 0.15),
-                      iconColor: item.type == TransactionType.EXPENSE ? Colors.red : Colors.green,
+                      iconBg: item.type == TransactionType.EXPENSE ? context.colorScheme.expenseColor.withValues(alpha: 0.08) : context.colorScheme.incomeColor.withValues(alpha: 0.08),
+                      iconColor: item.type == TransactionType.EXPENSE ? context.colorScheme.expenseColor : context.colorScheme.incomeColor,
                       title: item.title,
                       amount: item.amount.toString(),
                       frequency: item.frequency,
@@ -181,10 +190,10 @@ class RecurringCard extends StatelessWidget {
                     CustomTextView(
                       text: amount!,
                       fontSize: 14.sp(context),
-                      color: type == TransactionType.EXPENSE ? Colors.red : Colors.green,
+                      color: type == TransactionType.EXPENSE ? context.colorScheme.expenseColor : context.colorScheme.incomeColor,
                     ),
 
-                    //Text(amount!, style: const TextStyle(color: Colors.red, fontSize: 12)),
+                    //Text(amount!, style: const TextStyle(color: context.colorScheme.expenseColor, fontSize: 12)),
                   ],
                 ),
               ),

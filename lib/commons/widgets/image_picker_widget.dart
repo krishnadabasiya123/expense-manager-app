@@ -195,8 +195,8 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
                       //   borderRadius: BorderRadius.circular(20.sp(context)),
                       child: Container(
                         padding: EdgeInsetsDirectional.all(5.sp(context)),
-                        decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20.sp(context))),
-                        child: Icon(Icons.close_rounded, color: Colors.red, size: 22.sp(context)),
+                        decoration: BoxDecoration(color: context.colorScheme.expenseColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20.sp(context))),
+                        child: Icon(Icons.close_rounded, color: context.colorScheme.expenseColor, size: 22.sp(context)),
                       ),
                     ),
                   ),

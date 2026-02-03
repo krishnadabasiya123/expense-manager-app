@@ -6,10 +6,11 @@ import 'package:expenseapp/commons/widgets/select_currency_screen.dart';
 import 'package:expenseapp/commons/widgets/select_language_screen.dart';
 import 'package:expenseapp/features/Account/Screen/account_screen.dart';
 import 'package:expenseapp/features/Account/Screen/account_transaction_screen.dart';
+import 'package:expenseapp/features/Calendar/Screen/calendar_screen.dart';
 import 'package:expenseapp/features/Category/Screen/category_screen.dart';
 import 'package:expenseapp/features/Home/Screen/edit_home_screen.dart';
 import 'package:expenseapp/features/Home/Screen/home_page.dart';
-import 'package:expenseapp/features/Home/Screen/restore_data_screen.dart';
+import 'package:expenseapp/features/Restore/Screen/restore_data_screen.dart';
 import 'package:expenseapp/features/Home/introSliderScreen.dart';
 import 'package:expenseapp/features/Home/splashScreen.dart';
 import 'package:expenseapp/features/Party/Screen/add_party_transaction_screen.dart';
@@ -17,11 +18,14 @@ import 'package:expenseapp/features/Party/Screen/party_screen.dart';
 import 'package:expenseapp/features/Party/Screen/party_transaction_screen.dart';
 import 'package:expenseapp/features/Profile/Screen/edit_profile_screen.dart';
 import 'package:expenseapp/features/RecurringTransaction/Model/RecurringTransaction.dart';
-import 'package:expenseapp/features/RecurringTransaction/Screen/edit_recurring_dialogue.dart';
+import 'package:expenseapp/features/RecurringTransaction/Screen/edit_recurring_screen.dart';
 import 'package:expenseapp/features/RecurringTransaction/Screen/main_recurring_transaction.dart';
 import 'package:expenseapp/features/RecurringTransaction/Screen/recurring_transaction.dart';
 import 'package:expenseapp/features/Transaction/Screen/transaction_screen.dart';
 import 'package:expenseapp/features/Transaction/Screen/transaction_tabBar_view_screen.dart';
+import 'package:expenseapp/features/budget/screens/add_budget_screen.dart';
+import 'package:expenseapp/features/budget/screens/budget_history_screen.dart';
+import 'package:expenseapp/features/budget/screens/budget_screen.dart';
 import 'package:expenseapp/features/login/sign_in_screen.dart';
 import 'package:expenseapp/features/login/sign_up_screen.dart';
 import 'package:flutter/cupertino.dart';
@@ -51,6 +55,10 @@ class Routes {
   static const mainrecurringTransactionList = 'mainrecurringTransactionList';
   static const recurringTransaction = 'recurringTransaction';
   static const editMainRecurringTransaction = 'editMainRecurringTransaction';
+  static const calendar = 'calendar';
+  static const budget = 'budget';
+  static const addBudget = 'addBudget';
+  static const budgetHistory = 'budgetHistory';
 
   static String currentRoute = splash;
 
@@ -128,6 +136,18 @@ class Routes {
 
       case editMainRecurringTransaction:
         return EditRecurringScreen.route(routeSettings);
+
+      case calendar:
+        return MaterialPageRoute(builder: (_) => const CalendarScreen());
+
+      case budget:
+        return MaterialPageRoute(builder: (_) => const BudgetScreen());
+
+      case addBudget:
+        return MaterialPageRoute(builder: (_) => const AddBudgetScreen());
+
+      case budgetHistory:
+        return BudgetHistoryScreen.route(routeSettings);
 
       default:
         return CupertinoPageRoute(builder: (_) => const Scaffold());

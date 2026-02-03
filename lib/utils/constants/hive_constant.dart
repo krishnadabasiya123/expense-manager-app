@@ -39,3 +39,6 @@ const softDeletePartyTransactionBoxKey = 'softDeletePartyTransactionBox';
 //home menu box key
 const homeBox = 'homeBox';
 
+
+// budget box key
+const budgetBox = 'budgetBox';

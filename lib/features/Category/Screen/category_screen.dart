@@ -1,12 +1,13 @@
 import 'dart:ui';
 
 import 'package:expenseapp/commons/widgets/CommonSearchController.dart';
+import 'package:expenseapp/commons/widgets/custom_app_bar.dart';
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/features/Category/Cubits/delete_category_cubit.dart';
 import 'package:expenseapp/features/Category/Widgets/add_category_dialogue.dart';
-import 'package:expenseapp/features/Party/Cubits/PartyTransaction/get_soft_delete_party_transaction_cubit.dart';
+import 'package:expenseapp/features/Restore/Cubit/get_soft_delete_party_transaction_cubit.dart';
 import 'package:expenseapp/features/RecurringTransaction/Cubit/get_recurring_transaction_cubit.dart';
-import 'package:expenseapp/features/Transaction/Cubits/get_soft_delete_transactions_cubit.dart';
+import 'package:expenseapp/features/Restore/Cubit/get_soft_delete_transactions_cubit.dart';
 import 'package:expenseapp/utils/constants/Debouncer.dart';
 import 'package:flutter/material.dart';
 
@@ -51,12 +52,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(
-        iconTheme: IconThemeData(
-          color: colorScheme.surface,
-        ),
-        backgroundColor: colorScheme.primary,
-        title: CustomTextView(text: context.tr('categoryKey'), fontSize: 22.sp(context), color: colorScheme.surface),
+      appBar: QAppBar(
+        title: CustomTextView(text: context.tr('categoryKey'), fontSize: 20.sp(context), color: colorScheme.surface),
         actions: [
           Padding(
             padding: const EdgeInsetsDirectional.only(end: 8),
@@ -73,6 +70,20 @@ class _CategoryScreenState extends State<CategoryScreen> {
         ],
       ),
 
+      // actions: [
+      //   Padding(
+      //     padding: const EdgeInsetsDirectional.only(end: 8),
+      //     child: IconButton(
+      //       onPressed: () {
+      //         showAddCategoryDialogue(context);
+      //       },
+      //       icon: Icon(
+      //         Icons.add,
+      //         color: colorScheme.surface,
+      //       ),
+      //     ),
+      //   ),
+      // ],
       body: ResponsivePadding(
         topPadding: context.height * 0.01,
         leftPadding: context.width * 0.035,
@@ -82,114 +93,112 @@ class _CategoryScreenState extends State<CategoryScreen> {
             CommonSearchController(controller: _searchController, hintText: context.tr('searchCategoryKey')),
             SizedBox(height: context.height * 0.01),
             Expanded(
-              child: SingleChildScrollView(
-                child: BlocBuilder<GetCategoryCubit, GetCategoryState>(
-                  builder: (context, state) {
-                    if (state is GetCategorySuccess) {
-                      final categoryList = getCategoryList(keyword: _searchController.text);
-                      return ReorderableListView.builder(
-                        proxyDecorator: (child, index, animation) {
-                          return Material(
-                            color: Colors.transparent,
-                            elevation: 6,
-                            borderRadius: BorderRadius.circular(14),
-                            child: ClipRRect(borderRadius: BorderRadius.circular(14), child: child),
-                          );
-                        },
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: categoryList.length,
-                        shrinkWrap: true,
-                        itemBuilder: (context, i) {
-                          final categoryDetails = categoryList[i];
+              child: BlocBuilder<GetCategoryCubit, GetCategoryState>(
+                builder: (context, state) {
+                  if (state is GetCategorySuccess) {
+                    final categoryList = getCategoryList(keyword: _searchController.text);
+                    return ReorderableListView.builder(
+                      proxyDecorator: (child, index, animation) {
+                        return Material(
+                          color: Colors.transparent,
+                          elevation: 6,
+                          borderRadius: BorderRadius.circular(14),
+                          child: ClipRRect(borderRadius: BorderRadius.circular(14), child: child),
+                        );
+                      },
+                      //  physics: const NeverScrollableScrollPhysics(),
+                      itemCount: categoryList.length,
+                      shrinkWrap: true,
+                      itemBuilder: (context, i) {
+                        final categoryDetails = categoryList[i];
 
-                          return Card(
-                            shadowColor: colorScheme.primary.withValues(alpha: 0.6),
-                            key: ValueKey('${categoryDetails.id}-$i'),
-                            elevation: 2,
-                            margin: EdgeInsetsDirectional.only(bottom: context.height * 0.01),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                            child: Padding(
-                              padding: EdgeInsetsDirectional.symmetric(horizontal: context.width * 0.05, vertical: context.height * 0.01),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: CustomTextView(text: categoryDetails.name, fontSize: 17.sp(context), color: Colors.black, softWrap: true, maxLines: 4, fontWeight: FontWeight.w300),
+                        return Card(
+                          shadowColor: colorScheme.primary.withValues(alpha: 0.6),
+                          key: ValueKey('${categoryDetails.id}-$i'),
+                          elevation: 2,
+                          margin: EdgeInsetsDirectional.only(bottom: context.height * 0.01),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          child: Padding(
+                            padding: EdgeInsetsDirectional.symmetric(horizontal: context.width * 0.05, vertical: context.height * 0.01),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: CustomTextView(text: categoryDetails.name, fontSize: 17.sp(context), color: Colors.black, softWrap: true, maxLines: 4, fontWeight: FontWeight.w300),
+                                ),
+
+                                PopupMenuButton<String>(
+                                  constraints: BoxConstraints(
+                                    maxHeight: context.screenHeight * (context.isMobile ? 0.3 : 0.95),
+
+                                    maxWidth: context.screenWidth * (context.isMobile ? 1 : 2),
                                   ),
 
-                                  PopupMenuButton<String>(
-                                    constraints: BoxConstraints(
-                                      maxHeight: context.screenHeight * (context.isMobile ? 0.3 : 0.95),
-
-                                      maxWidth: context.screenWidth * (context.isMobile ? 1 : 2),
-                                    ),
-
-                                    padding: EdgeInsetsDirectional.zero,
-                                    icon: (categoryDetails.isDefault) ? const Icon(Icons.more_vert, color: Colors.grey) : null,
-                                    onSelected: (value) {
-                                      if (value == context.tr('editKey')) {
-                                        showAddCategoryDialogue(context, isEdit: true, category: categoryDetails);
-                                      } else if (value == context.tr('deleteKey')) {
-                                        showDeleteAlertDialog(context, category: categoryDetails);
-                                      }
-                                    },
-                                    itemBuilder: (context) => [
-                                      if (!categoryDetails.isDefault) ...[
-                                        PopupMenuItem(
-                                          value: context.tr('editKey'),
-                                          child: Row(
-                                            children: [
-                                              Expanded(child: CustomTextView(text: context.tr('editKey'))),
-                                              Icon(Icons.edit, size: 20.sp(context)),
-                                            ],
-                                          ),
+                                  padding: EdgeInsetsDirectional.zero,
+                                  icon: (categoryDetails.isDefault) ? const Icon(Icons.more_vert, color: Colors.grey) : null,
+                                  onSelected: (value) {
+                                    if (value == context.tr('editKey')) {
+                                      showAddCategoryDialogue(context, isEdit: true, category: categoryDetails);
+                                    } else if (value == context.tr('deleteKey')) {
+                                      showDeleteAlertDialog(context, category: categoryDetails);
+                                    }
+                                  },
+                                  itemBuilder: (context) => [
+                                    if (!categoryDetails.isDefault) ...[
+                                      PopupMenuItem(
+                                        value: context.tr('editKey'),
+                                        child: Row(
+                                          children: [
+                                            Expanded(child: CustomTextView(text: context.tr('editKey'))),
+                                            Icon(Icons.edit, size: 20.sp(context)),
+                                          ],
                                         ),
-                                        PopupMenuItem(
-                                          value: context.tr('deleteKey'),
-                                          child: Row(
-                                            children: [
-                                              Expanded(child: CustomTextView(text: context.tr('deleteKey'))),
+                                      ),
+                                      PopupMenuItem(
+                                        value: context.tr('deleteKey'),
+                                        child: Row(
+                                          children: [
+                                            Expanded(child: CustomTextView(text: context.tr('deleteKey'))),
 
-                                              Icon(Icons.delete, color: Colors.red, size: 20.sp(context)),
-                                            ],
-                                          ),
+                                            Icon(Icons.delete, color: context.colorScheme.expenseColor, size: 20.sp(context)),
+                                          ],
                                         ),
-                                      ],
+                                      ),
                                     ],
-                                  ),
+                                  ],
+                                ),
 
-                                  ReorderableDragStartListener(
-                                    index: i,
-                                    child: IconButton(onPressed: () {}, icon: const Icon(Icons.menu)),
-                                  ),
-                                ],
-                              ),
+                                ReorderableDragStartListener(
+                                  index: i,
+                                  child: IconButton(onPressed: () {}, icon: const Icon(Icons.menu)),
+                                ),
+                              ],
                             ),
-                          );
-                        },
+                          ),
+                        );
+                      },
 
-                        onReorder: (oldIndex, newIndex) {
-                          setState(() {
-                            if (newIndex > oldIndex) newIndex -= 1;
+                      onReorder: (oldIndex, newIndex) {
+                        setState(() {
+                          if (newIndex > oldIndex) newIndex -= 1;
 
-                            final item = state.category.removeAt(oldIndex);
-                            state.category.insert(newIndex, item);
+                          final item = state.category.removeAt(oldIndex);
+                          state.category.insert(newIndex, item);
 
-                            context.read<GetCategoryCubit>().reorder(state.category);
-                          });
-                        },
-                      );
-                    }
-                    if (state is GetCategoryFailure) {
-                      return CustomTextView(
-                        text: state.errorMessage,
-                        softWrap: true,
-                        maxLines: 3,
-                        textAlign: TextAlign.center,
-                      );
-                    }
-                    return const CustomCircularProgressIndicator();
-                  },
-                ),
+                          context.read<GetCategoryCubit>().reorder(state.category);
+                        });
+                      },
+                    );
+                  }
+                  if (state is GetCategoryFailure) {
+                    return CustomErrorWidget(
+                      errorMessage: state.errorMessage,
+                      onRetry: () {
+                        context.read<GetCategoryCubit>().getCategory();
+                      },
+                    );
+                  }
+                  return const CustomCircularProgressIndicator();
+                },
               ),
             ),
 

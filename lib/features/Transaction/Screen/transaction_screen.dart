@@ -1,4 +1,5 @@
 import 'package:expenseapp/commons/widgets/CommonSearchController.dart';
+import 'package:expenseapp/commons/widgets/custom_app_bar.dart';
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/features/Transaction/Cubits/add_transaction_cubit.dart';
 import 'package:expenseapp/features/Transaction/Cubits/update_trasansaction_cubit.dart';
@@ -84,7 +85,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
 
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
-      appBar: AppBar(
+      appBar: QAppBar(
         title: Center(
           child: CustomTextView(
             text: context.tr('transactionKey'),
@@ -92,9 +93,6 @@ class _TransactionScreenState extends State<TransactionScreen> {
             color: colorScheme.surface,
           ),
         ),
-        iconTheme: IconThemeData(color: colorScheme.surface),
-        backgroundColor: colorScheme.primary,
-        automaticallyImplyLeading: false,
       ),
 
       body: ResponsivePadding(
@@ -173,7 +171,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                                       icon: Icons.arrow_downward_rounded,
                                       label: context.tr('incomeKeyC'),
                                       amount: '+ ${context.symbol}${totalIncome.formatAmt()}',
-                                      color: Colors.greenAccent,
+                                      color: context.colorScheme.incomeColor,
                                     ),
                                   ),
 
@@ -181,7 +179,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                                     icon: Icons.arrow_upward_rounded,
                                     label: context.tr('expenseKeyC'),
                                     amount: '- ${context.symbol}${totalExpense.formatAmt()}',
-                                    color: Colors.redAccent,
+                                    color: context.colorScheme.expenseColor,
                                   ),
                                 ],
                               ),

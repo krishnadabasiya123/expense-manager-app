@@ -69,7 +69,7 @@ class _PartyTransactionDetailsWidgetState extends State<PartyTransactionDetailsW
                       decoration: BoxDecoration(color: isCredit ? const Color.fromRGBO(155, 230, 158, 1) : const Color.fromARGB(255, 237, 210, 209), shape: BoxShape.circle),
                       child: Icon(
                         isCredit ? Icons.arrow_downward : Icons.arrow_upward,
-                        color: isCredit ? const Color.fromARGB(255, 36, 119, 39) : Colors.red,
+                        color: isCredit ? const Color.fromARGB(255, 36, 119, 39) : context.colorScheme.expenseColor,
                         size: 20.sp(context),
                       ),
                     ),
@@ -93,7 +93,7 @@ class _PartyTransactionDetailsWidgetState extends State<PartyTransactionDetailsW
                       text: '${context.symbol} ${widget.transaction.amount.formatAmt()}',
                       fontSize: 18.sp(context),
                       fontWeight: FontWeight.w600,
-                      color: isCredit ? Colors.green : Colors.red,
+                      color: isCredit ? context.colorScheme.incomeColor : context.colorScheme.expenseColor,
                     ),
                   ],
                 ),
@@ -181,9 +181,9 @@ class _PartyTransactionDetailsWidgetState extends State<PartyTransactionDetailsW
                     },
                     child: Row(
                       children: [
-                        const Icon(Icons.delete, color: Colors.red),
+                        Icon(Icons.delete, color: context.colorScheme.expenseColor),
                         SizedBox(width: context.width * 0.02),
-                        CustomTextView(text: context.tr('deleteKey'), fontSize: 15.sp(context), color: Colors.red),
+                        CustomTextView(text: context.tr('deleteKey'), fontSize: 15.sp(context), color: context.colorScheme.expenseColor),
                       ],
                     ),
                   ),

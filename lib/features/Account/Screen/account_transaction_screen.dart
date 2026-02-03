@@ -1,3 +1,4 @@
+import 'package:expenseapp/commons/widgets/custom_app_bar.dart';
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/features/Transaction/Widgets/transaction_list_widget.dart';
 import 'package:flutter/cupertino.dart';
@@ -25,9 +26,7 @@ class _AccountTransactionScreenState extends State<AccountTransactionScreen> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(
-        iconTheme: IconThemeData(color: colorScheme.surface),
-        backgroundColor: colorScheme.primary,
+      appBar: QAppBar(
         title: CustomTextView(text: widget.account.name, fontSize: 20.sp(context), color: colorScheme.surface),
       ),
       body: Column(
@@ -106,7 +105,7 @@ class _AccountTransactionScreenState extends State<AccountTransactionScreen> {
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.12),
+            color: Colors.black.withValues(alpha: 0.12),
             blurRadius: 30,
             offset: const Offset(0, -8),
           ),
@@ -124,8 +123,8 @@ class _AccountTransactionScreenState extends State<AccountTransactionScreen> {
           CustomTextView(text: 'Summary', fontSize: 16.sp(context), color: Colors.black, fontWeight: FontWeight.bold),
           // const SizedBox(height: 10),
           _summaryRow(context.tr('initialBalanceKey'), initialBalance.formatAmt()),
-          _summaryRow(context.tr('totalIncomeKey'), totalIncome.formatAmt(), color: Colors.green),
-          _summaryRow(context.tr('totalExpenseKey'), totalExpense.formatAmt(), color: Colors.red),
+          _summaryRow(context.tr('totalIncomeKey'), totalIncome.formatAmt(), color: context.colorScheme.incomeColor),
+          _summaryRow(context.tr('totalExpenseKey'), totalExpense.formatAmt(), color: context.colorScheme.expenseColor),
 
           const CustomHorizontalDivider(
             endOpacity: 0.2,

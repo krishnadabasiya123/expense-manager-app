@@ -51,9 +51,13 @@ class GetSoftDeletePartyTransactionCubit extends Cubit<GetSoftDeletePartyTransac
   Future<void> updateSoftDeletePartyTransactionAfterDeleteCategory({required String categoryId}) async {
     partyTransactionLocalData.softDeletePartyTransactionByCategoryId(categoryId: categoryId);
     if (state is GetSoftDeletePartyTransactionSuccess) {
-      final transactions = (state as GetSoftDeletePartyTransactionSuccess).transactions..removeWhere((t) => t.category == categoryId);
+      final transactions = (state as GetSoftDeletePartyTransactionSuccess).transactions;
+      final index = transactions.indexWhere((e) => e.category == categoryId);
 
-      emit(GetSoftDeletePartyTransactionSuccess(transactions));
+      if (index != -1) {
+        transactions[index].category = '';
+        emit(GetSoftDeletePartyTransactionSuccess(transactions));
+      }
     }
   }
 
@@ -70,10 +74,9 @@ class GetSoftDeletePartyTransactionCubit extends Cubit<GetSoftDeletePartyTransac
     if (state is GetSoftDeletePartyTransactionSuccess) {
       final transactions = (state as GetSoftDeletePartyTransactionSuccess).transactions;
 
-
       return transactions.firstWhere((t) => t.mainTransactionId == transactionId);
     }
-    return PartyTransaction(id: '');
+    return PartyTransaction();
   }
 
   Future<void> getSoftDeletePartyTransactionLocally({required PartyTransaction transaction}) async {

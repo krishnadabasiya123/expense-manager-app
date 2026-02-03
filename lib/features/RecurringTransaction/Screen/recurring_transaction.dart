@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:expenseapp/commons/widgets/custom_app_bar.dart';
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/features/RecurringTransaction/Cubit/get_recurring_transaction_cubit.dart';
 import 'package:expenseapp/features/RecurringTransaction/Cubit/update_recurring_transaction_cubit.dart';
@@ -40,9 +41,7 @@ class _RecurringTransactionState extends State<RecurringTransactionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: Theme.of(context).primaryColor,
+      appBar: QAppBar(
         title: CustomTextView(text: context.tr('transactionlogKey'), fontSize: 20.sp(context), color: Colors.white),
       ),
       body: SingleChildScrollView(
@@ -78,7 +77,7 @@ class _SubscriptionSummary extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             blurRadius: 20,
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha :0.05),
           ),
         ],
       ),
@@ -163,7 +162,7 @@ class _TransactionLog extends StatelessWidget {
                       errorMessage: context.tr('noDataFound'),
                       errorType: CustomErrorType.noDataFound,
                       onRetry: () {
-                        //  context.read<GetRecurringTransactionCubit>().getRecurringTransactionData(recurringId: recurring!.recurringId!);
+                        context.read<GetRecurringTransactionCubit>().getRecurringTransactionData(recurringId: recurring.recurringId);
                       },
                     );
                   }
@@ -192,7 +191,7 @@ class _TransactionLog extends StatelessWidget {
                         child: Row(
                           children: [
                             CircleAvatar(
-                              backgroundColor: status.color.withOpacity(0.1),
+                              backgroundColor: status.color.withValues(alpha :0.1),
                               child: Icon(status.icon, color: status.color),
                             ),
                             const SizedBox(width: 12),
@@ -259,7 +258,7 @@ class _TransactionLog extends StatelessWidget {
                   return CustomErrorWidget(
                     errorMessage: state.message,
                     onRetry: () {
-                      context.read<GetAccountCubit>().getAccount();
+                      context.read<GetRecurringTransactionCubit>().fetchRecurringTransaction();
                     },
                   );
                 }

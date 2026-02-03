@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:expenseapp/commons/widgets/custom_app_bar.dart';
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/features/Party/Screen/party_details_widget.dart';
 
@@ -36,11 +37,7 @@ class _PartyTransactionScreenState extends State<PartyTransactionScreen> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        iconTheme: IconThemeData(
-          color: colorScheme.surface,
-        ),
-        backgroundColor: colorScheme.primary,
+      appBar: QAppBar(
         title: Center(
           child: CustomTextView(
             text: partyDetails!.name,
@@ -55,7 +52,6 @@ class _PartyTransactionScreenState extends State<PartyTransactionScreen> {
             padding: const EdgeInsetsDirectional.only(end: 8),
             child: IconButton(
               onPressed: () {
-                // showAddPartyTransactionDialogue(context, isEdit: false);
                 Navigator.of(context).pushNamed(Routes.addPartyTransaction, arguments: {'partyId': partyDetails});
               },
               icon: Icon(
@@ -251,7 +247,7 @@ class _LedgerItemRowState extends State<LedgerItemRow> {
               decoration: BoxDecoration(color: isCredit ? const Color.fromRGBO(155, 230, 158, 1) : const Color.fromARGB(255, 237, 210, 209), shape: BoxShape.circle),
               child: Icon(
                 isCredit ? Icons.arrow_downward : Icons.arrow_upward,
-                color: isCredit ? const Color.fromARGB(255, 36, 119, 39) : Colors.red,
+                color: isCredit ? const Color.fromARGB(255, 36, 119, 39) : context.colorScheme.expenseColor,
                 size: 16.sp(context),
               ),
             ),
@@ -273,7 +269,7 @@ class _LedgerItemRowState extends State<LedgerItemRow> {
                 CustomTextView(
                   text: isCredit ? '+ ${context.symbol}${widget.credit.formatAmt()}' : '- ${context.symbol}${widget.debit.formatAmt()}',
                   //fontWeight: FontWeight.bold,
-                  color: isCredit ? const Color.fromARGB(255, 36, 119, 39) : Colors.red,
+                  color: isCredit ? const Color.fromARGB(255, 36, 119, 39) : context.colorScheme.expenseColor,
                 ),
               ],
             ),

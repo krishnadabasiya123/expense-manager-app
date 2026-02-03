@@ -1,5 +1,6 @@
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class CustomTextView extends StatelessWidget {
   const CustomTextView({
@@ -37,7 +38,13 @@ class CustomTextView extends StatelessWidget {
       text,
       softWrap: softWrap ?? false,
       overflow: overflow ?? TextOverflow.clip,
-      style: TextStyle(fontSize: fontSize ?? 15.sp(context), color: color ?? const Color.fromARGB(255, 0, 0, 0), fontWeight: fontWeight, decoration: decoration , letterSpacing: letterspacing),
+      style: TextStyle(
+        fontSize: fontSize ?? 15.sp(context),
+        color: color ?? const Color.fromARGB(255, 0, 0, 0),
+        fontWeight: fontWeight,
+        decoration: decoration,
+        letterSpacing: letterspacing,
+      ),
     );
   }
 }

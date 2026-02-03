@@ -1,5 +1,5 @@
 
-
+in each page -> check dart lidht theme and color
 
 buid not design any parameter use in initstate (in transaction_list screen check) rest all done
 in transaction_screen -> check build method (not call api there also mindate maxdate check)
@@ -31,5 +31,4 @@ question
 add category -> delete transaction -> now when delete category -> in soft delete catgory set to null or set to '
 amount -> validation (like 2 point not allow)
 
-
-i have 2 recurring give you i create now accoring this i want only return the 29 , 30 date and and 29 date data return which is upcoming also in past date if any has status upcomig then return that also in my case paid  so not return but when past date and upcoming then return that also
+account amount -> where used

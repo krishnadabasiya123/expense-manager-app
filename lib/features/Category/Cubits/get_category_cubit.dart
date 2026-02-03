@@ -31,7 +31,6 @@ class GetCategoryCubit extends Cubit<GetCategoryState> {
     try {
       categoryLocalStorage.initDefaults();
       final category = categoryLocalStorage.getAll();
-
       emit(GetCategorySuccess(category));
     } catch (e) {
       emit(GetCategoryFailure(e.toString()));
@@ -112,6 +111,19 @@ class GetCategoryCubit extends Cubit<GetCategoryState> {
       }).toList();
 
       return list;
+    }
+    return [];
+  }
+
+  List<Map<String, dynamic>> getCatgoryListWithSelected() {
+    if (state is GetCategorySuccess) {
+      return (state as GetCategorySuccess).category.map((cat) {
+        return {
+          'id': cat.id,
+          'name': cat.name,
+          'selected': false,
+        };
+      }).toList();
     }
     return [];
   }

@@ -7,6 +7,8 @@ import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/features/Home/Model/HomeMenuItem.dart';
 import 'package:expenseapp/features/Home/Model/enums/HomeMenuType.dart';
 import 'package:expenseapp/features/RecurringTransaction/Model/Enums/RecurringFrequency.dart';
+import 'package:expenseapp/features/budget/models/enums/BudgetPeriod.dart';
+import 'package:expenseapp/features/budget/models/enums/BudgetType.dart';
 import 'package:flutter/material.dart';
 import 'package:marquee/marquee.dart';
 import 'package:path_provider/path_provider.dart';
@@ -81,6 +83,32 @@ class UiUtils {
 
       case TransactionType.NONE:
         return 'None';
+    }
+  }
+
+  static String getStringBudgetType(BudgetType type) {
+    switch (type) {
+      case BudgetType.INCOME:
+        return 'Income';
+
+      case BudgetType.EXPENSE:
+        return 'Expense';
+    }
+  }
+
+  static String getStringBudgetPeriod(BudgetPeriod period) {
+    switch (period) {
+      case BudgetPeriod.WEEKLY:
+        return 'Weekly';
+
+      case BudgetPeriod.MONTHLY:
+        return 'Monthly';
+
+      case BudgetPeriod.YEARLY:
+        return 'Yearly';
+
+      case BudgetPeriod.CUSTOM:
+        return 'Custom';
     }
   }
 
@@ -211,6 +239,8 @@ class UiUtils {
       return permissionGiven;
     }
   }
+
+  static final month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
   static final List<HomeMenuItem> homeMenuList = [
     // HomeMenuItem(id: 0, iconCode: Icons.edit.codePoint, title: 'homePageKey', type: HomeMenuType.HOME_PAGE_BANNER),

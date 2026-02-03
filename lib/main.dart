@@ -705,10 +705,10 @@ void main() async {
 //     switch (type) {
 //       case AppDialogType.success:
 //         icon = Icons.check_circle;
-//         color = Colors.green;
+//         color = context.colorScheme.incomeColor;
 //       case AppDialogType.error:
 //         icon = Icons.error;
-//         color = Colors.red;
+//         color = context.colorScheme.expenseColor;
 //       case AppDialogType.confirm:
 //         icon = Icons.help;
 //         color = Colors.blue;

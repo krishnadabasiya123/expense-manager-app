@@ -14,17 +14,7 @@ final class UpdateRecurringTransactionInitial extends UpdateRecurringTransaction
 
 final class UpdateRecurringTransactionLoading extends UpdateRecurringTransactionState {}
 
-// final class UpdateRecurringTransactionSuccess extends UpdateRecurringTransactionState {
-//   UpdateRecurringTransactionSuccess(this.transaction, this.status, this.recurringTransactionId, this.transactionId);
-//   Recurring? transaction;
-//   RecurringTransactionStatus? status;
-//   String? recurringTransactionId;
-//   String? transactionId;
 
-//   UpdateRecurringTransactionSuccess copyWith({Recurring? transaction, RecurringTransactionStatus? status, String? recurringTransactionId, String? transactionId}) {
-//     return UpdateRecurringTransactionSuccess(transaction ?? this.transaction, status ?? this.status, recurringTransactionId ?? this.recurringTransactionId, transactionId ?? this.transactionId);
-//   }
-// }
 final class UpdateRecurringTransactionSuccess extends UpdateRecurringTransactionState {
   UpdateRecurringTransactionSuccess({
     this.transaction,

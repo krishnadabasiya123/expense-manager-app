@@ -1,3 +1,4 @@
+import 'package:expenseapp/commons/widgets/custom_app_bar.dart';
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/features/RecurringTransaction/Cubit/get_recurring_transaction_cubit.dart';
 import 'package:expenseapp/features/RecurringTransaction/Cubit/update_recurring_transaction_cubit.dart';
@@ -81,10 +82,8 @@ class EditRecurringDialogueState extends State<EditRecurringScreen> {
       },
       child: Scaffold(
         // color: Colors.transparent,
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).primaryColor,
+        appBar: QAppBar(
           title: CustomTextView(text: context.tr('editRecurringKey'), fontSize: 20.sp(context), color: colorScheme.surface),
-          iconTheme: IconThemeData(color: colorScheme.surface),
         ),
         body: Form(
           key: _formKey,

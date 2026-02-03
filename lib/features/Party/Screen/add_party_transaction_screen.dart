@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:expenseapp/commons/widgets/custom_app_bar.dart';
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/features/Party/Cubits/PartyTransaction/add_party_transaction_cubit.dart';
 import 'package:expenseapp/features/Party/Cubits/PartyTransaction/update_party_transaction_cubit.dart';
@@ -140,11 +141,9 @@ class _AddPartyTransactionWidgetState extends State<AddPartyTransactionWidget> {
       },
       child: Scaffold(
         resizeToAvoidBottomInset: false,
-        // color: Colors.transparent,
-        appBar: AppBar(
-          title: Text(widget.isEdit ? context.tr('updatePartyTransaction') : context.tr('addPartyTransaction'), style: TextStyle(color: colorScheme.surface)),
-          backgroundColor: colorScheme.primary,
-          iconTheme: IconThemeData(color: colorScheme.surface),
+
+        appBar: QAppBar(
+          title: CustomTextView(text: widget.isEdit ? context.tr('updatePartyTransaction') : context.tr('addPartyTransaction'), color: colorScheme.surface, fontSize: 20.sp(context)),
         ),
         body: Column(
           children: [

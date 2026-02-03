@@ -46,8 +46,13 @@ class GetSoftDeleteTransactionsCubit extends Cubit<GetSoftDeleteTransactionsStat
   Future<void> updateSoftDeleteTransactionAfterDeleteCategory({required String categoryId}) async {
     transactionLocalData.softDeleteTransactionDeleteByCategoryId(categoryId: categoryId);
     if (state is GetSoftDeleteTransactionsSuccess) {
-      final transactions = (state as GetSoftDeleteTransactionsSuccess).transactions..removeWhere((t) => t.categoryId == categoryId);
-      emit(GetSoftDeleteTransactionsSuccess(transactions));
+      final transactions = (state as GetSoftDeleteTransactionsSuccess).transactions;
+      final index = transactions.indexWhere((e) => e.categoryId == categoryId);
+
+      if (index != -1) {
+        transactions[index].categoryId = '';
+        emit(GetSoftDeleteTransactionsSuccess(transactions));
+      }
     }
   }
 

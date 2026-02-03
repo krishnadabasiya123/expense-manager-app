@@ -1,6 +1,4 @@
-
 import 'package:expenseapp/core/app/all_import_file.dart';
-
 
 @immutable
 sealed class GetAccountState {}
@@ -122,5 +120,38 @@ class GetAccountCubit extends Cubit<GetAccountState> {
       return totalBalance;
     }
     return 0;
+  }
+
+  List<String> getAccountNameList() {
+    if (state is GetAccountSuccess) {
+      final account = (state as GetAccountSuccess).account;
+      return account.map((e) => e.name).toList();
+    }
+    return [];
+  }
+
+  List<double> getAccountAmountList() {
+    if (state is GetAccountSuccess) {
+      final account = (state as GetAccountSuccess).account;
+      return account.map((e) => e.amount).toList();
+    }
+    return [];
+  }
+
+  double getMaxAmount() {
+    if (state is! GetAccountSuccess) return 0;
+
+    final accounts = (state as GetAccountSuccess).account;
+    if (accounts.isEmpty) return 0;
+
+    return accounts.map((e) => e.amount).reduce((a, b) => a > b ? a : b);
+  }
+
+  List<Account> getAccounts() {
+    if (state is GetAccountSuccess) {
+      final account = (state as GetAccountSuccess).account;
+      return account;
+    }
+    return [];
   }
 }

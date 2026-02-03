@@ -1,0 +1,62 @@
+import 'package:bloc/bloc.dart';
+import 'package:expenseapp/features/budget/LocalStorage/budget_local_storage.dart';
+import 'package:expenseapp/features/budget/models/Budget.dart';
+import 'package:meta/meta.dart';
+
+@immutable
+sealed class GetBudgetState {}
+
+final class GetBudgetInitial extends GetBudgetState {}
+
+final class GetBudgetLoading extends GetBudgetState {}
+
+final class GetBudgetFailure extends GetBudgetState {
+  GetBudgetFailure(this.error);
+  final String error;
+}
+
+final class GetBudgetSuccess extends GetBudgetState {
+  GetBudgetSuccess(this.budget);
+  final List<Budget> budget;
+}
+
+class GetBudgetCubit extends Cubit<GetBudgetState> {
+  GetBudgetCubit() : super(GetBudgetInitial());
+
+  BudgetLocalStorage budgetLocalStorage = BudgetLocalStorage();
+
+  Future<void> getBudget() async {
+    emit(GetBudgetLoading());
+    Future.delayed(const Duration(seconds: 2), () {
+      try {
+        final budget = budgetLocalStorage.getBudget();
+        emit(GetBudgetSuccess(budget));
+      } catch (e) {
+        emit(GetBudgetFailure(e.toString()));
+      }
+    });
+  }
+
+  Future<void> addBudgetLocally(Budget budget) async {
+    await budgetLocalStorage.saveBudget(budget);
+    if (state is GetBudgetSuccess) {
+      final bugdetList = (state as GetBudgetSuccess).budget;
+      final newBudgetList = [budget, ...bugdetList];
+      emit(GetBudgetSuccess(newBudgetList));
+    }
+  }
+
+  Future<void> updateBudgetLocally(Budget budget) async {
+    await budgetLocalStorage.updateBudget(budget);
+    if (state is GetBudgetSuccess) {
+      final bugdetList = (state as GetBudgetSuccess).budget;
+      final newBudgetList = List<Budget>.from(bugdetList);
+      final index = newBudgetList.indexWhere((element) => element.budgetId == budget.budgetId);
+
+      if (index != -1) {
+        newBudgetList[index] = budget;
+        emit(GetBudgetSuccess(newBudgetList));
+      }
+    }
+  }
+}

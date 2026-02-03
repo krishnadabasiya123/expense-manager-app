@@ -1,8 +1,8 @@
 import 'package:expenseapp/core/app/all_import_file.dart';
-import 'package:expenseapp/features/Party/Cubits/PartyTransaction/get_soft_delete_party_transaction_cubit.dart';
-import 'package:expenseapp/features/Party/Cubits/PartyTransaction/permenantly_delete_party_transaction_cubit.dart';
-import 'package:expenseapp/features/Party/Cubits/PartyTransaction/restore_party_transaction_cubit.dart';
-import 'package:expenseapp/features/Transaction/Cubits/get_soft_delete_transactions_cubit.dart';
+import 'package:expenseapp/features/Restore/Cubit/get_soft_delete_party_transaction_cubit.dart';
+import 'package:expenseapp/features/Restore/Cubit/permenantly_delete_party_transaction_cubit.dart';
+import 'package:expenseapp/features/Restore/Cubit/restore_party_transaction_cubit.dart';
+import 'package:expenseapp/features/Restore/Cubit/get_soft_delete_transactions_cubit.dart';
 import 'package:flutter/material.dart';
 
 class SoftDeletePartyTransactionList extends StatelessWidget {
@@ -35,6 +35,14 @@ class SoftDeletePartyTransactionList extends StatelessWidget {
               return ResporePartyCard(
                 party: transaction,
               );
+            },
+          );
+        }
+        if (state is GetSoftDeletePartyTransactionFailure) {
+          return CustomErrorWidget(
+            errorMessage: state.errorMessage,
+            onRetry: () {
+              context.read<GetSoftDeletePartyTransactionCubit>().getSoftDeletePartyTransaction();
             },
           );
         }
@@ -73,7 +81,7 @@ class _ResporePartyCardState extends State<ResporePartyCard> {
 
   @override
   Widget build(BuildContext context) {
-    final color = isCredit ? Colors.green : Colors.red;
+    final color = isCredit ? context.colorScheme.incomeColor : Colors.red;
 
     return Opacity(
       opacity: 1,
@@ -94,7 +102,7 @@ class _ResporePartyCardState extends State<ResporePartyCard> {
                     height: 30.sp(context),
                     width: 30.sp(context),
                     decoration: BoxDecoration(
-                      color: isDebit ? Colors.red.shade100 : Colors.green.shade100,
+                      color: isDebit ? context.colorScheme.expenseColor.withValues(alpha: 0.08) : context.colorScheme.incomeColor.withValues(alpha: 0.08),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -150,11 +158,11 @@ class _ResporePartyCardState extends State<ResporePartyCard> {
                   Expanded(
                     child: CustomRoundedButton(
                       height: context.isTablet ? context.height * 0.038 : context.height * 0.045,
-                      icon: Icon(Icons.delete, color: Colors.green, size: 20.sp(context)),
-                      backgroundColor: Colors.green.withOpacity(0.08),
+                      icon: Icon(Icons.delete, color: context.colorScheme.incomeColor, size: 20.sp(context)),
+                      backgroundColor: context.colorScheme.incomeColor.withValues(alpha: 0.08),
                       text: context.tr('restoreKey'),
-                      textStyle: TextStyle(color: Colors.green, fontSize: 14.sp(context)),
-                      borderSide: const BorderSide(color: Colors.green),
+                      textStyle: TextStyle(color: context.colorScheme.incomeColor, fontSize: 14.sp(context)),
+                      borderSide: BorderSide(color: context.colorScheme.incomeColor),
                       onPressed: () {
                         showPartyTransactionRestoreAlertDialog(context: context, transaction: widget.party);
                       },
@@ -166,7 +174,7 @@ class _ResporePartyCardState extends State<ResporePartyCard> {
                     child: CustomRoundedButton(
                       height: context.isTablet ? context.height * 0.038 : context.height * 0.045,
                       icon: Icon(Icons.delete, color: Colors.red, size: 20.sp(context)),
-                      backgroundColor: Colors.red.withOpacity(0.08),
+                      backgroundColor: Colors.red.withValues(alpha: 0.08),
                       text: context.tr('deleteKey'),
                       textStyle: TextStyle(color: Colors.red, fontSize: 14.sp(context)),
                       borderSide: const BorderSide(color: Colors.red),
@@ -212,6 +220,10 @@ class _ResporePartyCardState extends State<ResporePartyCard> {
                           Navigator.of(context).pop();
                           context.read<GetSoftDeletePartyTransactionCubit>().getSoftDeletePartyTransactionLocally(transaction: transaction);
                           context.read<GetSoftDeleteTransactionsCubit>().updateSoftDeleteTransactionLocally(transaction: Transaction(id: transaction.mainTransactionId));
+                        }
+                        if (state is PermenantlyDeletePartyTransactionFailure) {
+                          Navigator.pop(context);
+                          UiUtils.showCustomSnackBar(context: context, errorMessage: state.errorMessage);
                         }
                       },
                       builder: (context, state) {

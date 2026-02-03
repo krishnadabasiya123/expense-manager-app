@@ -55,7 +55,12 @@ class _PartyScreenState extends State<PartyScreen> {
 
       appBar: AppBar(
         backgroundColor: colorScheme.primary,
-        title: CustomTextView(text: context.tr('partyKey'), fontSize: 20.sp(context), color: colorScheme.surface),
+        title: CustomTextView(
+          text: context.tr('partyKey'),
+          fontSize: 20.sp(context),
+          color: colorScheme.surface,
+          fontWeight: FontWeight.bold,
+        ),
         iconTheme: IconThemeData(color: colorScheme.surface),
         actions: [
           Padding(
@@ -141,7 +146,13 @@ class _PartyScreenState extends State<PartyScreen> {
           final party = getParty(searchText: searchController.text);
 
           if (party.isEmpty) {
-            return NoDataFoundScreen(title: context.tr('noPartyAddKey'), subTitle: context.tr('partyAddDesKey'));
+            return CustomErrorWidget(
+              errorMessage: context.tr('noPartyAddKey'),
+              errorType: CustomErrorType.noDataFound,
+              onRetry: () {
+                context.read<GetPartyCubit>().getParty();
+              },
+            );
           }
 
           return ListView.builder(
@@ -220,7 +231,7 @@ class _PartyScreenState extends State<PartyScreen> {
                             },
                             itemBuilder: (context) => [
                               _popUpMenuBuild(value: context.tr('editKey'), text: context.tr('editKey'), icon: Icons.edit, color: Colors.black),
-                              _popUpMenuBuild(value: context.tr('deleteKey'), text: context.tr('deleteKey'), icon: Icons.delete, color: Colors.red),
+                              _popUpMenuBuild(value: context.tr('deleteKey'), text: context.tr('deleteKey'), icon: Icons.delete, color: context.colorScheme.expenseColor),
                             ],
                           ),
                         ],
@@ -232,9 +243,9 @@ class _PartyScreenState extends State<PartyScreen> {
                           crossAxisAlignment: .start,
                           mainAxisAlignment: .spaceEvenly,
                           children: [
-                            _buildPartyCard(text: context.tr('creditKey'), amount: '${context.symbol}  ${totalCredit.formatAmt()}', textColor: Colors.green),
+                            _buildPartyCard(text: context.tr('creditKey'), amount: '${context.symbol}  ${totalCredit.formatAmt()}', textColor: context.colorScheme.incomeColor),
                             Container(width: 1.5, height: context.height * 0.06, color: Colors.grey.shade400),
-                            _buildPartyCard(text: context.tr('debitKey'), amount: '${context.symbol} ${totalDebit.formatAmt()}', textColor: Colors.red),
+                            _buildPartyCard(text: context.tr('debitKey'), amount: '${context.symbol} ${totalDebit.formatAmt()}', textColor: context.colorScheme.expenseColor),
 
                             Container(width: 1.5, height: context.height * 0.06, color: Colors.grey.shade400),
                             _buildPartyCard(text: context.tr('balanceKey'), amount: '${context.symbol} ${totalBalance.formatAmt()}', textColor: Colors.black),
@@ -268,6 +279,14 @@ class _PartyScreenState extends State<PartyScreen> {
                   ),
                 ),
               );
+            },
+          );
+        }
+        if (state is GetPartyFailure) {
+          return CustomErrorWidget(
+            errorMessage: state.message,
+            onRetry: () {
+              context.read<GetPartyCubit>().getParty();
             },
           );
         }
@@ -379,6 +398,11 @@ class _PartyScreenState extends State<PartyScreen> {
                           for (final transaction in state.party.transaction) {
                             context.read<GetTransactionCubit>().deleteTransacionLocally(Transaction(id: transaction.mainTransactionId));
                           }
+                        }
+
+                        if (state is DeletePartyFailure) {
+                          UiUtils.showCustomSnackBar(context: context, errorMessage: state.message);
+                          Navigator.of(context).pop();
                         }
                       },
                       builder: (context, state) {

@@ -36,6 +36,9 @@ class _AccountListWidgetState extends State<AccountListWidget> {
                   itemBuilder: (context, index) {
                     final account = accounts[index];
                     final isSelected = widget.selectedAccountId!.value == account.id;
+                    final totalIncome = context.read<GetTransactionCubit>().getTotalIncomeByAccountId(accountId: account.id);
+                    final totalExpense = context.read<GetTransactionCubit>().getTotalExpenseByAccountId(accountId: account.id);
+                    final totalActualBalance = totalIncome - totalExpense + account.amount;
 
                     return GestureDetector(
                       onTap: () {
@@ -89,7 +92,7 @@ class _AccountListWidgetState extends State<AccountListWidget> {
                                   ),
 
                                   UiUtils.marqueeText(
-                                    text: '${context.symbol} ${account.amount}',
+                                    text: '${context.symbol} ${totalActualBalance.formatAmt()}',
                                     textStyle: TextStyle(fontSize: 15.sp(context), color: isSelected ? colorScheme.primary : colorScheme.onTertiary, fontWeight: FontWeight.bold),
                                     width: context.isTablet ? context.width * 0.23 : context.width * 0.32,
                                     //width: double.infinity,

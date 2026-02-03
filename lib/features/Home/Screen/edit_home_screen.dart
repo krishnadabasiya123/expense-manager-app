@@ -23,7 +23,7 @@ class _EditHomeScreenState extends State<EditHomeScreen> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      //appBar: AppBar(title: Text('CustomScrollView Example')),
+      
       body: CustomScrollView(
         slivers: <Widget>[
           SliverAppBar(

@@ -1,12 +1,9 @@
-import 'package:bloc/bloc.dart';
 import 'package:expenseapp/core/app/all_import_file.dart';
+import 'package:expenseapp/features/RecurringTransaction/LocalStorage/recurring_transaction_local_data.dart';
 import 'package:expenseapp/features/RecurringTransaction/Model/Enums/RecurringFrequency.dart';
 import 'package:expenseapp/features/RecurringTransaction/Model/Enums/RecurringTransactionStatus.dart';
-import 'package:expenseapp/features/RecurringTransaction/LocalStorage/recurring_transaction_local_data.dart';
 import 'package:expenseapp/features/RecurringTransaction/Model/Recurring.dart';
 import 'package:expenseapp/features/RecurringTransaction/Model/RecurringTransaction.dart';
-import 'package:flutter/rendering.dart';
-import 'package:meta/meta.dart';
 
 @immutable
 sealed class GetRecurringTransactionState {}
@@ -34,6 +31,12 @@ class GetRecurringTransactionCubit extends Cubit<GetRecurringTransactionState> {
 
   final RecurringTransactionLocalData recurringTransactionLocalData = RecurringTransactionLocalData();
   final TransactionLocalData transactionLocalData = TransactionLocalData();
+  bool _isProcessing = false;
+
+  bool get isProcessing => _isProcessing;
+
+  void startProcessing() => _isProcessing = true;
+  void endProcessing() => _isProcessing = false;
 
   Future<void> fetchRecurringTransaction() async {
     emit(GetRecurringTransactionLoading());
@@ -89,41 +92,6 @@ class GetRecurringTransactionCubit extends Cubit<GetRecurringTransactionState> {
         return current;
     }
   }
-
-  // List<RecurringTransaction> generateRecurringTransactions({
-  //   required String startDateStr,
-  //   required String endDateStr,
-  //   required String recurringId,
-  //   required RecurringFrequency frequency,
-  // }) {
-  //   final list = <RecurringTransaction>[];
-
-  //   final startDate = UiUtils.parseDate(startDateStr);
-  //   final endDate = UiUtils.parseDate(endDateStr);
-
-  //   var today = DateTime.now();
-  //   today = DateTime(today.year, today.month, today.day);
-
-  //   var current = startDate;
-
-  //   // 16 start - 18 end at 19 date condition false
-
-  //   while (!current.isAfter(endDate)) {
-  //     final status = (current.isBefore(today) || UiUtils.isSameDay(current, today)) ? RecurringTransactionStatus.PAID : RecurringTransactionStatus.UPCOMING;
-
-  //     list.add(
-  //       RecurringTransaction(
-  //         recurringTransactionId:  'TR'.withDateTimeMillisRandom() ,
-  //         recurringId: recurringId,
-  //         scheduleDate: UiUtils.dateFormatter.format(current),
-  //         status: status,
-  //       ),
-  //     );
-
-  //     current = getNextDate(current, frequency);
-  //   }
-  //   return list;
-  // }
 
   List<RecurringTransaction> generateRecurringTransactions({
     required String startDateStr,
@@ -265,8 +233,6 @@ class GetRecurringTransactionCubit extends Cubit<GetRecurringTransactionState> {
   List<Recurring> getDueRecurringTransactions() {
     if (state is GetRecurringTransactionSuccess) {
       final recurrings = (state as GetRecurringTransactionSuccess).transactions;
-      log('getDueRecurringTransactions ${recurrings.length}');
-
       final result = <Recurring>[];
 
       for (final recurring in recurrings) {
@@ -274,29 +240,24 @@ class GetRecurringTransactionCubit extends Cubit<GetRecurringTransactionState> {
 
         for (final rt in recurring.recurringTransactions) {
           final scheduleDate = UiUtils.dateFormatter.parse(rt.scheduleDate);
-          log('getDueRecurringTransactions schedule date $scheduleDate ${rt.recurringId}');
 
-          final shouldCreateTransaction = rt.transactionId.isEmpty && (rt.status == RecurringTransactionStatus.UPCOMING) && (scheduleDate.isToday || scheduleDate.isPast);
-          log('getDueRecurringTransactions shouldCreateTransaction $shouldCreateTransaction ${rt.recurringId}');
+          final shouldCreate = rt.transactionId.isEmpty && rt.status == RecurringTransactionStatus.UPCOMING && (scheduleDate.isToday || scheduleDate.isPast);
 
-          if (shouldCreateTransaction) {
-            log('getDueRecurringTransactions add ${rt.recurringId}');
+          // if (shouldCreate && !dueTransactions.any((e) => e.recurringId == rt.recurringId)) {
+          //   dueTransactions.add(rt);
+          // }
+          if (shouldCreate) {
             dueTransactions.add(rt);
           }
         }
 
         if (dueTransactions.isNotEmpty) {
           result.add(
-            recurring.copyWith(
-              recurringTransactions: dueTransactions,
-            ),
+            recurring.copyWith(recurringTransactions: dueTransactions),
           );
         }
       }
 
-      for (final rt in result) {
-        log('result is${rt.toJson()}');
-      }
       return result;
     }
     return [];

@@ -1,8 +1,8 @@
 import 'package:expenseapp/core/app/all_import_file.dart';
-import 'package:expenseapp/features/Party/Cubits/PartyTransaction/get_soft_delete_party_transaction_cubit.dart';
-import 'package:expenseapp/features/Transaction/Cubits/get_soft_delete_transactions_cubit.dart';
-import 'package:expenseapp/features/Transaction/Cubits/restore_transaction_cubit.dart';
-import 'package:expenseapp/features/Transaction/Cubits/soft_delete_transaction_cubit.dart';
+import 'package:expenseapp/features/Restore/Cubit/get_soft_delete_party_transaction_cubit.dart';
+import 'package:expenseapp/features/Restore/Cubit/get_soft_delete_transactions_cubit.dart';
+import 'package:expenseapp/features/Restore/Cubit/restore_transaction_cubit.dart';
+import 'package:expenseapp/features/Restore/Cubit/soft_delete_transaction_cubit.dart';
 import 'package:flutter/material.dart';
 
 class SoftDeleteTransactionList extends StatelessWidget {
@@ -104,9 +104,9 @@ class _RestoreTransactionCardState extends State<RestoreTransactionCard> {
   @override
   Widget build(BuildContext context) {
     final color = isIncome
-        ? Colors.green
+        ? context.colorScheme.incomeColor
         : isExpense
-        ? Colors.red
+        ? context.colorScheme.expenseColor
         : Colors.blue;
 
     return Opacity(
@@ -129,9 +129,9 @@ class _RestoreTransactionCardState extends State<RestoreTransactionCard> {
                     width: 30.sp(context),
                     decoration: BoxDecoration(
                       color: isExpense
-                          ? Colors.red.shade100
+                          ? context.colorScheme.expenseColor.withValues(alpha: 0.08)
                           : isIncome
-                          ? Colors.green.shade100
+                          ? context.colorScheme.incomeColor.withValues(alpha: 0.08)
                           : Colors.blue.shade100,
                       shape: BoxShape.circle,
                     ),
@@ -247,16 +247,16 @@ class _RestoreTransactionCardState extends State<RestoreTransactionCard> {
                   Expanded(
                     child: CustomRoundedButton(
                       height: context.isTablet ? context.height * 0.038 : context.height * 0.045,
-                      icon: Icon(Icons.restore, color: Colors.green, size: 20.sp(context)),
-                      backgroundColor: Colors.green.withOpacity(0.08),
+                      icon: Icon(Icons.restore, color: context.colorScheme.incomeColor, size: 20.sp(context)),
+                      backgroundColor: context.colorScheme.incomeColor.withValues(alpha: 0.08),
                       text: context.tr('restoreKey'),
                       borderRadius: BorderRadius.circular(8),
                       onPressed: () {
                         showRestoreDialogue(context: context, transaction: widget.transaction);
                       },
                       //isLoading: state is RestoreTransactionLoading,
-                      textStyle: TextStyle(color: Colors.green, fontSize: 14.sp(context)),
-                      borderSide: const BorderSide(color: Colors.green),
+                      textStyle: TextStyle(color: context.colorScheme.incomeColor, fontSize: 14.sp(context)),
+                      borderSide: BorderSide(color: context.colorScheme.incomeColor),
                     ),
                   ),
 
@@ -264,12 +264,12 @@ class _RestoreTransactionCardState extends State<RestoreTransactionCard> {
                   Expanded(
                     child: CustomRoundedButton(
                       height: context.isTablet ? context.height * 0.038 : context.height * 0.045,
-                      icon: Icon(Icons.delete, color: Colors.red, size: 20.sp(context)),
-                      backgroundColor: Colors.red.withOpacity(0.08),
+                      icon: Icon(Icons.delete, color: context.colorScheme.expenseColor, size: 20.sp(context)),
+                      backgroundColor: context.colorScheme.expenseColor.withValues(alpha: 0.08),
                       text: context.tr('deleteKey'),
-                      textStyle: TextStyle(color: Colors.red, fontSize: 14.sp(context)),
-                      borderSide: const BorderSide(color: Colors.red),
-                      // textStyle: const TextStyle(color: Colors.red),
+                      textStyle: TextStyle(color: context.colorScheme.expenseColor, fontSize: 14.sp(context)),
+                      borderSide: BorderSide(color: context.colorScheme.expenseColor),
+                      // textStyle: const TextStyle(color: context.colorScheme.expenseColor),
                       borderRadius: BorderRadius.circular(8),
                       onPressed: () {
                         showDeleteAlertDialog(context: context, transaction: widget.transaction);
@@ -316,6 +316,10 @@ class _RestoreTransactionCardState extends State<RestoreTransactionCard> {
                             context.read<GetSoftDeletePartyTransactionCubit>().updateSoftDeletePartyTransactionLocally(partyTransaactioId: transaction.partyTransactionId);
                           }
                           Navigator.pop(context);
+                        }
+                        if (state is SoftDeleteTransactionFailure) {
+                          UiUtils.showCustomSnackBar(context: context, errorMessage: state.errorMessage);
+                          Navigator.of(context).pop();
                         }
                       },
                       builder: (context, state) {
@@ -405,12 +409,11 @@ Future<void> showRestoreDialogue({required Transaction transaction, required Bui
                           errorMessage: context.tr('transactionRestoredSuccessfullyKey'),
                         );
 
-                        final partyTransactionmodel = context.read<GetSoftDeletePartyTransactionCubit>().getPartyTransaction(transactionId: state.transaction.id);
+                        if (state.transaction.partyTransactionId.isNotEmpty) {
+                          final partyTransactionmodel = context.read<GetSoftDeletePartyTransactionCubit>().getPartyTransaction(transactionId: state.transaction.id);
 
-                        // this method is for if in transaction party data restore then from party transaction forcefully restore party transaction
-                        //(same party transaction id available in party transaction list)
-
-                        context.read<GetSoftDeletePartyTransactionCubit>().getSoftDeletePartyTransactionLocally(transaction: partyTransactionmodel);
+                          context.read<GetSoftDeletePartyTransactionCubit>().getSoftDeletePartyTransactionLocally(transaction: partyTransactionmodel);
+                        }
                         Navigator.pop(context);
                       }
 

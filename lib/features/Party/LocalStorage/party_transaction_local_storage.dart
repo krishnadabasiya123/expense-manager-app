@@ -99,16 +99,25 @@ class PartyTransactionLocalData {
   }
 
   Future<void> softDeletePartyTransactionByCategoryId({required String categoryId}) async {
-    softDeleteBox.values.toList();
+    // softDeleteBox.values.toList();
 
-    final keysToDelete = softDeleteBox.keys
-        .where(
-          (k) => softDeleteBox.get(k)?.category == categoryId,
-        )
-        .toList();
+    // final keysToDelete = softDeleteBox.keys
+    //     .where(
+    //       (k) => softDeleteBox.get(k)?.category == categoryId,
+    //     )
+    //     .toList();
 
-    if (keysToDelete.isNotEmpty) {
-      await softDeleteBox.deleteAll(keysToDelete);
+    // if (keysToDelete.isNotEmpty) {
+    //   await softDeleteBox.deleteAll(keysToDelete);
+    // }
+    final transaction = softDeleteBox.values.toList();
+
+    for (final transaction in transaction) {
+      if (transaction.category == categoryId) {
+        transaction.category = '';
+      }
+
+      await transaction.save();
     }
   }
 

@@ -1,10 +1,11 @@
 import 'dart:ui';
 
+import 'package:expenseapp/commons/widgets/custom_app_bar.dart';
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/features/Account/Cubits/delete_account_cubit.dart';
 import 'package:expenseapp/features/Account/Screen/show_account_create_screen.dart';
-import 'package:expenseapp/features/Party/Cubits/PartyTransaction/get_soft_delete_party_transaction_cubit.dart';
-import 'package:expenseapp/features/Transaction/Cubits/get_soft_delete_transactions_cubit.dart';
+import 'package:expenseapp/features/Restore/Cubit/get_soft_delete_party_transaction_cubit.dart';
+import 'package:expenseapp/features/Restore/Cubit/get_soft_delete_transactions_cubit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -28,10 +29,7 @@ class _AccountScreenState extends State<AccountScreen> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: colorScheme.primary,
-        iconTheme: IconThemeData(color: colorScheme.surface),
-
+      appBar: QAppBar(
         title: CustomTextView(text: context.tr('accountKey'), fontSize: 20.sp(context), color: colorScheme.surface),
       ),
       body: ResponsivePadding(
@@ -148,7 +146,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                                           ),
 
                                                           child: Center(
-                                                            child: Icon(Icons.delete, color: Colors.red, size: context.height * .017),
+                                                            child: Icon(Icons.delete, color: context.colorScheme.expenseColor, size: context.height * .017),
                                                           ),
                                                         ),
                                                       ),
@@ -264,6 +262,10 @@ class _AccountScreenState extends State<AccountScreen> {
                           context.read<GetPartyCubit>().deletePartyTransactionWhenDeleteAccount(accountId: state.account.id);
                           Navigator.pop(context);
                         }
+                        if (state is DeleteAccountFailure) {
+                          UiUtils.showCustomSnackBar(context: context, errorMessage: state.errorMessage);
+                          Navigator.pop(context);
+                        }
                       },
                       builder: (context, state) {
                         return Row(
@@ -330,7 +332,7 @@ class _AccountScreenState extends State<AccountScreen> {
 
         Row(
           children: [
-            Icon(isIncome ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded, color: isIncome ? Colors.green : Colors.red, size: 17.sp(context)),
+            Icon(isIncome ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded, color: isIncome ? context.colorScheme.incomeColor : context.colorScheme.expenseColor, size: 17.sp(context)),
             const SizedBox(width: 5),
             CustomTextView(text: '${context.symbol} $amount', fontSize: 17.sp(context), color: Theme.of(context).colorScheme.surface, fontWeight: FontWeight.bold),
           ],
@@ -436,7 +438,7 @@ class AccountItem extends StatelessWidget {
 
           Row(
             children: [
-              Icon(isIncome ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded, color: isIncome ? Colors.green : Colors.red, size: 17.sp(context)),
+              Icon(isIncome ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded, color: isIncome ? context.colorScheme.incomeColor : context.colorScheme.expenseColor, size: 17.sp(context)),
               const SizedBox(width: 5),
               CustomTextView(text: '${context.symbol} $amount', fontSize: 17.sp(context), color: Theme.of(context).colorScheme.surface, fontWeight: FontWeight.bold),
             ],
@@ -479,7 +481,7 @@ class AccountItem extends StatelessWidget {
                 decoration: BoxDecoration(
                   boxShadow: [
                     BoxShadow(
-                      color: const Color.fromARGB(255, 229, 222, 222).withOpacity(0.2),
+                      color: const Color.fromARGB(255, 229, 222, 222).withValues(alpha: .2),
                       blurRadius: 15,
                       spreadRadius: -6,
                       offset: const Offset(0, 10),
@@ -533,7 +535,7 @@ class AccountItem extends StatelessWidget {
                               borderRadius: BorderRadius.circular(2),
                             ),
                             child: Center(
-                              child: Icon(Icons.delete, color: Colors.red, size: context.height * .017),
+                              child: Icon(Icons.delete, color: context.colorScheme.expenseColor, size: context.height * .017),
                             ),
                           ),
                         ),

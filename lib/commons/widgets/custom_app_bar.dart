@@ -41,7 +41,7 @@ class QAppBar extends StatelessWidget implements PreferredSizeWidget {
       // ),
       scrolledUnderElevation: roundedAppBar ? elevation : 0,
       automaticallyImplyLeading: automaticallyImplyLeading,
-      elevation: elevation ?? (roundedAppBar ? 2 : 0),
+      // elevation: elevation ?? (roundedAppBar ? 2 : 0),
       centerTitle: false,
       shadowColor: colorScheme.surface.withValues(alpha: 0.4),
       foregroundColor: usePrimaryColor ? Theme.of(context).primaryColor : colorScheme.onTertiary,
@@ -59,10 +59,10 @@ class QAppBar extends StatelessWidget implements PreferredSizeWidget {
       //   )
       // : const SizedBox(),
       titleTextStyle: GoogleFonts.nunito(
-        textStyle: const TextStyle(
+        textStyle: TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.bold,
-          fontSize: 18,
+          fontSize: 20.sp(context),
         ),
       ),
       title: title,

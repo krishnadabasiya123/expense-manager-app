@@ -9,14 +9,16 @@ import 'package:expenseapp/features/Account/Cubits/update_account_cubit.dart';
 import 'package:expenseapp/features/Home/Cubits/edit_home_cubit.dart';
 import 'package:expenseapp/features/Home/LocalStorage/home_local_storage.dart';
 import 'package:expenseapp/features/Party/Cubits/PartyTransaction/delete_party_transaction_cubit.dart';
-import 'package:expenseapp/features/Party/Cubits/PartyTransaction/get_soft_delete_party_transaction_cubit.dart';
+import 'package:expenseapp/features/Restore/Cubit/get_soft_delete_party_transaction_cubit.dart';
 import 'package:expenseapp/features/RecurringTransaction/Cubit/get_recurring_transaction_cubit.dart';
 import 'package:expenseapp/features/RecurringTransaction/Cubit/update_recurring_transaction_cubit.dart';
 import 'package:expenseapp/features/Transaction/Cubits/add_transaction_cubit.dart';
 import 'package:expenseapp/features/Transaction/Cubits/delete_transactions_cubit.dart';
-import 'package:expenseapp/features/Transaction/Cubits/get_soft_delete_transactions_cubit.dart';
+import 'package:expenseapp/features/Restore/Cubit/get_soft_delete_transactions_cubit.dart';
 import 'package:expenseapp/features/Transaction/Cubits/update_trasansaction_cubit.dart';
 import 'package:expenseapp/features/RecurringTransaction/LocalStorage/recurring_transaction_local_data.dart';
+import 'package:expenseapp/features/budget/LocalStorage/budget_local_storage.dart';
+import 'package:expenseapp/features/budget/cubits/get_budget_cubit.dart';
 import 'package:expenseapp/features/localization/auth_localization_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -34,6 +36,7 @@ Future<Widget> initializeApp() async {
   await CategoryLocalStorage.init();
   await RecurringTransactionLocalData.init();
   await HomeLocalStorage.init();
+  await BudgetLocalStorage.init();
 
   // Hive
   //   ..registerAdapter(TransactionAdapter())
@@ -109,6 +112,8 @@ class _MyAppState extends State<MyApp> {
           BlocProvider(create: (context) => GetRecurringTransactionCubit()),
 
           BlocProvider(create: (context) => UpdateRecurringTransactionCubit()),
+
+          BlocProvider(create: (context) => GetBudgetCubit()),
         ],
 
         child: Builder(

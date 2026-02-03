@@ -99,7 +99,7 @@ class TransactionDetailsState extends State<TransactionDetails> {
                                     : Icons.transform_outlined,
 
                                 color: isExpense
-                                    ? Colors.red
+                                    ? context.colorScheme.expenseColor
                                     : isIncome
                                     ? Colors.green
                                     : Colors.blue,
@@ -148,7 +148,7 @@ class TransactionDetailsState extends State<TransactionDetails> {
                                       ? Colors.green
                                       : isTransfer
                                       ? Colors.blue
-                                      : Colors.red,
+                                      : context.colorScheme.expenseColor,
                                 ),
                               ],
                             ),
@@ -248,9 +248,9 @@ class TransactionDetailsState extends State<TransactionDetails> {
                       },
                       child: Row(
                         children: [
-                          Icon(Icons.delete, color: Colors.red, size: 18.sp(context)),
+                          Icon(Icons.delete, color: context.colorScheme.expenseColor, size: 18.sp(context)),
                           SizedBox(width: context.width * 0.02),
-                          CustomTextView(text: context.tr('deleteKey'), fontSize: 15.sp(context), color: Colors.red),
+                          CustomTextView(text: context.tr('deleteKey'), fontSize: 15.sp(context), color: context.colorScheme.expenseColor),
                         ],
                       ),
                     ),
@@ -322,27 +322,31 @@ class TransactionDetailsState extends State<TransactionDetails> {
                               transaction: PartyTransaction(id: state.transaction.partyTransactionId, partyId: state.transaction.partyId, mainTransactionId: state.transaction.id),
                               partyId: state.transaction.partyId,
                             );
+
+                            context.read<GetPartyCubit>().saveSoftDeletedPartytransactionById(
+                              transaction: PartyTransaction(
+                                id: state.transaction.partyTransactionId,
+                                partyId: state.transaction.partyId,
+                                partyName: state.transaction.title,
+                                mainTransactionId: state.transaction.id,
+                                type: state.transaction.type == TransactionType.EXPENSE ? TransactionType.DEBIT : TransactionType.CREDIT,
+                                accountId: state.transaction.accountId,
+                                amount: state.transaction.amount,
+                                category: state.transaction.categoryId,
+                                date: state.transaction.date,
+                                description: state.transaction.description,
+                                image: state.transaction.image,
+
+                                isMainTransaction: true,
+                                updatedAt: DateTime.now().toString(),
+                              ),
+                            );
                           }
 
-                          context.read<GetPartyCubit>().saveSoftDeletedPartytransactionById(
-                            transaction: PartyTransaction(
-                              id: state.transaction.partyTransactionId,
-                              partyId: state.transaction.partyId,
-                              partyName: state.transaction.title,
-                              mainTransactionId: state.transaction.id,
-                              type: state.transaction.type == TransactionType.EXPENSE ? TransactionType.DEBIT : TransactionType.CREDIT,
-                              accountId: state.transaction.accountId,
-                              amount: state.transaction.amount,
-                              category: state.transaction.categoryId,
-                              date: state.transaction.date,
-                              description: state.transaction.description,
-                              image: state.transaction.image,
-
-                              isMainTransaction: true,
-                              updatedAt: DateTime.now().toString(),
-                            ),
-                          );
-
+                          Navigator.of(context).pop();
+                        }
+                        if (state is DeleteTransactionsFailure) {
+                          UiUtils.showCustomSnackBar(context: context, errorMessage: state.errorMessage);
                           Navigator.of(context).pop();
                         }
                       },

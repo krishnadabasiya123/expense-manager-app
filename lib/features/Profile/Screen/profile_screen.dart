@@ -453,6 +453,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return;
       case 'recurringKey':
         Navigator.of(context).pushNamed(Routes.mainrecurringTransactionList);
+        return;
+      case 'calenderKey':
+        Navigator.of(context).pushNamed(Routes.calendar);
+        return;
+      case 'budgetKey':
+        Navigator.of(context).pushNamed(Routes.budget);
     }
   }
 }
@@ -503,8 +509,8 @@ void showDeleteAlertDialog(BuildContext context) {
   );
 }
 
-void showSignOutDialog(BuildContext context) {
-  context.showAppDialog(
+Future<void> showSignOutDialog(BuildContext context) async {
+  await context.showAppDialog(
     child: Center(
       child: AlertDialog(
         constraints: BoxConstraints(maxHeight: context.height * 0.45, maxWidth: context.width * 0.85),

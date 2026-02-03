@@ -70,7 +70,7 @@ Future<void> showDeleteRecurringDialogue(BuildContext context, {required String 
                                         Expanded(
                                           child: CustomTextView(
                                             text: context.tr('keepAsNormalTransactionKey'),
-                                            fontSize: 15.sp(context),
+                                            fontSize: 12.sp(context),
                                             color: Colors.black,
                                             softWrap: true,
                                             maxLines: 2,
@@ -82,7 +82,6 @@ Future<void> showDeleteRecurringDialogue(BuildContext context, {required String 
 
                                   SizedBox(height: context.height * 0.02),
 
-                                  /// Buttons
                                   BlocConsumer<DeleteRecurringTransactionCubit, DeleteRecurringTransactionState>(
                                     listener: (context, state) {
                                       if (state is DeleteRecurringTransactionSuccess) {
@@ -94,44 +93,44 @@ Future<void> showDeleteRecurringDialogue(BuildContext context, {required String 
                                           context.read<GetTransactionCubit>().permanentlyDeleteRecurringTransaction(recurringId: recurringId);
                                         }
                                       }
+
+                                      if (state is DeleteRecurringTransactionFailure) {
+                                        Navigator.pop(context);
+                                        UiUtils.showCustomSnackBar(context: context, errorMessage: state.errorMessage);
+                                      }
                                     },
                                     builder: (context, state) {
                                       return Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                         children: [
                                           Expanded(
-                                            child: ElevatedButton(
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: Theme.of(context).primaryColor,
-                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                                //  padding: const EdgeInsetsDirectional.symmetric(vertical: 14),
-                                              ),
+                                            child: CustomRoundedButton(
+                                              height: context.height * 0.05,
+                                              backgroundColor: Theme.of(context).primaryColor,
+                                              borderRadius: BorderRadius.circular(10),
+                                              textStyle: TextStyle(fontSize: 15.sp(context)),
+                                              text: context.tr('deleteAccountCancelKey'),
                                               onPressed: () {
                                                 if (state is! DeleteRecurringTransactionLoading) {
                                                   Navigator.of(context).pop();
                                                 }
                                               },
-
-                                              child: CustomTextView(text: context.tr('deleteAccountCancelKey'), fontSize: 15.sp(context), color: Colors.white, textAlign: TextAlign.center),
                                             ),
                                           ),
-                                          const SizedBox(width: 15),
+                                          SizedBox(width: context.width * 0.02),
                                           Expanded(
-                                            child: ElevatedButton(
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: Theme.of(context).primaryColor,
-                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                              ),
+                                            child: CustomRoundedButton(
+                                              height: context.height * 0.05,
+                                              backgroundColor: Theme.of(context).primaryColor,
+                                              borderRadius: BorderRadius.circular(10),
+                                              textStyle: TextStyle(fontSize: 15.sp(context)),
+                                              text: context.tr('deleteAccountConfirmKey'),
                                               onPressed: state is DeleteRecurringTransactionLoading
                                                   ? null
                                                   : () async {
                                                       await context.read<DeleteRecurringTransactionCubit>().deleteRecurringTransaction(recurringId: recurringId);
                                                     },
-                                              child: state is DeleteRecurringTransactionLoading
-                                                  ? const CustomCircularProgressIndicator(
-                                                      color: Colors.white,
-                                                    )
-                                                  : CustomTextView(text: context.tr('deleteAccountConfirmKey'), fontSize: 15.sp(context), color: Colors.white, textAlign: TextAlign.center),
+                                              isLoading: state is DeleteRecurringTransactionLoading,
                                             ),
                                           ),
                                         ],

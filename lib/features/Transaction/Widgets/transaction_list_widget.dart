@@ -87,9 +87,9 @@ class _TransactionListState extends State<TransactionList> {
                           width: 30.sp(context),
                           decoration: BoxDecoration(
                             color: type == TransactionType.EXPENSE
-                                ? Colors.red.shade100
+                                ? context.colorScheme.expenseColor.withValues(alpha: 0.09)
                                 : type == TransactionType.INCOME
-                                ? Colors.green.shade100
+                                ? context.colorScheme.incomeColor.withValues(alpha: 0.09)
                                 : Colors.blue.shade100,
                             shape: BoxShape.circle,
                           ),
@@ -101,9 +101,9 @@ class _TransactionListState extends State<TransactionList> {
                                 : Icons.transform_outlined,
 
                             color: type == TransactionType.EXPENSE
-                                ? Colors.red
+                                ? context.colorScheme.expenseColor
                                 : type == TransactionType.INCOME
-                                ? Colors.green
+                                ? context.colorScheme.incomeColor
                                 : type == TransactionType.TRANSFER
                                 ? Colors.blue
                                 : Colors.blue,
@@ -119,14 +119,6 @@ class _TransactionListState extends State<TransactionList> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: .center,
                             children: [
-                              // CustomTextView(
-                              //   text: item.recurringTransactionId,
-                              //   fontWeight: FontWeight.bold,
-                              //   color: Colors.black,
-                              //   fontSize: context.isTablet ? 18.sp(context) : 15.sp(context),
-                              //   maxLines: 3,
-                              //   softWrap: true,
-                              // ),
                               if (categoryName.isNotEmpty && (type == TransactionType.EXPENSE || type == TransactionType.INCOME)) ...[
                                 CustomTextView(
                                   text: categoryName,
@@ -171,10 +163,10 @@ class _TransactionListState extends State<TransactionList> {
                                   text: amount.formatAmt(),
                                   fontWeight: FontWeight.bold,
                                   color: isIncome
-                                      ? Colors.green
+                                      ? context.colorScheme.incomeColor
                                       : type == TransactionType.TRANSFER
                                       ? Colors.blue
-                                      : Colors.red,
+                                      : context.colorScheme.expenseColor,
                                 ),
                               ],
                             ),
