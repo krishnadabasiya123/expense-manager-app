@@ -1,5 +1,4 @@
 import 'package:expenseapp/commons/cubit/theme_cubit.dart';
-import 'package:expenseapp/commons/widgets/custom_app_bar.dart';
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/core/theme/app_theme.dart';
 import 'package:expenseapp/features/budget/cubits/add_budget_cubit.dart';
@@ -8,14 +7,30 @@ import 'package:expenseapp/features/budget/cubits/update_budget_cubit.dart';
 import 'package:expenseapp/features/budget/models/Budget.dart';
 import 'package:expenseapp/features/budget/models/enums/BudgetPeriod.dart';
 import 'package:expenseapp/features/budget/models/enums/BudgetType.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 
 class AddBudgetScreen extends StatefulWidget {
-  const AddBudgetScreen({super.key});
+  const AddBudgetScreen({super.key, this.budget, this.isEdit = false});
+
+  final Budget? budget;
+  final bool isEdit;
 
   @override
   State<AddBudgetScreen> createState() => _AddBudgetScreenState();
+
+  static Route<dynamic>? route(RouteSettings routeSettings) {
+    final args = routeSettings.arguments as Map<String, dynamic>?;
+
+    final budget = args?['item'] as Budget?;
+
+    final isEdit = args?['isEdit'] as bool? ?? false;
+
+    return CupertinoPageRoute(
+      builder: (_) => AddBudgetScreen(budget: budget, isEdit: isEdit),
+    );
+  }
 }
 
 class _AddBudgetScreenState extends State<AddBudgetScreen> {
@@ -27,12 +42,13 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
   final FocusNode _titleFocusNode = FocusNode();
   final FocusNode _amountFocusNode = FocusNode();
   final ValueNotifier<bool> isDialogueOpen = ValueNotifier(false);
-  final ValueNotifier<BudgetType> selectedBudgetType = ValueNotifier(BudgetType.INCOME);
+  ValueNotifier<TransactionType> selectedBudgetType = ValueNotifier(TransactionType.ALL);
 
   double alert = 80;
 
   List<Map<String, dynamic>> categories = [];
   List<String> selectedCategories = [];
+  final List<TransactionType> displayTypes = TransactionType.values.where((e) => e == TransactionType.ALL || e == TransactionType.EXPENSE || e == TransactionType.INCOME).toList();
 
   String get selectedCategoryText {
     final selected = categories.where((c) => c['selected'] == true).map((e) => e['name']);
@@ -44,8 +60,19 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
     super.initState();
     categories = context.read<GetCategoryCubit>().getCatgoryListWithSelected();
     final tomorrow = DateTime.now();
-    startDateController.text = DateFormat(dateFormat).format(tomorrow);
-    endDateController.text = DateFormat(dateFormat).format(getNextDate(DateTime.now(), selectedPeriod));
+    selectedBudgetType.value = widget.isEdit ? widget.budget?.type ?? TransactionType.ALL : TransactionType.ALL;
+    amountCtrl.text = widget.isEdit ? widget.budget?.amount.toString() ?? '' : '';
+    titleCtrl.text = widget.isEdit ? widget.budget?.budgetName ?? '' : '';
+    selectedCategories = widget.isEdit ? widget.budget?.catedoryId ?? [] : [];
+    for (final cat in categories) {
+      cat['selected'] = selectedCategories.contains(cat['id']);
+    }
+    selectedPeriod = widget.isEdit ? widget.budget?.period ?? BudgetPeriod.WEEKLY : BudgetPeriod.WEEKLY;
+    startDateController.text = widget.isEdit ? widget.budget?.startDate ?? DateFormat(dateFormat).format(tomorrow) : DateFormat(dateFormat).format(tomorrow);
+    endDateController.text = widget.isEdit
+        ? widget.budget?.endDate ?? DateFormat(dateFormat).format(getNextDate(DateTime.now(), selectedPeriod))
+        : DateFormat(dateFormat).format(getNextDate(DateTime.now(), selectedPeriod));
+    alert = widget.isEdit ? widget.budget?.alertPercentage.toDouble() ?? 80 : 80;
   }
 
   AppThemeType newTheme = AppThemeType.dark;
@@ -64,7 +91,7 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
             canPop: false,
             onPopInvokedWithResult: (didPop, result) {
               if (didPop) return;
-              if (screenContext.read<AddBudgetCubit>().state is! AddBudgetLoading) {
+              if (screenContext.read<AddBudgetCubit>().state is! AddBudgetLoading && screenContext.read<UpdateBudgetCubit>().state is! UpdateBudgetLoading) {
                 Navigator.of(screenContext).pop();
                 return;
               }
@@ -72,8 +99,9 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
             child: Scaffold(
               appBar: QAppBar(
                 title: CustomTextView(
-                  text: context.tr('addBudgetKey'),
+                  text: widget.isEdit ? context.tr('updateBudgetKey') : context.tr('addBudgetKey'),
                   fontSize: 20.sp(context),
+                  color: Colors.white,
                 ),
                 actions: [
                   IconButton(
@@ -135,78 +163,115 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
                         ),
                       ],
                     ),
-                    child: BlocConsumer<AddBudgetCubit, AddBudgetState>(
-                      listener: (context, addState) {
-                        if (addState is AddBudgetSuccess) {
-                          context.read<GetBudgetCubit>().addBudgetLocally(addState.budget);
+                    child: BlocConsumer<UpdateBudgetCubit, UpdateBudgetState>(
+                      listener: (context, updateState) {
+                        if (updateState is UpdateBudgetSuccess) {
+                          context.read<GetBudgetCubit>().updateBudgetLocally(updateState.budget);
                           Navigator.of(context).pop();
                         }
-                        if (addState is AddBudgetFailure) {
-                          UiUtils.showCustomSnackBar(context: context, errorMessage: addState.error);
+                        if (updateState is UpdateBudgetFailure) {
+                          UiUtils.showCustomSnackBar(context: context, errorMessage: updateState.error);
                         }
                       },
-                      builder: (context, addState) {
-                        return Row(
-                          children: [
-                            Expanded(
-                              child: CustomRoundedButton(
-                                onPressed: () async {
-                                  final budgetId = 'BG'.withDateTimeMillisRandom();
-                                  if (amountCtrl.text.isEmpty) {
-                                    UiUtils.showCustomSnackBar(context: context, errorMessage: context.tr('PlsenterBudgetAmount'));
-                                    return;
-                                  }
-                                  if (titleCtrl.text.isEmpty) {
-                                    UiUtils.showCustomSnackBar(context: context, errorMessage: context.tr('PlsenterBudgetTitle'));
-                                    return;
-                                  }
-                                  if (selectedCategories.isEmpty) {
-                                    UiUtils.showCustomSnackBar(context: context, errorMessage: context.tr('PlsselectCatgoriesLbl'));
-                                    return;
-                                  }
-                                  context.read<AddBudgetCubit>().addBudget(
-                                    Budget(
-                                      budgetId: budgetId,
-                                      budgetName: titleCtrl.text,
-                                      amount: double.parse(amountCtrl.text),
-                                      catedoryId: selectedCategories,
-                                      type: selectedBudgetType.value,
-                                      period: selectedPeriod,
-                                      startDate: startDateController.text,
-                                      endDate: endDateController.text,
-                                      alertPercentage: alert.toInt(),
-                                      createdAt: DateTime.now().toString(),
-                                      updatedAt: DateTime.now().toString(),
-                                    ),
-                                  );
-                                },
-                                width: 1,
-                                backgroundColor: colorScheme.primary,
-                                text: context.tr('addKey'),
-                                textStyle: TextStyle(fontSize: context.isTablet ? 18.sp(context) : 16.sp(context)),
-                                borderRadius: BorderRadius.circular(8),
-                                height: context.height * 0.05,
-                                isLoading: addState is AddBudgetLoading,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: CustomRoundedButton(
-                                onPressed: () {
-                                  if (addState is! AddBudgetLoading) {
-                                    Navigator.of(context).pop();
-                                  }
-                                },
-                                width: 1,
-                                backgroundColor: Theme.of(context).primaryColor,
-                                text: context.tr('cancelKey'),
-                                textStyle: TextStyle(fontSize: context.isTablet ? 18.sp(context) : 16.sp(context)),
+                      builder: (context, updateState) {
+                        return BlocConsumer<AddBudgetCubit, AddBudgetState>(
+                          listener: (context, addState) {
+                            if (addState is AddBudgetSuccess) {
+                              context.read<GetBudgetCubit>().addBudgetLocally(addState.budget);
+                              Navigator.of(context).pop();
+                            }
+                            if (addState is AddBudgetFailure) {
+                              UiUtils.showCustomSnackBar(context: context, errorMessage: addState.error);
+                            }
+                          },
+                          builder: (context, addState) {
+                            return Row(
+                              children: [
+                                Expanded(
+                                  child: CustomRoundedButton(
+                                    onPressed: () async {
+                                      final budgetId = 'BG'.withDateTimeMillisRandom();
+                                      if (amountCtrl.text.isEmpty) {
+                                        UiUtils.showCustomSnackBar(context: context, errorMessage: context.tr('PlsenterBudgetAmount'));
+                                        return;
+                                      }
+                                      if (titleCtrl.text.isEmpty) {
+                                        UiUtils.showCustomSnackBar(context: context, errorMessage: context.tr('PlsenterBudgetTitle'));
+                                        return;
+                                      }
+                                      if (selectedCategories.isEmpty) {
+                                        UiUtils.showCustomSnackBar(context: context, errorMessage: context.tr('PlsselectCatgoriesLbl'));
+                                        return;
+                                      }
+                                      if (widget.isEdit) {
+                                        context.read<UpdateBudgetCubit>().updateBudget(
+                                          Budget(
+                                            budgetId: widget.budget!.budgetId,
+                                            budgetName: titleCtrl.text,
+                                            amount: double.parse(amountCtrl.text),
+                                            catedoryId: selectedCategories,
+                                            type: selectedBudgetType.value,
+                                            period: selectedPeriod,
+                                            startDate: startDateController.text,
+                                            endDate: endDateController.text,
+                                            alertPercentage: alert.toInt(),
+                                            createdAt: widget.budget!.createdAt,
+                                            updatedAt: DateTime.now().toString(),
+                                          ),
+                                        );
+                                      } else {
+                                        context.read<AddBudgetCubit>().addBudget(
+                                          Budget(
+                                            budgetId: budgetId,
+                                            budgetName: titleCtrl.text,
+                                            amount: double.parse(amountCtrl.text),
+                                            catedoryId: selectedCategories,
+                                            type: selectedBudgetType.value,
+                                            period: selectedPeriod,
+                                            startDate: startDateController.text,
+                                            endDate: endDateController.text,
+                                            alertPercentage: alert.toInt(),
+                                            createdAt: DateTime.now().toString(),
+                                            updatedAt: DateTime.now().toString(),
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    width: 1,
+                                    backgroundColor: colorScheme.primary,
+                                    text: widget.isEdit ? context.tr('update') : context.tr('addKey'),
+                                    textStyle: TextStyle(fontSize: context.isTablet ? 18.sp(context) : 16.sp(context)),
+                                    borderRadius: BorderRadius.circular(8),
+                                    height: context.height * 0.05,
+                                    isLoading: widget.isEdit ? updateState is UpdateBudgetLoading : addState is AddBudgetLoading,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: CustomRoundedButton(
+                                    onPressed: () {
+                                      if (widget.isEdit) {
+                                        if (updateState is! UpdateBudgetLoading) {
+                                          Navigator.of(context).pop();
+                                        }
+                                      } else {
+                                        if (addState is! AddBudgetLoading) {
+                                          Navigator.of(context).pop();
+                                        }
+                                      }
+                                    },
+                                    width: 1,
+                                    backgroundColor: Theme.of(context).primaryColor,
+                                    text: context.tr('cancelKey'),
+                                    textStyle: TextStyle(fontSize: context.isTablet ? 18.sp(context) : 16.sp(context)),
 
-                                borderRadius: BorderRadius.circular(8),
-                                height: context.height * 0.05,
-                              ),
-                            ),
-                          ],
+                                    borderRadius: BorderRadius.circular(8),
+                                    height: context.height * 0.05,
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
                         );
                       },
                     ),
@@ -256,22 +321,24 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
 
             Row(
               children: List.generate(
-                BudgetType.values.length,
+                displayTypes.length,
                 (index) {
-                  final isSelected = BudgetType.values[index] == selectedBudgetType.value;
+                  final type = displayTypes[index];
+                  final isSelected = type == selectedBudgetType.value;
+
                   return Expanded(
                     child: Padding(
                       padding: const EdgeInsetsDirectional.symmetric(horizontal: 4),
                       child: CustomRoundedButton(
                         height: context.height * 0.05,
                         backgroundColor: isSelected ? colorScheme.primary : colorScheme.surface,
-                        text: UiUtils.getStringBudgetType(BudgetType.values[index]),
+                        text: UiUtils.getTransactionTypeString(type),
                         textStyle: TextStyle(
                           fontSize: context.isTablet ? 17.sp(context) : 15.sp(context),
                         ),
                         borderRadius: BorderRadius.circular(8),
                         onPressed: () {
-                          selectedBudgetType.value = BudgetType.values[index];
+                          selectedBudgetType.value = type;
                         },
                       ),
                     ),
@@ -354,40 +421,57 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
                   CustomTextView(text: context.tr('selectCatgoriesLbl'), fontSize: 18.sp(context), fontWeight: FontWeight.bold),
                   SizedBox(height: context.height * 0.01),
                   Expanded(
-                    child: ListView.builder(
-                      padding: EdgeInsetsDirectional.zero,
-                      shrinkWrap: true,
-                      itemBuilder: (context, index) {
-                        final cat = categories[index];
-                        return Padding(
-                          padding: const EdgeInsetsDirectional.only(start: 10),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: CustomTextView(text: cat['name'] as String, fontSize: 15.sp(context), fontWeight: FontWeight.w300),
+                    child: SingleChildScrollView(
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: List.generate(categories.length, (index) {
+                          final cat = categories[index];
+                          final isSelected = cat['selected'] as bool;
+
+                          return FilterChip(
+                            label: Text(
+                              cat['name'] as String,
+                              style: TextStyle(
+                                color: isSelected ? Colors.white : Colors.black,
+                                fontWeight: FontWeight.w500,
                               ),
-                              Checkbox(
-                                value: cat['selected'] as bool,
-                                onChanged: (bool? value) {
-                                  setModal(() {
-                                    categories[index]['selected'] = value;
-                                    if (value ?? false) {
-                                      if (!selectedCategories.contains(cat['id'] as String)) {
-                                        selectedCategories.add(cat['id'] as String);
-                                      }
-                                    } else {
-                                      selectedCategories.remove(cat['id']);
-                                    }
-                                  });
-                                },
+                            ),
+
+                            selected: isSelected,
+
+                            backgroundColor: Colors.grey.shade200,
+                            selectedColor: Theme.of(context).primaryColor,
+
+                            checkmarkColor: Colors.white,
+                            showCheckmark: true,
+
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              side: BorderSide(
+                                color: isSelected ? Theme.of(context).primaryColor : Colors.grey.shade300,
                               ),
-                            ],
-                          ),
-                        );
-                      },
-                      itemCount: categories.length,
+                            ),
+
+                            onSelected: (value) {
+                              setModal(() {
+                                categories[index]['selected'] = value;
+
+                                if (value) {
+                                  if (!selectedCategories.contains(cat['id'])) {
+                                    selectedCategories.add(cat['id'] as String);
+                                  }
+                                } else {
+                                  selectedCategories.remove(cat['id']);
+                                }
+                              });
+                            },
+                          );
+                        }),
+                      ),
                     ),
                   ),
+
                   SizedBox(height: context.height * 0.02),
                   CustomRoundedButton(
                     height: context.height * 0.05,

@@ -1,5 +1,4 @@
 import 'package:expenseapp/commons/widgets/CommonSearchController.dart';
-import 'package:expenseapp/commons/widgets/custom_app_bar.dart';
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/features/Transaction/Cubits/add_transaction_cubit.dart';
 import 'package:expenseapp/features/Transaction/Cubits/update_trasansaction_cubit.dart';
@@ -320,14 +319,17 @@ class _TransactionScreenState extends State<TransactionScreen> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              label,
-              style: TextStyle(color: Colors.white70, fontSize: 12.sp(context)),
+            CustomTextView(
+              text: label,
+              color: Colors.white70,
+              fontSize: 12.sp(context),
             ),
             const SizedBox(height: 2),
-            Text(
-              amount,
-              style: TextStyle(color: color, fontSize: 14.sp(context), fontWeight: FontWeight.w600),
+            CustomTextView(
+              text: amount,
+              color: color,
+              fontSize: 14.sp(context),
+              fontWeight: FontWeight.w600,
             ),
           ],
         ),

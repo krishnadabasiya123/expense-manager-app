@@ -28,6 +28,9 @@ class TransactionLocalData {
 
   List<Transaction> getTransaction() {
     final transactions = box.values.toList();
+    for (final transaction in transactions) {
+      log('transaction ${transaction.toJson()}');
+    }
     return transactions;
   }
 

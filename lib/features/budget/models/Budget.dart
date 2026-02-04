@@ -12,7 +12,7 @@ class Budget extends HiveObject {
     this.budgetName = '',
     this.amount = 0,
     this.catedoryId = const [],
-    this.type = BudgetType.INCOME,
+    this.type = TransactionType.INCOME,
     this.period = BudgetPeriod.WEEKLY,
     this.startDate = '',
     this.endDate = '',
@@ -32,7 +32,7 @@ class Budget extends HiveObject {
   List<String> catedoryId;
 
   @HiveField(4)
-  BudgetType type;
+  TransactionType type;
 
   @HiveField(5)
   BudgetPeriod period;
@@ -57,7 +57,7 @@ class Budget extends HiveObject {
     String? budgetName,
     double? amount,
     List<String>? catedoryId,
-    BudgetType? type,
+    TransactionType? type,
     String? createdAt,
     String? updatedAt,
     BudgetPeriod? period,

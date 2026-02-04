@@ -47,9 +47,9 @@ class QAppBar extends StatelessWidget implements PreferredSizeWidget {
       foregroundColor: usePrimaryColor ? Theme.of(context).primaryColor : colorScheme.onTertiary,
       backgroundColor: Theme.of(context).primaryColor,
       surfaceTintColor: roundedAppBar ? colorScheme.surface : Theme.of(context).scaffoldBackgroundColor,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
-      ),
+      // shape: const RoundedRectangleBorder(
+      //   borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
+      // ),
       iconTheme: const IconThemeData(color: Colors.white),
       // leading: automaticallyImplyLeading
       // ? QBackButton(

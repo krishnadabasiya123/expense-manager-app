@@ -27,7 +27,7 @@ class GetBudgetCubit extends Cubit<GetBudgetState> {
 
   Future<void> getBudget() async {
     emit(GetBudgetLoading());
-    Future.delayed(const Duration(seconds: 2), () {
+    Future.delayed(const Duration(seconds: 5), () {
       try {
         final budget = budgetLocalStorage.getBudget();
         emit(GetBudgetSuccess(budget));
@@ -57,6 +57,26 @@ class GetBudgetCubit extends Cubit<GetBudgetState> {
         newBudgetList[index] = budget;
         emit(GetBudgetSuccess(newBudgetList));
       }
+    }
+  }
+
+  Future<void> deleteBudgetLocally(Budget budget) async {
+    await budgetLocalStorage.deleteBudget(budget);
+    if (state is GetBudgetSuccess) {
+      final oldData = (state as GetBudgetSuccess).budget..removeWhere((element) => element.budgetId == budget.budgetId);
+      emit(GetBudgetSuccess(oldData));
+    }
+  }
+
+  Future<void> deleteCategoryLocallyInBudget({required String categoryId}) async {
+    await budgetLocalStorage.deleteCategoryInBudget(categoryId: categoryId);
+    if (state is GetBudgetSuccess) {
+      final oldData = (state as GetBudgetSuccess).budget;
+      final index = oldData.indexWhere((element) => element.catedoryId.contains(categoryId));
+      if (index != -1) {
+        oldData[index].catedoryId.remove(categoryId);
+      }
+      emit(GetBudgetSuccess(oldData));
     }
   }
 }

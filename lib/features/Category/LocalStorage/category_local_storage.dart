@@ -26,7 +26,11 @@ class CategoryLocalStorage {
 
   void initDefaults() {
     if (!_box.containsKey(key)) {
-      saveCategory([Category(id: getNextId(), name: 'General', isDefault: true), Category(id: getNextId(), name: 'Study', isDefault: true), Category(id: getNextId(), name: 'Work', isDefault: true)]);
+      saveCategory([
+        Category(id: getNextId(), name: 'General', isDefault: true),
+        Category(id: getNextId(), name: 'Study', isDefault: true),
+        Category(id: getNextId(), name: 'Work', isDefault: true),
+      ]);
     }
   }
 

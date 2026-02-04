@@ -23,7 +23,7 @@ class BudgetAdapter extends TypeAdapter<Budget> {
       budgetName: fields[1] as String,
       amount: fields[2] as double,
       catedoryId: (fields[3] as List).cast<String>(),
-      type: fields[4] as BudgetType,
+      type: fields[4] as TransactionType,
       period: fields[5] as BudgetPeriod,
       startDate: fields[6] as String,
       endDate: fields[7] as String,
@@ -63,9 +63,5 @@ class BudgetAdapter extends TypeAdapter<Budget> {
   int get hashCode => typeId.hashCode;
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is BudgetAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+  bool operator ==(Object other) => identical(this, other) || other is BudgetAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }

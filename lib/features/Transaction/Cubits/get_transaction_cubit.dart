@@ -1,5 +1,8 @@
+import 'dart:math' as math;
+
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/features/RecurringTransaction/Model/Recurring.dart';
+import 'package:expenseapp/features/budget/models/enums/BudgetType.dart';
 
 @immutable
 sealed class GetTransactionState {}
@@ -131,6 +134,30 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
       }
     } catch (e) {
       emit(GetTransactionFailure(e.toString()));
+    }
+  }
+
+  Future<void> updateAccountNameLocallyInTransaction({required String accouutId}) async {
+    if (state is GetTransactionSuccess) {
+      final transactions = (state as GetTransactionSuccess).transactions;
+      final index = transactions.indexWhere((p) => p.accountId == accouutId || p.accountFromId == accouutId || p.accountToId == accouutId);
+      if (index != -1) {
+        transactions[index].accountId = accouutId;
+        transactions[index].accountFromId = accouutId;
+        transactions[index].accountToId = accouutId;
+        emit(GetTransactionSuccess(transactions));
+      }
+    }
+  }
+
+  Future<void> updateCategoryNameLocallyInTransaction({required String categoryId}) async {
+    if (state is GetTransactionSuccess) {
+      final transactions = (state as GetTransactionSuccess).transactions;
+      final index = transactions.indexWhere((p) => p.categoryId == categoryId);
+      if (index != -1) {
+        transactions[index].categoryId = categoryId;
+        emit(GetTransactionSuccess(transactions));
+      }
     }
   }
 
@@ -514,34 +541,52 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
     return result;
   }
 
-  double getTotalBudgetSpent({
-    required List<String> categoryIds,
-  }) {
+  double getTotalBudgetSpent({required List<String> categoryIds, required TransactionType type, required String date}) {
     double total = 0;
+    final parseDate = UiUtils.parseDate(date);
     if (state is GetTransactionSuccess) {
       final transactions = (state as GetTransactionSuccess).transactions;
       for (final tx in transactions) {
-        if (categoryIds.contains(tx.categoryId)) {
+        final parseTransactionDate = UiUtils.parseDate(tx.date);
+        if (TransactionType.ALL == type && !parseTransactionDate.isAfter(parseDate)) {
+          if (categoryIds.contains(tx.categoryId)) {
+            if (tx.type == TransactionType.EXPENSE) {
+              total += tx.amount;
+            } else if (tx.type == TransactionType.INCOME) {
+              total -= tx.amount;
+            }
+          }
+        }
+        if (categoryIds.contains(tx.categoryId) && tx.type == type && !parseTransactionDate.isAfter(parseDate)) {
           total += tx.amount;
         }
       }
     }
-
+    log('total $total');
     return total;
   }
 
   List<Map<String, dynamic>> getTransactionByCategoryId({
     required List<String> categoryIds,
+    required String date,
+    required TransactionType type,
   }) {
     if (state is GetTransactionSuccess) {
       final transactions = (state as GetTransactionSuccess).transactions;
+      final parseDate = UiUtils.parseDate(date);
 
       try {
         final grouped = <String, List<Transaction>>{};
 
         final sortedTransactions = [...transactions];
-
-        final filteredTransactions = sortedTransactions.where((item) => categoryIds.contains(item.categoryId)).toList()..sort((b, a) => a.date.compareTo(b.date));
+        final filteredTransactions =
+            sortedTransactions
+                .where(
+                  (item) => categoryIds.contains(item.categoryId) && (type == TransactionType.ALL || item.type == type) && !UiUtils.parseDate(item.date).isAfter(parseDate),
+                )
+                .toList()
+              ..sort((b, a) => a.date.compareTo(b.date))
+              ..removeWhere((element) => !parseDate.isAfter(UiUtils.parseDate(element.date)));
 
         for (final item in filteredTransactions) {
           grouped.putIfAbsent(item.categoryId, () => []);
@@ -560,5 +605,14 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
       }
     }
     return [];
+  }
+
+  int totalTransactionCount() {
+    if (state is GetTransactionSuccess) {
+      final transactions = (state as GetTransactionSuccess).transactions;
+      return transactions.length;
+    }
+
+    return 0;
   }
 }

@@ -1,6 +1,7 @@
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/features/Account/Cubits/add_account_cubit.dart';
 import 'package:expenseapp/features/Account/Cubits/update_account_cubit.dart';
+import 'package:expenseapp/features/RecurringTransaction/Cubit/get_recurring_transaction_cubit.dart';
 import 'package:flutter/material.dart';
 
 void showCreateAccountSheet(
@@ -113,6 +114,9 @@ class _AccountCreateWidgetState extends State<_AccountCreateWidget> {
                         listener: (context, updateState) {
                           if (updateState is UpdateAccountSuccess) {
                             context.read<GetAccountCubit>().updateAccountLocally(account: updateState.account);
+                            context.read<GetTransactionCubit>().updateAccountNameLocallyInTransaction(accouutId: updateState.account.id);
+                            context.read<GetPartyCubit>().updateAccountNameLocallyInParty(accouutId: updateState.account.id);
+                            context.read<GetRecurringTransactionCubit>().updateAccountNameLocallyInRecurringTransaction(accouutId: updateState.account.id);
                             UiUtils.showCustomSnackBar(context: context, errorMessage: context.tr('accountUpdateSucess'));
                             Navigator.pop(context);
                           }

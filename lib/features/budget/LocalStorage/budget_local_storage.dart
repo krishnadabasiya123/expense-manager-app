@@ -20,6 +20,9 @@ class BudgetLocalStorage {
 
   List<Budget> getBudget() {
     final budgets = box.values.toList();
+    for (final budget in budgets) {
+      log('budget ${budget.toJson()}');
+    }
     return budgets;
   }
 
@@ -41,6 +44,27 @@ class BudgetLocalStorage {
 
     if (key != null) {
       await box.delete(key);
+    }
+  }
+
+  Future<void> deleteCategoryInBudget({
+    required String categoryId,
+  }) async {
+    for (final key in box.keys) {
+      final budget = box.get(key);
+
+      if (budget == null) continue;
+
+      if (budget.catedoryId.contains(categoryId)) {
+        // If this is the only category → delete budget
+        if (budget.catedoryId.length == 1) {
+          await box.delete(key);
+        } else {
+          // Otherwise remove category
+          budget.catedoryId.remove(categoryId);
+          await box.put(key, budget);
+        }
+      }
     }
   }
 }

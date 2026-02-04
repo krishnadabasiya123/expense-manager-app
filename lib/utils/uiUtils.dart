@@ -140,13 +140,28 @@ class UiUtils {
 
   static Future<DateTime?> selectDate(BuildContext context, TextEditingController dateController, {bool isChangeEndDate = false}) async {
     final colorScheme = Theme.of(context).colorScheme;
-    final today = isChangeEndDate ? DateTime.now().add(const Duration(days: 1)) : DateTime.now();
+
+    final today = DateTime.now();
+
+    final selectedDate = dateController.text.isNotEmpty ? UiUtils.parseDate(dateController.text) : today;
+
+    DateTime initialDate;
+    DateTime firstDate;
+
+    if (isChangeEndDate) {
+      // end date (recurring)
+      firstDate = selectedDate.add(const Duration(days: 1));
+      initialDate = firstDate;
+    } else {
+      initialDate = selectedDate.isBefore(today) ? today : selectedDate;
+      firstDate = today;
+    }
 
     return showDatePicker(
       barrierDismissible: false,
       context: context,
-      initialDate: isChangeEndDate ? UiUtils.parseDate(dateController.text).add(const Duration(days: 1)) : today,
-      firstDate: isChangeEndDate ? UiUtils.parseDate(dateController.text).add(const Duration(days: 1)) : today,
+      initialDate: initialDate,
+      firstDate: firstDate,
       lastDate: DateTime(2100),
       builder: (context, child) {
         return Theme(

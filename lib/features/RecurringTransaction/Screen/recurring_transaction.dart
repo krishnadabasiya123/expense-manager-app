@@ -1,6 +1,5 @@
 import 'dart:ui';
 
-import 'package:expenseapp/commons/widgets/custom_app_bar.dart';
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/features/RecurringTransaction/Cubit/get_recurring_transaction_cubit.dart';
 import 'package:expenseapp/features/RecurringTransaction/Cubit/update_recurring_transaction_cubit.dart';
@@ -77,7 +76,7 @@ class _SubscriptionSummary extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             blurRadius: 20,
-            color: Colors.black.withValues(alpha :0.05),
+            color: Colors.black.withValues(alpha: 0.05),
           ),
         ],
       ),
@@ -191,7 +190,7 @@ class _TransactionLog extends StatelessWidget {
                         child: Row(
                           children: [
                             CircleAvatar(
-                              backgroundColor: status.color.withValues(alpha :0.1),
+                              backgroundColor: status.color.withValues(alpha: 0.1),
                               child: Icon(status.icon, color: status.color),
                             ),
                             const SizedBox(width: 12),
@@ -274,9 +273,9 @@ class _TransactionLog extends StatelessWidget {
   PopupMenuItem<String> _buildPopupMenu({required String value, required String text, Color? color}) {
     return PopupMenuItem(
       value: value,
-      child: Text(
-        text,
-        style: TextStyle(color: color),
+      child: CustomTextView(
+        text: text,
+        color: color,
       ),
     );
   }

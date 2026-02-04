@@ -98,7 +98,6 @@ class GetAccountCubit extends Cubit<GetAccountState> {
       if (list.isNotEmpty) {
         list.removeLast();
       }
-
       return list;
     }
     return [];

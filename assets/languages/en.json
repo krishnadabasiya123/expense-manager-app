@@ -55,7 +55,8 @@
  "balanceReq": "Balance is required",
  "update": "Update",
  "updateAccount": "Update Account",
- "deleteDialogMsg": "Deleting this account will permanently remove all related transactions.",
+ "deleteDialogMsg": "This will delete all transactions associated with this account.",
+ "deleteDialogMsgwithMoreTransaction": "Deleting an account will delete all transaction in this account. Move transactions to another account to avoid this.",
  "deleteAccountConfirmKey": "Delete",
  "deleteAccountCancelKey": "Cancel",
  "deleteAccountTitleKey": "Confirm Deletion",
@@ -285,9 +286,16 @@
  "alertKey": "Alert Notification ({alert}%)",
  "alertNotificationMsg": "We'll notify you when your spending reaches {alert}% of this budget.",
  "remainingKey": "Remaining",
- "spentKey": "Spent",
+ "usedKey": "Used",
+ "savedKey": "Saved",
  "limitExceededKey": "Limit Exceeded",
  "limitKey": "Limit",
  "UtilizationKey": "Utilization",
- "budgetHistoryKey": "Budget History"
+ "budgetHistoryKey": "Budget History",
+ "updateBudgetKey": "Update Budget",
+ "budgetDeleteDialogMsg": "Deleting this budget will permanently remove all related transactions.",
+ "partyTransactionKey": "Party Transaction",
+ "leftKey": "Left",
+ "overSavedKey": "Over Saved",
+ "overSpentKey": "Over Spent"
 }

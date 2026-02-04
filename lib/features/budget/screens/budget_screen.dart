@@ -1,7 +1,10 @@
-import 'package:expenseapp/commons/widgets/common_text_view.dart';
-import 'package:expenseapp/commons/widgets/custom_app_bar.dart';
+import 'dart:math' as math;
+
 import 'package:expenseapp/core/app/all_import_file.dart';
+import 'package:expenseapp/features/budget/cubits/delete_budget_cubit.dart';
 import 'package:expenseapp/features/budget/cubits/get_budget_cubit.dart';
+import 'package:expenseapp/features/budget/models/Budget.dart';
+import 'package:expenseapp/features/budget/models/enums/BudgetType.dart';
 import 'package:flutter/material.dart';
 
 class BudgetScreen extends StatefulWidget {
@@ -58,20 +61,66 @@ class _BudgetScreenState extends State<BudgetScreen> {
                 itemCount: budgetList.length,
                 itemBuilder: (context, index) {
                   final item = budgetList[index];
-                  final spent = context.read<GetTransactionCubit>().getTotalBudgetSpent(categoryIds: item.catedoryId);
-                  final left = item.amount - spent;
-                  final percentage = (left / item.amount) * 100;
+                  final result = context.read<GetTransactionCubit>().getTotalBudgetSpent(categoryIds: item.catedoryId, type: item.type, date: item.endDate);
+
+                  log(result.toString());
+                  // for if saved my amt then in 10000 + 900 not display 10900 only display 10000 (orininfgal amt in remaining)
+                  var left = result < 0 ? item.amount : item.amount - result;
+                  // final left = item.type == TransactionType.INCOME ? item.amount : (item.amount - result).clamp(0, item.amount);
+
+                  final spent = result; // total income/expense from cubit
+                  final limit = item.amount;
+
+                  String label;
+
+                  if (item.type == TransactionType.INCOME) {
+                    if (spent > limit) {
+                      // Over saved
+                      left = spent - limit;
+                      label = context.tr('overSavedKey');
+                    } else {
+                      // Remaining to reach goal
+                      left = limit - spent;
+                      label = context.tr('leftKey');
+                    }
+                  } else if (item.type == TransactionType.EXPENSE) {
+                    // EXPENSE
+                    if (spent > limit) {
+                      // Over spent
+                      left = spent - limit;
+                      label = context.tr('overSpentKey');
+                    } else {
+                      // Remaining budget
+                      left = limit - spent;
+                      label = context.tr('leftKey');
+                    }
+                  } else {
+                    left = limit;
+                    label = context.tr('leftKey');
+                  }
+
+                  // ALWAYS POSITIVE
+                  left = left.abs();
+
+                  log('left.toString( ) $left');
+                  //final percentage = (left / item.amount) * 100;
                   return GestureDetector(
                     onTap: () {
-                      Navigator.pushNamed(context, Routes.budgetHistory, arguments: {'category': item.catedoryId});
+                      Navigator.pushNamed(context, Routes.budgetHistory, arguments: {'item': item});
                     },
-                    child: BudgetCard(
-                      title: item.budgetName,
-                      left: left < 0 ? 0 : left,
-                      spent: spent,
-                      percent: percentage < 0 ? 0 : percentage,
-                      limit: item.amount,
-                      category: item.catedoryId,
+                    child: Opacity(
+                      opacity: UiUtils.parseDate(item.endDate).isBefore(DateTime.now()) ? 0.5 : 1,
+                      child: BudgetCard(
+                        title: item.budgetName,
+                        left: left,
+                        spent: result,
+                        percent: (spent / item.amount) * 100,
+                        limit: item.amount,
+                        category: item.catedoryId,
+                        type: item.type,
+                        budget: item,
+                        label: label,
+                      ),
                     ),
                   );
                 },
@@ -101,6 +150,9 @@ class BudgetCard extends StatelessWidget {
     required this.percent,
     required this.limit,
     required this.category,
+    required this.type,
+    required this.budget,
+    required this.label,
     super.key,
   });
   final String title;
@@ -109,6 +161,9 @@ class BudgetCard extends StatelessWidget {
   final double percent;
   final double limit;
   final List<String> category;
+  final TransactionType type;
+  final Budget budget;
+  final String label;
 
   @override
   Widget build(BuildContext context) {
@@ -123,55 +178,51 @@ class BudgetCard extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
+
         children: [
           Row(
             children: [
               Expanded(
-                child: Row(
+                child: Column(
+                  crossAxisAlignment: .start,
+
                   children: [
-                    CustomTextView(text: title, fontSize: 18.sp(context), fontWeight: FontWeight.bold),
-                    const SizedBox(width: 5),
-                    if (spent > limit) ...[
-                      Container(
-                        padding: EdgeInsetsDirectional.symmetric(horizontal: context.width * 0.02, vertical: context.height * 0.005),
-                        decoration: BoxDecoration(
-                          color: Colors.red.withValues(alpha: .15),
-                          borderRadius: BorderRadius.circular(20),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: CustomTextView(text: title, fontSize: 18.sp(context), fontWeight: FontWeight.bold, softWrap: true, maxLines: 3),
                         ),
-                        child: CustomTextView(text: context.tr('limitExceededKey'), fontSize: 11.sp(context), color: Colors.red),
-                      ),
-                    ],
+                        const SizedBox(width: 5),
+                      ],
+                    ),
+                    CustomTextView(text: '${category.length} ${context.tr('categoryKey')}', fontSize: 12.sp(context), color: Colors.black),
                   ],
                 ),
               ),
-              GestureDetector(
-                onTap: () {
-                  log('hyyy');
-                  PopupMenuButton<String>(
-                    // padding: EdgeInsetsDirectional.zero,
-                    icon: const Icon(Icons.more_vert),
-                    onSelected: (value) {
-                      if (value == context.tr('editKey')) {
-                      } else if (value == context.tr('deleteKey')) {}
-                    },
-                    itemBuilder: (context) => [
-                      _popUpMenuBuild(context: context, value: context.tr('editKey'), text: context.tr('editKey'), icon: Icons.edit, color: Colors.black),
-                      _popUpMenuBuild(context: context, value: context.tr('deleteKey'), text: context.tr('deleteKey'), icon: Icons.delete, color: context.colorScheme.expenseColor),
-                    ],
-                  );
+
+              PopupMenuButton<String>(
+                constraints: BoxConstraints(
+                  maxHeight: context.screenHeight * (context.isMobile ? 0.5 : 0.1),
+                  maxWidth: context.screenWidth * (context.isMobile ? 1.5 : 2.5),
+                ),
+
+                // padding: EdgeInsetsDirectional.zero,
+                icon: const Icon(Icons.more_vert),
+                onSelected: (value) {
+                  if (value == context.tr('editKey')) {
+                    Navigator.pushNamed(context, Routes.addBudget, arguments: {'item': budget, 'isEdit': true});
+                  } else if (value == context.tr('deleteKey')) {
+                    showDeleteAlertDialog(context: context, budget: budget);
+                  }
                 },
-                child: const Icon(Icons.more_horiz, color: Colors.black),
+                itemBuilder: (context) => [
+                  _popUpMenuBuild(value: context.tr('editKey'), text: context.tr('editKey'), icon: Icons.edit, color: Colors.black, context: context),
+                  _popUpMenuBuild(value: context.tr('deleteKey'), text: context.tr('deleteKey'), icon: Icons.delete, color: context.colorScheme.expenseColor, context: context),
+                ],
               ),
             ],
           ),
-          //SizedBox(height: context.height * 0.01),
-          Row(
-            children: [
-              Icon(Icons.category, color: Colors.black, size: 16.sp(context)),
-              const SizedBox(width: 10),
-              CustomTextView(text: '${category.length} ${context.tr('categoryKey')}', fontSize: 12.sp(context), color: Colors.black),
-            ],
-          ),
+
           SizedBox(height: context.height * 0.015),
 
           Row(
@@ -180,24 +231,27 @@ class BudgetCard extends StatelessWidget {
               Row(
                 children: [
                   CustomTextView(
-                    text: '${context.symbol}$left ',
-                    fontSize: 20.sp(
-                      context,
-                    ),
+                    text: '${context.symbol}${left.abs()} ',
+                    fontSize: 20.sp(context),
                     fontWeight: FontWeight.bold,
                   ),
-                  CustomTextView(text: context.tr('remainingKey'), fontSize: 12.sp(context), fontWeight: FontWeight.bold, color: Colors.grey),
+                  CustomTextView(
+                    text: label,
+                    fontSize: 12.sp(context),
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey,
+                  ),
                 ],
               ),
               Row(
                 children: [
                   CustomTextView(
-                    text: context.tr('spentKey'),
+                    text: spent < 0 ? context.tr('savedKey') : context.tr('usedKey'),
                     color: Colors.black,
                     fontSize: 12.sp(context),
                     fontWeight: FontWeight.bold,
                   ),
-                  CustomTextView(text: '  ${context.symbol}$spent', color: spent > limit ? Colors.red : Colors.black),
+                  CustomTextView(text: '  ${context.symbol}${spent.abs()}', color: Colors.black),
                 ],
               ),
             ],
@@ -210,10 +264,11 @@ class BudgetCard extends StatelessWidget {
               borderRadius: const BorderRadius.all(Radius.circular(10)),
               child: LinearProgressIndicator(
                 value: percent / 100,
+
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  left > 0 ? colorScheme.primary : Colors.red,
+                  colorScheme.primary,
                 ),
-                backgroundColor: left > 0 ? colorScheme.primary : Colors.red,
+                backgroundColor: colorScheme.surface,
               ),
             ),
           ),
@@ -223,7 +278,7 @@ class BudgetCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              CustomTextView(text: '${percent.toInt()}% ${context.tr('UtilizationKey')}', fontSize: 12.sp(context), color: Theme.of(context).primaryColor),
+              CustomTextView(text: '${percent.toInt()}%', fontSize: 12.sp(context), color: Theme.of(context).primaryColor),
               Row(
                 children: [
                   CustomTextView(
@@ -252,6 +307,90 @@ class BudgetCard extends StatelessWidget {
           ),
           Icon(icon, size: 18.sp(context), color: color),
         ],
+      ),
+    );
+  }
+
+  void showDeleteAlertDialog({required Budget budget, required BuildContext context}) {
+    context.showAppDialog(
+      child: BlocProvider(
+        create: (context) => DeleteBudgetCubit(),
+        child: Builder(
+          builder: (dialogueContext) {
+            return Center(
+              child: PopScope(
+                canPop: false,
+                onPopInvokedWithResult: (didPop, result) {
+                  if (didPop) return;
+                  if (dialogueContext.read<DeleteBudgetCubit>().state is! DeleteBudgetLoading) {
+                    Navigator.of(dialogueContext).pop();
+                    return;
+                  }
+                },
+                child: AlertDialog(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  title: Text(
+                    context.tr('deleteAccountTitleKey'),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22.sp(context)),
+                  ),
+                  content: CustomTextView(text: context.tr('budgetDeleteDialogMsg'), softWrap: true, maxLines: 3, fontSize: 15.sp(context)),
+                  actions: [
+                    BlocConsumer<DeleteBudgetCubit, DeleteBudgetState>(
+                      listener: (context, state) {
+                        if (state is DeleteBudgetSuccess) {
+                          context.read<GetBudgetCubit>().deleteBudgetLocally(state.budget);
+                          Navigator.pop(context);
+                        }
+                        if (state is DeleteBudgetFailure) {
+                          UiUtils.showCustomSnackBar(context: context, errorMessage: state.error);
+                          Navigator.pop(context);
+                        }
+                      },
+                      builder: (context, state) {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Expanded(
+                              child: CustomRoundedButton(
+                                onPressed: () {
+                                  if (state is! DeleteBudgetLoading) {
+                                    Navigator.of(context).pop();
+                                  }
+                                },
+
+                                width: 1,
+                                backgroundColor: Theme.of(context).primaryColor,
+                                text: context.tr('deleteAccountCancelKey'),
+                                borderRadius: BorderRadius.circular(8),
+                                height: 45.sp(context),
+                              ),
+                            ),
+
+                            const SizedBox(width: 15),
+
+                            Expanded(
+                              child: CustomRoundedButton(
+                                onPressed: () {
+                                  context.read<DeleteBudgetCubit>().deleteBudget(budget);
+                                },
+                                isLoading: state is DeleteBudgetLoading,
+                                width: 1,
+                                backgroundColor: Theme.of(context).primaryColor,
+                                text: context.tr('deleteAccountConfirmKey'),
+                                borderRadius: BorderRadius.circular(8),
+                                height: 45.sp(context),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }

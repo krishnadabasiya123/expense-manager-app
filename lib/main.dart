@@ -720,3 +720,218 @@ void main() async {
 //     return Icon(icon, size: 48, color: color);
 //   }
 // }
+// import 'package:flutter/material.dart';
+
+// void main() {
+//   runApp(const MyApp());
+// }
+
+// /* ===========================
+//    APP ROOT
+// =========================== */
+
+// class MyApp extends StatelessWidget {
+//   const MyApp({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       debugShowCheckedModeBanner: false,
+//       title: 'Budget Demo',
+//       theme: ThemeData(
+//         primarySwatch: Colors.blue,
+//       ),
+//       home: const BudgetListScreen(),
+//     );
+//   }
+// }
+
+// /* ===========================
+//    MODELS
+// =========================== */
+
+// enum TransactionType { income, expense }
+
+// class BudgetTransaction {
+//   BudgetTransaction({
+//     required this.amount,
+//     required this.type,
+//   });
+//   final double amount;
+//   final TransactionType type;
+// }
+
+// class BudgetModel {
+//   BudgetModel({
+//     required this.title,
+//     required this.limit,
+//     required this.transactions,
+//   });
+//   final String title;
+//   final double limit;
+//   final List<BudgetTransaction> transactions;
+
+//   double get totalExpense => transactions.where((t) => t.type == TransactionType.expense).fold(0, (sum, t) => sum + t.amount);
+
+//   double get totalIncome => transactions.where((t) => t.type == TransactionType.income).fold(0, (sum, t) => sum + t.amount);
+
+//   double get usedAmount {
+//     final used = totalExpense - totalIncome;
+//     return used > 0 ? used : 0;
+//   }
+
+//   double get savedAmount {
+//     final saved = totalIncome - totalExpense;
+//     return saved > 0 ? saved : 0;
+//   }
+
+//   double get remaining => limit - usedAmount;
+
+//   double get progress => (usedAmount / limit).clamp(0.0, 1.0);
+// }
+
+// /* ===========================
+//    BUDGET LIST SCREEN
+// =========================== */
+
+// class BudgetListScreen extends StatefulWidget {
+//   const BudgetListScreen({super.key});
+
+//   @override
+//   State<BudgetListScreen> createState() => _BudgetListScreenState();
+// }
+
+// class _BudgetListScreenState extends State<BudgetListScreen> {
+//   final List<BudgetModel> budgets = [
+//     BudgetModel(
+//       title: 'Study Material',
+//       limit: 10000,
+//       transactions: [
+//         BudgetTransaction(amount: 500, type: TransactionType.income),
+//         BudgetTransaction(amount: 400, type: TransactionType.income),
+//         BudgetTransaction(amount: 600, type: TransactionType.income),
+//         BudgetTransaction(amount: 300, type: TransactionType.income),
+//       ],
+//     ),
+//   ];
+
+//   void addTransaction(
+//     BudgetModel budget,
+//     double amount,
+//     TransactionType type,
+//   ) {
+//     setState(() {
+//       budget.transactions.add(
+//         BudgetTransaction(amount: amount, type: type),
+//       );
+//     });
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: const Text('Budgets'),
+//       ),
+//       body: ListView.builder(
+//         padding: const EdgeInsets.all(16),
+//         itemCount: budgets.length,
+//         itemBuilder: (context, index) {
+//           final budget = budgets[index];
+
+//           return Card(
+//             margin: const EdgeInsets.only(bottom: 16),
+//             child: Padding(
+//               padding: const EdgeInsets.all(16),
+//               child: Column(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//                   // Title
+//                   Text(
+//                     budget.title,
+//                     style: const TextStyle(
+//                       fontSize: 18,
+//                       fontWeight: FontWeight.bold,
+//                     ),
+//                   ),
+
+//                   const SizedBox(height: 8),
+
+//                   if (budget.savedAmount > 0) ...[
+//                     Text(
+//                       'Saved: ₹${budget.savedAmount.toStringAsFixed(0)}',
+//                       style: const TextStyle(color: Colors.green),
+//                     ),
+//                   ] else ...[
+//                     Text(
+//                       'Used: ₹${budget.usedAmount.toStringAsFixed(0)} / ₹${budget.limit.toStringAsFixed(0)}',
+//                     ),
+//                   ],
+
+//                   const SizedBox(height: 8),
+
+//                   // Progress bar
+//                   LinearProgressIndicator(
+//                     value: budget.progress,
+//                     minHeight: 8,
+//                     backgroundColor: Colors.grey.shade300,
+//                   ),
+
+//                   const SizedBox(height: 8),
+
+//                   // Remaining
+//                   Text(
+//                     'Remaining: ₹${budget.remaining.toStringAsFixed(0)}',
+//                     style: TextStyle(
+//                       color: budget.remaining < 0 ? Colors.red : Colors.green,
+//                       fontWeight: FontWeight.w500,
+//                     ),
+//                   ),
+
+//                   const SizedBox(height: 16),
+
+//                   // Buttons
+//                   Row(
+//                     children: [
+//                       Expanded(
+//                         child: ElevatedButton(
+//                           onPressed: () {
+//                             addTransaction(
+//                               budget,
+//                               500,
+//                               TransactionType.expense,
+//                             );
+//                           },
+//                           style: ElevatedButton.styleFrom(
+//                             backgroundColor: Colors.red,
+//                           ),
+//                           child: const Text('Add Expense ₹500'),
+//                         ),
+//                       ),
+//                       const SizedBox(width: 8),
+//                       Expanded(
+//                         child: ElevatedButton(
+//                           onPressed: () {
+//                             addTransaction(
+//                               budget,
+//                               300,
+//                               TransactionType.income,
+//                             );
+//                           },
+//                           style: ElevatedButton.styleFrom(
+//                             backgroundColor: Colors.green,
+//                           ),
+//                           child: const Text('Add Income ₹300'),
+//                         ),
+//                       ),
+//                     ],
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           );
+//         },
+//       ),
+//     );
+//   }
+// }

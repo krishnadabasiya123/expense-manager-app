@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:expenseapp/commons/widgets/custom_app_bar.dart';
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/features/Party/Cubits/PartyTransaction/add_party_transaction_cubit.dart';
 import 'package:expenseapp/features/Party/Cubits/PartyTransaction/update_party_transaction_cubit.dart';
@@ -313,7 +312,8 @@ class _AddPartyTransactionWidgetState extends State<AddPartyTransactionWidget> {
                       Transaction(
                         id: widget.partyTransaction!.mainTransactionId,
                         date: _dateController.text,
-                        title: updateState.transaction.partyName,
+                        title: context.tr('partyTransactionKey'),
+                        // title: widget.partyId!.name,
                         type: selectedType == TransactionType.CREDIT ? TransactionType.INCOME : TransactionType.EXPENSE,
                         amount: double.parse(_amountController.text),
                         description: _descriptionController.text,
@@ -344,7 +344,7 @@ class _AddPartyTransactionWidgetState extends State<AddPartyTransactionWidget> {
                           Transaction(
                             id: transactionId,
                             date: _dateController.text,
-                            title: widget.partyId!.name,
+                            title: context.tr('partyTransactionKey'),
                             type: selectedType == TransactionType.CREDIT ? TransactionType.INCOME : TransactionType.EXPENSE,
                             amount: double.parse(_amountController.text),
                             description: _descriptionController.text,
@@ -402,7 +402,6 @@ class _AddPartyTransactionWidgetState extends State<AddPartyTransactionWidget> {
                                     transaction: PartyTransaction(
                                       id: widget.partyTransaction!.id,
                                       partyName: widget.partyTransaction!.partyName,
-
                                       date: _dateController.text,
                                       type: selectedType,
                                       image: await partyImages,

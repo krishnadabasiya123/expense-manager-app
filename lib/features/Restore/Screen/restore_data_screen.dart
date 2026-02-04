@@ -1,4 +1,3 @@
-import 'package:expenseapp/commons/widgets/custom_app_bar.dart';
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/features/Restore/Screen/soft_delete_party_transaction_list.dart';
 import 'package:expenseapp/features/Restore/Screen/soft_delete_transaction_list.dart';
@@ -17,7 +16,6 @@ class RestoreDataScreen extends StatefulWidget {
 }
 
 class _RestoreTransactionScreenState extends State<RestoreDataScreen> with SingleTickerProviderStateMixin {
-
   late TabController tabController;
 
   late List<(String, Widget)> tabs = <(String, Widget)>[
@@ -38,8 +36,10 @@ class _RestoreTransactionScreenState extends State<RestoreDataScreen> with Singl
     return Scaffold(
       appBar: QAppBar(
         elevation: 0,
-        title: Text(
-          context.tr('restoreKey'),
+        title: CustomTextView(
+          text: context.tr('restoreKey'),
+          fontSize: 20.sp(context),
+          color: colorScheme.surface,
         ),
         bottom: TabBar(
           indicatorColor: colorScheme.primary,

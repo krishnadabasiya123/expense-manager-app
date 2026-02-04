@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:math';
 
 import 'package:bloc/bloc.dart';
 import 'package:expenseapp/features/Party/LocalStorage/party_local_storage.dart';
@@ -334,6 +335,34 @@ class GetPartyCubit extends Cubit<GetPartyState> {
       }).toList();
 
       emit(currentState.copyWith(party: updatedPartyList));
+    }
+  }
+
+  Future<void> updateAccountNameLocallyInParty({required String accouutId}) async {
+    if (state is GetPartySuccess) {
+      final transactions = (state as GetPartySuccess).party;
+      for (final transaction in transactions) {
+        final partyTransaction = transaction.transaction;
+        final index = partyTransaction.indexWhere((p) => p.accountId == accouutId);
+        if (index != -1) {
+          partyTransaction[index].accountId = accouutId;
+        }
+        emit(GetPartySuccess(transactions));
+      }
+    }
+  }
+
+  Future<void> updateCategoryNameLocallyInParty({required String categoryId}) async {
+    if (state is GetPartySuccess) {
+      final transactions = (state as GetPartySuccess).party;
+      for (final transaction in transactions) {
+        final partyTransaction = transaction.transaction;
+        final index = partyTransaction.indexWhere((p) => p.category == categoryId);
+        if (index != -1) {
+          partyTransaction[index].category = categoryId;
+        }
+        emit(GetPartySuccess(transactions));
+      }
     }
   }
 }

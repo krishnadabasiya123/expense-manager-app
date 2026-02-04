@@ -9,6 +9,7 @@ export 'package:expenseapp/commons/repositories/system_local_data_storage.dart';
 export 'package:expenseapp/commons/widgets/CustomErrorWidget.dart';
 export 'package:expenseapp/commons/widgets/CustomHorizontalDivider.dart';
 export 'package:expenseapp/commons/widgets/common_text_view.dart';
+export 'package:expenseapp/commons/widgets/custom_app_bar.dart';
 export 'package:expenseapp/commons/widgets/custom_dropdown_widget.dart';
 export 'package:expenseapp/commons/widgets/custom_image_widget.dart';
 export 'package:expenseapp/commons/widgets/custom_loading_widget.dart';
@@ -41,7 +42,6 @@ export 'package:expenseapp/utils/constants/hive_constant.dart';
 export 'package:expenseapp/utils/extensions/context_size_extensions.dart';
 export 'package:expenseapp/utils/extensions/custom_extension.dart';
 export 'package:expenseapp/utils/extensions/localization_extensions.dart';
-
 export 'package:expenseapp/utils/extensions/num_extensions.dart';
 export 'package:expenseapp/utils/responsive_utils.dart';
 export 'package:expenseapp/utils/uiUtils.dart';

@@ -357,4 +357,26 @@ class GetRecurringTransactionCubit extends Cubit<GetRecurringTransactionState> {
       log('deleteRecurringTransactionLocally error: $e');
     }
   }
+
+  Future<void> updateAccountNameLocallyInRecurringTransaction({required String accouutId}) async {
+    if (state is GetRecurringTransactionSuccess) {
+      final transactions = (state as GetRecurringTransactionSuccess).transactions;
+      final index = transactions.indexWhere((p) => p.accountId == accouutId);
+      if (index != -1) {
+        transactions[index].accountId = accouutId;
+        emit(GetRecurringTransactionSuccess(transactions));
+      }
+    }
+  }
+
+  Future<void> updateCategoryNameLocallyInRecurringTransaction({required String categoryId}) async {
+    if (state is GetRecurringTransactionSuccess) {
+      final transactions = (state as GetRecurringTransactionSuccess).transactions;
+      final index = transactions.indexWhere((p) => p.categoryId == categoryId);
+      if (index != -1) {
+        transactions[index].categoryId = categoryId;
+        emit(GetRecurringTransactionSuccess(transactions));
+      }
+    }
+  }
 }

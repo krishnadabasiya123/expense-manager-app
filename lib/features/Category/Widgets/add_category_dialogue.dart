@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/features/Category/Cubits/add_category_cubit.dart';
 import 'package:expenseapp/features/Category/Cubits/update_category_cubit.dart';
+import 'package:expenseapp/features/budget/cubits/get_budget_cubit.dart';
 
 import 'package:flutter/material.dart';
 
@@ -21,8 +22,7 @@ void showAddCategoryDialogue(BuildContext context, {bool isEdit = false, Categor
                 canPop: false,
                 onPopInvokedWithResult: (didPop, result) {
                   if (didPop) return;
-                  if (dialoguContext.read<AddCategoryCubit>().state is! AddCategoryLoading && dialoguContext
-                  .read<UpdateCategoryCubit>().state is! UpdateCategoryLoading) {
+                  if (dialoguContext.read<AddCategoryCubit>().state is! AddCategoryLoading && dialoguContext.read<UpdateCategoryCubit>().state is! UpdateCategoryLoading) {
                     Navigator.of(dialoguContext).pop();
                     return;
                   }
@@ -104,6 +104,7 @@ class __AddCategoryWidgetState extends State<_AddCategoryWidget> {
                 listener: (context, updateCategoryState) {
                   if (updateCategoryState is UpdateCategorySuccess) {
                     context.read<GetCategoryCubit>().updateCategoryLocally(updateCategoryState.category);
+                    context.read<GetTransactionCubit>().updateCategoryNameLocallyInTransaction(categoryId: updateCategoryState.category.id);
                     Navigator.pop(context);
                   }
                   if (updateCategoryState is UpdateCategoryFailure) {

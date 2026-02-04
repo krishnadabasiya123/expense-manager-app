@@ -1,13 +1,11 @@
-import 'dart:ui';
-
 import 'package:expenseapp/commons/widgets/CommonSearchController.dart';
-import 'package:expenseapp/commons/widgets/custom_app_bar.dart';
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/features/Category/Cubits/delete_category_cubit.dart';
 import 'package:expenseapp/features/Category/Widgets/add_category_dialogue.dart';
-import 'package:expenseapp/features/Restore/Cubit/get_soft_delete_party_transaction_cubit.dart';
 import 'package:expenseapp/features/RecurringTransaction/Cubit/get_recurring_transaction_cubit.dart';
+import 'package:expenseapp/features/Restore/Cubit/get_soft_delete_party_transaction_cubit.dart';
 import 'package:expenseapp/features/Restore/Cubit/get_soft_delete_transactions_cubit.dart';
+import 'package:expenseapp/features/budget/cubits/get_budget_cubit.dart';
 import 'package:expenseapp/utils/constants/Debouncer.dart';
 import 'package:flutter/material.dart';
 
@@ -245,6 +243,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
                           context.read<GetSoftDeletePartyTransactionCubit>().updateSoftDeletePartyTransactionAfterDeleteCategory(categoryId: state.category.id);
                           context.read<GetSoftDeleteTransactionsCubit>().updateSoftDeleteTransactionAfterDeleteCategory(categoryId: state.category.id);
                           context.read<GetRecurringTransactionCubit>().setNullCategoryValueInRecurringTransaction(state.category.id);
+                          context.read<GetBudgetCubit>().deleteCategoryLocallyInBudget(categoryId: state.category.id);
+
                           Navigator.pop(context);
                         }
 

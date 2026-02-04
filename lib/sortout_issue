@@ -32,3 +32,23 @@ add category -> delete transaction -> now when delete category -> in soft delete
 amount -> validation (like 2 point not allow)
 
 account amount -> where used
+
+
+
+in date selection after again tap date not come proper check that
+category -> budget use chip
+date check in budget endate and in transaction date is big then end date then transaction not add in budget
+date chnage -> 3 to 10 date budget
+transaction 3 date 
+now amount cut
+again if date chnage to 10 date update that transaction then what about amount
+
+
+in add transaction screen when tab chanhe lable name not chnage 
+in expense name , income name , transfer name
+
+
+in all type check budget spent
+
+
+update category -> category nam in transactiona nd in budget change , account same update name

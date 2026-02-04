@@ -56,10 +56,7 @@ Widget _repeatItem(BuildContext context, String title) {
     child: Padding(
       padding: const EdgeInsetsDirectional.symmetric(vertical: 16),
       child: Center(
-        child: Text(
-          title,
-          style: const TextStyle(fontSize: 14),
-        ),
+        child: CustomTextView(text: title, fontSize: 14),
       ),
     ),
   );

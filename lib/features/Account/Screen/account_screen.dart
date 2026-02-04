@@ -1,9 +1,9 @@
 import 'dart:ui';
 
-import 'package:expenseapp/commons/widgets/custom_app_bar.dart';
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/features/Account/Cubits/delete_account_cubit.dart';
 import 'package:expenseapp/features/Account/Screen/show_account_create_screen.dart';
+import 'package:expenseapp/features/Account/Widgets/handle_account_delete_sucess.dart';
 import 'package:expenseapp/features/Restore/Cubit/get_soft_delete_party_transaction_cubit.dart';
 import 'package:expenseapp/features/Restore/Cubit/get_soft_delete_transactions_cubit.dart';
 import 'package:flutter/cupertino.dart';
@@ -25,6 +25,7 @@ class AccountScreen extends StatefulWidget {
 }
 
 class _AccountScreenState extends State<AccountScreen> {
+  String selectedAccountId = '';
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -248,19 +249,20 @@ class _AccountScreenState extends State<AccountScreen> {
                     BlocConsumer<DeleteAccountCubit, DeleteAccountState>(
                       listener: (context, state) {
                         if (state is DeleteAccountSuccess) {
-                          context.read<GetAccountCubit>().deleteAccountLocally(account: state.account);
-                          context.read<GetTransactionCubit>().deleteTransacionLocally(Transaction(id: state.account.id));
-                          context.read<GetTransactionCubit>().deleteTransactionWhenDeleteAccount(accountId: state.account.id, accountFromId: state.account.id, accountToId: state.account.id);
-                          context.read<GetSoftDeleteTransactionsCubit>().updateSoftDeleteTransactionAfterDeleteAccount(
-                            accountId: state.account.id,
-                            accountFromId: state.account.id,
-                            accountToId: state.account.id,
-                          );
-                          context.read<GetSoftDeletePartyTransactionCubit>().updateSoftDeletePartyTransactionAfterDeleteAccount(accountId: state.account.id);
-                          UiUtils.showCustomSnackBar(context: context, errorMessage: context.tr('accountDeleteSucess'));
+                          // context.read<GetAccountCubit>().deleteAccountLocally(account: state.account);
+                          // context.read<GetTransactionCubit>().deleteTransacionLocally(Transaction(id: state.account.id));
+                          // context.read<GetTransactionCubit>().deleteTransactionWhenDeleteAccount(accountId: state.account.id, accountFromId: state.account.id, accountToId: state.account.id);
+                          // context.read<GetSoftDeleteTransactionsCubit>().updateSoftDeleteTransactionAfterDeleteAccount(
+                          //   accountId: state.account.id,
+                          //   accountFromId: state.account.id,
+                          //   accountToId: state.account.id,
+                          // );
+                          // context.read<GetSoftDeletePartyTransactionCubit>().updateSoftDeletePartyTransactionAfterDeleteAccount(accountId: state.account.id);
+                          // UiUtils.showCustomSnackBar(context: context, errorMessage: context.tr('accountDeleteSucess'));
 
-                          context.read<GetPartyCubit>().deletePartyTransactionWhenDeleteAccount(accountId: state.account.id);
-                          Navigator.pop(context);
+                          // context.read<GetPartyCubit>().deletePartyTransactionWhenDeleteAccount(accountId: state.account.id);
+                          // Navigator.pop(context);
+                          handleAccountDeleteSuccess(context, state.account);
                         }
                         if (state is DeleteAccountFailure) {
                           UiUtils.showCustomSnackBar(context: context, errorMessage: state.errorMessage);
@@ -268,46 +270,52 @@ class _AccountScreenState extends State<AccountScreen> {
                         }
                       },
                       builder: (context, state) {
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        return Column(
                           children: [
-                            Expanded(
-                              child: CustomRoundedButton(
-                                onPressed: () {
-                                  if (state is! DeleteAccountLoading) {
-                                    Navigator.of(context).pop();
-                                  }
-                                },
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Expanded(
+                                  child: CustomRoundedButton(
+                                    onPressed: () {
+                                      if (state is! DeleteAccountLoading) {
+                                        Navigator.of(context).pop();
+                                      }
+                                    },
 
-                                width: 1,
-                                backgroundColor: Theme.of(context).primaryColor,
-                                text: context.tr('deleteAccountCancelKey'),
-                                borderRadius: BorderRadius.circular(8),
-                                height: 45.sp(context),
-                              ),
-                            ),
+                                    width: 1,
+                                    backgroundColor: Theme.of(context).primaryColor,
+                                    text: context.tr('deleteAccountCancelKey'),
+                                    borderRadius: BorderRadius.circular(8),
+                                    height: 45.sp(context),
+                                  ),
+                                ),
 
-                            const SizedBox(width: 15),
+                                const SizedBox(width: 15),
 
-                            Expanded(
-                              child: CustomRoundedButton(
-                                onPressed: () {
-                                  final realAccounts = accountList.where((acc) => acc.id != 'last').toList();
+                                Expanded(
+                                  child: CustomRoundedButton(
+                                    onPressed: () {
+                                      final realAccounts = accountList.where((acc) => acc.id != 'last').toList();
 
-                                  if (realAccounts.length > 1) {
-                                    context.read<DeleteAccountCubit>().deleteAccount(account: account);
-                                  } else {
-                                    Navigator.pop(context);
-                                    showAccountLimitWarning(context);
-                                  }
-                                },
-                                isLoading: state is DeleteAccountLoading,
-                                width: 1,
-                                backgroundColor: Theme.of(context).primaryColor,
-                                text: context.tr('deleteAccountConfirmKey'),
-                                borderRadius: BorderRadius.circular(8),
-                                height: 45.sp(context),
-                              ),
+                                      if (realAccounts.length > 1) {
+                                        context.read<DeleteAccountCubit>().deleteAccount(account: account);
+                                      } else {
+                                        Navigator.pop(context);
+                                        showAccountLimitWarning(
+                                          context,
+                                        );
+                                      }
+                                    },
+                                    isLoading: state is DeleteAccountLoading,
+                                    width: 1,
+                                    backgroundColor: Theme.of(context).primaryColor,
+                                    text: context.tr('deleteAccountConfirmKey'),
+                                    borderRadius: BorderRadius.circular(8),
+                                    height: 45.sp(context),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         );
@@ -320,6 +328,64 @@ class _AccountScreenState extends State<AccountScreen> {
           },
         ),
       ),
+    );
+  }
+
+  void _openAccountListSheet(String accountId) {
+    final colorScheme = Theme.of(context).colorScheme;
+    showModalBottomSheet(
+      context: context,
+      enableDrag: false,
+      isDismissible: false,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
+      builder: (_) {
+        return Container(
+          padding: const EdgeInsetsDirectional.all(16),
+          height: MediaQuery.of(context).size.height * 0.5,
+
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CustomTextView(text: context.tr('selectCategoryLbl'), fontSize: 18.sp(context), fontWeight: FontWeight.bold, color: colorScheme.onTertiary),
+              const SizedBox(height: 10),
+              Expanded(
+                child: BlocBuilder<GetAccountCubit, GetAccountState>(
+                  builder: (context, state) {
+                    if (state is GetAccountSuccess) {
+                      return ListView.builder(
+                        padding: EdgeInsetsDirectional.zero,
+                        itemCount: state.account.length,
+                        itemBuilder: (_, index) {
+                          final account = state.account[index];
+                          return (account.id != 'last' && account.id != accountId)
+                              ? RadioListTile<String>(
+                                  value: account.id,
+                                  controlAffinity: ListTileControlAffinity.trailing,
+
+                                  groupValue: selectedAccountId,
+                                  title: CustomTextView(text: account.name, fontSize: 15.sp(context), color: colorScheme.onTertiary, softWrap: true, maxLines: 2),
+                                  dense: true,
+                                  visualDensity: const VisualDensity(vertical: -2, horizontal: -3),
+                                  contentPadding: EdgeInsetsDirectional.zero,
+                                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      selectedAccountId = value!;
+                                    });
+                                  },
+                                )
+                              : null;
+                        },
+                      );
+                    }
+                    return const CustomCircularProgressIndicator();
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 

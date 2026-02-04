@@ -144,7 +144,7 @@ class Routes {
         return MaterialPageRoute(builder: (_) => const BudgetScreen());
 
       case addBudget:
-        return MaterialPageRoute(builder: (_) => const AddBudgetScreen());
+        return AddBudgetScreen.route(routeSettings);
 
       case budgetHistory:
         return BudgetHistoryScreen.route(routeSettings);
