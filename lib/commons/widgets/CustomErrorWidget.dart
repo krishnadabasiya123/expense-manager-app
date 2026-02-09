@@ -58,7 +58,7 @@ class CustomErrorWidget extends StatelessWidget {
               QImage(
                 imageUrl: errorType.imagePath!,
                 width: MediaQuery.of(context).size.width * 0.9,
-                height: MediaQuery.of(context).size.width * 0.4,
+                height: MediaQuery.of(context).size.width * 0.5,
                 fit: BoxFit.contain,
               ),
 

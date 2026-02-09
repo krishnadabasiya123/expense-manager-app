@@ -76,9 +76,7 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
     categoryController.text = context.read<GetCategoryCubit>().getCategoryName(widget.transaction?.categoryId ?? '');
     selectedCategoryId.value = widget.isEdit ? widget.transaction!.categoryId : '';
     selectedAccId.value = widget.isEdit ? widget.transaction?.accountId ?? '' : '';
-    isExpense = widget.type == TransactionType.EXPENSE;
-    isIncome = widget.type == TransactionType.INCOME;
-    isTransfer = widget.type == TransactionType.TRANSFER;
+
     loadImages();
   }
 
@@ -158,6 +156,9 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    isExpense = widget.type == TransactionType.EXPENSE;
+    isIncome = widget.type == TransactionType.INCOME;
+    isTransfer = widget.type == TransactionType.TRANSFER;
     return Form(
       key: _formKey,
       child: Column(

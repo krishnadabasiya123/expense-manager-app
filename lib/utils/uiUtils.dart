@@ -301,6 +301,21 @@ class UiUtils {
     }
   }
 
+  static String budgetCustomDate(String date) {
+    // Example input: "24.12.2025"
+    final parsedDate = DateFormat('dd.MM.yyyy').parse(date);
+
+    //final now = DateTime.now();
+
+    // final isToday = parsedDate.year == now.year && parsedDate.month == now.month && parsedDate.day == now.day;
+
+    // if (isToday) {
+    //   return 'Today, ${DateFormat('MMMM yyyy').format(parsedDate)}';
+    // }
+
+    return DateFormat('MMM d').format(parsedDate);
+  }
+
   static Widget marqueeText({required String text, required TextStyle textStyle, required double width, TextAlign? textAlign}) {
     // Handle empty text early
     if (text.trim().isEmpty) {

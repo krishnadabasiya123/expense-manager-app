@@ -607,10 +607,11 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
     return [];
   }
 
-  int totalTransactionCount() {
+  int totalTransactionCount({required String account}) {
     if (state is GetTransactionSuccess) {
       final transactions = (state as GetTransactionSuccess).transactions;
-      return transactions.length;
+      final totalTransaction = transactions.where((element) => element.accountId == account || element.accountFromId == account || element.accountToId == account).toList();
+      return totalTransaction.length;
     }
 
     return 0;

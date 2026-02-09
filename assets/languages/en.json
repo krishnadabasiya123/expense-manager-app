@@ -297,5 +297,6 @@
  "partyTransactionKey": "Party Transaction",
  "leftKey": "Left",
  "overSavedKey": "Over Saved",
- "overSpentKey": "Over Spent"
+ "overSpentKey": "Over Spent",
+ "viewAllKey": "View All"
 }

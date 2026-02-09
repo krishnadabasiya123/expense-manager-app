@@ -103,20 +103,6 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
                   fontSize: 20.sp(context),
                   color: Colors.white,
                 ),
-                actions: [
-                  IconButton(
-                    onPressed: () {
-                      if (newTheme == AppThemeType.dark) {
-                        newTheme = AppThemeType.light;
-                        context.read<ThemeCubit>().changeTheme(newTheme);
-                      } else {
-                        newTheme = AppThemeType.dark;
-                        context.read<ThemeCubit>().changeTheme(newTheme);
-                      }
-                    },
-                    icon: const Icon(Icons.change_circle),
-                  ),
-                ],
               ),
               body: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -191,6 +177,7 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
                                   child: CustomRoundedButton(
                                     onPressed: () async {
                                       final budgetId = 'BG'.withDateTimeMillisRandom();
+
                                       if (amountCtrl.text.isEmpty) {
                                         UiUtils.showCustomSnackBar(context: context, errorMessage: context.tr('PlsenterBudgetAmount'));
                                         return;
@@ -203,6 +190,7 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
                                         UiUtils.showCustomSnackBar(context: context, errorMessage: context.tr('PlsselectCatgoriesLbl'));
                                         return;
                                       }
+
                                       if (widget.isEdit) {
                                         context.read<UpdateBudgetCubit>().updateBudget(
                                           Budget(
@@ -617,11 +605,20 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
                   isReadOnly: true,
                   controller: endDateController,
                   onTap: () async {
-                    final pickedDate = await UiUtils.selectDate(context, endDateController);
+                    final parsedStartDate = UiUtils.parseDate(startDateController.text);
+                    final parsedEndDate = UiUtils.parseDate(endDateController.text);
+                    if (selectedPeriod == BudgetPeriod.CUSTOM) {
+                      final pickedDate = await UiUtils.selectDate(context, endDateController);
+                      log(parsedStartDate.isBefore(parsedEndDate).toString());
+                      if (parsedStartDate.isBefore(parsedEndDate)) {
+                        UiUtils.showCustomSnackBar(context: context, errorMessage: context.tr('start date should be less than end date'));
+                        return;
+                      }
 
-                    if (pickedDate == null) return;
+                      if (pickedDate == null) return;
 
-                    endDateController.text = DateFormat(dateFormat).format(pickedDate);
+                      endDateController.text = DateFormat(dateFormat).format(pickedDate);
+                    }
                   },
                 ),
               ],

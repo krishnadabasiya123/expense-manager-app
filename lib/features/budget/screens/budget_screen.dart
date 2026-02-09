@@ -21,6 +21,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
     context.read<GetBudgetCubit>().getBudget();
   }
 
+  String label = '';
+  double left = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,18 +67,16 @@ class _BudgetScreenState extends State<BudgetScreen> {
 
                   log(result.toString());
                   // for if saved my amt then in 10000 + 900 not display 10900 only display 10000 (orininfgal amt in remaining)
-                  var left = result < 0 ? item.amount : item.amount - result;
+                  //  var left = result < 0 ? item.amount : item.amount - result;
                   // final left = item.type == TransactionType.INCOME ? item.amount : (item.amount - result).clamp(0, item.amount);
 
                   final spent = result; // total income/expense from cubit
                   final limit = item.amount;
 
-                  String label;
-
                   if (item.type == TransactionType.INCOME) {
                     if (spent > limit) {
                       // Over saved
-                      left = spent - limit;
+                      left = limit - spent;
                       label = context.tr('overSavedKey');
                     } else {
                       // Remaining to reach goal
@@ -87,7 +87,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
                     // EXPENSE
                     if (spent > limit) {
                       // Over spent
-                      left = spent - limit;
+                      // left = spent - limit;
+                      left = limit - spent;
                       label = context.tr('overSpentKey');
                     } else {
                       // Remaining budget
@@ -95,12 +96,25 @@ class _BudgetScreenState extends State<BudgetScreen> {
                       label = context.tr('leftKey');
                     }
                   } else {
-                    left = limit;
-                    label = context.tr('leftKey');
+                    log('spent $spent limit $limit');
+
+                    if (limit < spent && spent < 0) {
+                      left = spent - limit;
+                      label = context.tr('overSavedKey');
+                    }
+                    if (limit < spent && spent > 0) {
+                      left = spent - limit;
+                      label = context.tr('overSpentKey');
+                    }
+                    if (limit > spent) {
+                      left = limit - spent;
+                      label = context.tr('leftKey');
+                    }
                   }
 
                   // ALWAYS POSITIVE
-                  left = left.abs();
+                  // left = left.abs();
+                  left = item.type == TransactionType.ALL ? left : left.abs();
 
                   log('left.toString( ) $left');
                   //final percentage = (left / item.amount) * 100;
@@ -231,7 +245,7 @@ class BudgetCard extends StatelessWidget {
               Row(
                 children: [
                   CustomTextView(
-                    text: '${context.symbol}${left.abs()} ',
+                    text: '${context.symbol}$left ',
                     fontSize: 20.sp(context),
                     fontWeight: FontWeight.bold,
                   ),

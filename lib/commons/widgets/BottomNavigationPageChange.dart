@@ -9,6 +9,7 @@ import 'package:expenseapp/features/RecurringTransaction/Model/RecurringTransact
 import 'package:expenseapp/features/Statistics/Screen/statistics_screen.dart';
 import 'package:expenseapp/features/Transaction/Cubits/add_transaction_cubit.dart';
 import 'package:expenseapp/features/Transaction/Screen/transaction_screen.dart';
+import 'package:expenseapp/features/budget/cubits/get_budget_cubit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -40,6 +41,7 @@ class _BottomNavigationPageChnageState extends State<BottomNavigationPageChnage>
       context.read<GetAccountCubit>().getAccount();
       context.read<GetCategoryCubit>().getCategory();
       context.read<GetRecurringTransactionCubit>().fetchRecurringTransaction();
+      context.read<GetBudgetCubit>().getBudget();
     });
   }
 

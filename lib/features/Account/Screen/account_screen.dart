@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:expenseapp/commons/widgets/common_text_view.dart';
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/features/Account/Cubits/delete_account_cubit.dart';
 import 'package:expenseapp/features/Account/Screen/show_account_create_screen.dart';
@@ -300,6 +301,14 @@ class _AccountScreenState extends State<AccountScreen> {
 
                                       if (realAccounts.length > 1) {
                                         context.read<DeleteAccountCubit>().deleteAccount(account: account);
+                                        // final totalTransaction = context.read<GetTransactionCubit>().totalTransactionCount(account: account.id);
+                                        // log('totalTransaction $totalTransaction');
+                                        // if (totalTransaction > 0) {
+                                        //   Navigator.pop(context);
+                                        //   _openAlertDialogueWithMoreTransaction(account: account);
+                                        // } else {
+                                        //   context.read<DeleteAccountCubit>().deleteAccount(account: account);
+                                        // }
                                       } else {
                                         Navigator.pop(context);
                                         showAccountLimitWarning(
@@ -331,59 +340,239 @@ class _AccountScreenState extends State<AccountScreen> {
     );
   }
 
-  void _openAccountListSheet(String accountId) {
-    final colorScheme = Theme.of(context).colorScheme;
-    showModalBottomSheet(
-      context: context,
-      enableDrag: false,
-      isDismissible: false,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
-      builder: (_) {
-        return Container(
-          padding: const EdgeInsetsDirectional.all(16),
-          height: MediaQuery.of(context).size.height * 0.5,
+  void _openAlertDialogueWithMoreTransaction({required Account account}) {
+    context.showAppDialog(
+      child: BlocProvider(
+        create: (context) => DeleteAccountCubit(),
+        child: Builder(
+          builder: (dialogueContext) {
+            return Center(
+              child: PopScope(
+                canPop: false,
+                onPopInvokedWithResult: (didPop, result) {
+                  if (didPop) return;
+                  if (dialogueContext.read<DeleteAccountCubit>().state is! DeleteAccountLoading) {
+                    Navigator.of(dialogueContext).pop();
+                    return;
+                  }
+                },
+                child: AlertDialog(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  title: Center(
+                    child: Column(
+                      children: [
+                        Icon(Icons.delete, color: Theme.of(context).colorScheme.error, size: 40.sp(context)),
+                        const SizedBox(height: 10),
+                        Text(
+                          context.tr('deleteAccountTitleKey'),
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22.sp(context)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  content: CustomTextView(
+                    text: context.tr('deleteDialogMsgwithMoreTransaction'),
+                    softWrap: true,
+                    maxLines: 6,
+                    fontSize: 14.sp(context),
+                    textAlign: TextAlign.center,
+                  ),
+                  actions: [
+                    BlocConsumer<DeleteAccountCubit, DeleteAccountState>(
+                      listener: (context, state) {
+                        if (state is DeleteAccountSuccess) {
+                          handleAccountDeleteSuccess(context, state.account);
+                        }
+                        if (state is DeleteAccountFailure) {
+                          UiUtils.showCustomSnackBar(context: context, errorMessage: state.errorMessage);
+                          Navigator.pop(context);
+                        }
+                      },
+                      builder: (context, state) {
+                        return Column(
+                          children: [
+                            Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    Expanded(
+                                      child: CustomRoundedButton(
+                                        onPressed: () {
+                                          if (state is! DeleteAccountLoading) {
+                                            Navigator.of(context).pop();
+                                          }
+                                        },
 
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CustomTextView(text: context.tr('selectCategoryLbl'), fontSize: 18.sp(context), fontWeight: FontWeight.bold, color: colorScheme.onTertiary),
-              const SizedBox(height: 10),
-              Expanded(
-                child: BlocBuilder<GetAccountCubit, GetAccountState>(
-                  builder: (context, state) {
-                    if (state is GetAccountSuccess) {
-                      return ListView.builder(
-                        padding: EdgeInsetsDirectional.zero,
-                        itemCount: state.account.length,
-                        itemBuilder: (_, index) {
-                          final account = state.account[index];
-                          return (account.id != 'last' && account.id != accountId)
-                              ? RadioListTile<String>(
-                                  value: account.id,
-                                  controlAffinity: ListTileControlAffinity.trailing,
+                                        width: 1,
+                                        backgroundColor: Theme.of(context).primaryColor,
+                                        text: context.tr('deleteAccountCancelKey'),
+                                        borderRadius: BorderRadius.circular(8),
+                                        height: 40.sp(context),
+                                      ),
+                                    ),
 
-                                  groupValue: selectedAccountId,
-                                  title: CustomTextView(text: account.name, fontSize: 15.sp(context), color: colorScheme.onTertiary, softWrap: true, maxLines: 2),
-                                  dense: true,
-                                  visualDensity: const VisualDensity(vertical: -2, horizontal: -3),
-                                  contentPadding: EdgeInsetsDirectional.zero,
-                                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      selectedAccountId = value!;
-                                    });
+                                    const SizedBox(width: 15),
+
+                                    Expanded(
+                                      child: CustomRoundedButton(
+                                        onPressed: () {
+                                          context.read<DeleteAccountCubit>().deleteAccount(account: account);
+                                        },
+                                        isLoading: state is DeleteAccountLoading,
+                                        width: 1,
+                                        backgroundColor: Theme.of(context).primaryColor,
+                                        text: context.tr('deleteAccountConfirmKey'),
+                                        borderRadius: BorderRadius.circular(8),
+                                        height: 40.sp(context),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: context.height * 0.01),
+                                CustomRoundedButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                    showSelectAccountSheet(context, account.id);
                                   },
-                                )
-                              : null;
-                        },
-                      );
-                    }
-                    return const CustomCircularProgressIndicator();
-                  },
+                                  isLoading: state is DeleteAccountLoading,
+
+                                  //  backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.6),
+                                  backgroundColor: Theme.of(context).colorScheme.surface,
+                                  text: context.tr('moveTransactionKey'),
+                                  borderRadius: BorderRadius.circular(15),
+                                  height: 40.sp(context),
+                                  borderSide: BorderSide(color: Theme.of(context).primaryColor),
+                                ),
+                              ],
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  void showSelectAccountSheet(BuildContext context, String accountId) {
+    const primary = Color(0xFF858169);
+    var selected = 'bank';
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      constraints: const BoxConstraints(),
+      builder: (_) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            Widget accountTile({
+              required String id,
+              required String name,
+              required String amount,
+            }) {
+              return InkWell(
+                onTap: () => setState(() => selected = id),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Radio<String>(
+                            value: id,
+                            groupValue: selected,
+                            activeColor: primary,
+                            onChanged: (v) => setState(() => selected = v!),
+                          ),
+                          Text(
+                            name,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Text(
+                        amount,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+
+            final dark = Theme.of(context).brightness == Brightness.dark;
+
+            return Container(
+              padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+              decoration: BoxDecoration(
+                color: dark ? const Color(0xFF2A2A26) : Colors.white,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(32),
+                ),
+              ),
+              child: ListView(
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: Colors.grey,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  CustomTextView(
+                    text: 'Select Account',
+                    fontSize: 20.sp(context),
+                    fontWeight: FontWeight.bold,
+                    // style: TextStyle(
+                    //   fontSize: 26,
+                    //   fontWeight: FontWeight.w800,
+                    // ),
+                  ),
+                  const SizedBox(height: 6),
+
+                  const CustomTextView(text: 'Account to transfer all transactions to', color: Colors.grey),
+
+                  const SizedBox(height: 24),
+
+                  accountTile(
+                    id: 'bank',
+                    name: 'Bank',
+                    amount: '-£800 GBP',
+                  ),
+                  const Divider(),
+
+                  accountTile(
+                    id: 'cash',
+                    name: 'Cash',
+                    amount: '£2,000 GBP',
+                  ),
+                  const Divider(),
+
+                  accountTile(
+                    id: 'savings',
+                    name: 'Savings',
+                    amount: '£5,420 GBP',
+                  ),
+                ],
+              ),
+            );
+          },
         );
       },
     );

@@ -24,7 +24,7 @@ class GetSoftDeleteTransactionsCubit extends Cubit<GetSoftDeleteTransactionsStat
 
   Future<void> getSoftDeleteTransactions() async {
     emit(GetSoftDeleteTransactionsLoading());
-    Future.delayed(const Duration(seconds: 2), () {
+    Future.delayed(const Duration(), () {
       try {
         final transactions = transactionLocalData.getSoftDeletedTransaction();
         emit(GetSoftDeleteTransactionsSuccess(transactions));

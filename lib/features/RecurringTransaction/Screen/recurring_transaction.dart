@@ -219,7 +219,7 @@ class _TransactionLog extends StatelessWidget {
                               icon: isPaid ? const SizedBox.shrink() : const Icon(Icons.more_vert),
                               itemBuilder: (context) {
                                 final items = <PopupMenuEntry<String>>[
-                                  if (isCancelled && date.isToday)
+                                  if (isCancelled && date.isToday || date.isPast)
                                     _buildPopupMenu(
                                       value: context.tr('paidKey'),
                                       text: context.tr('paidKey'),

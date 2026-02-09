@@ -4,7 +4,7 @@ import 'package:expenseapp/features/RecurringTransaction/Model/RecurringTransact
 import 'package:expenseapp/features/RecurringTransaction/Widget/delete_recurring_dialogue.dart';
 import 'package:expenseapp/features/Transaction/Cubits/add_transaction_cubit.dart';
 import 'package:expenseapp/features/Transaction/Cubits/delete_transactions_cubit.dart';
-import 'package:expenseapp/main.dart';
+import 'package:expenseapp/main.dart' hide TransactionType;
 import 'package:flutter/material.dart';
 
 void showTransactionDetailsBottomSheet(BuildContext context, {required Transaction transaction, bool? isEdit}) {

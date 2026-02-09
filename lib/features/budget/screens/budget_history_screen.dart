@@ -27,7 +27,7 @@ class _BudgetHistoryScreenState extends State<BudgetHistoryScreen> {
   @override
   void initState() {
     super.initState();
-    budgetList = context.read<GetTransactionCubit>().getTransactionByCategoryId(categoryIds: widget.budget.catedoryId, date: widget.budget.endDate , type : widget.budget.type);
+    budgetList = context.read<GetTransactionCubit>().getTransactionByCategoryId(categoryIds: widget.budget.catedoryId, date: widget.budget.endDate, type: widget.budget.type);
   }
 
   @override
@@ -52,6 +52,7 @@ class _BudgetHistoryScreenState extends State<BudgetHistoryScreen> {
             : ListView.builder(
                 padding: EdgeInsetsDirectional.zero,
                 itemCount: budgetList.length,
+
                 itemBuilder: (context, index) {
                   final category = budgetList[index];
                   final categoryId = category['categoryId'] as String;
@@ -69,6 +70,8 @@ class _BudgetHistoryScreenState extends State<BudgetHistoryScreen> {
                       children: [
                         ListView.separated(
                           shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+
                           itemBuilder: (context, index) {
                             final item = transaction[index];
                             final type = item.type;

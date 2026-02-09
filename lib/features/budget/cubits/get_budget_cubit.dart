@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:bloc/bloc.dart';
 import 'package:expenseapp/features/budget/LocalStorage/budget_local_storage.dart';
 import 'package:expenseapp/features/budget/models/Budget.dart';
@@ -27,7 +29,7 @@ class GetBudgetCubit extends Cubit<GetBudgetState> {
 
   Future<void> getBudget() async {
     emit(GetBudgetLoading());
-    Future.delayed(const Duration(seconds: 5), () {
+    Future.delayed(const Duration(), () {
       try {
         final budget = budgetLocalStorage.getBudget();
         emit(GetBudgetSuccess(budget));
@@ -78,5 +80,16 @@ class GetBudgetCubit extends Cubit<GetBudgetState> {
       }
       emit(GetBudgetSuccess(oldData));
     }
+  }
+
+  List<Budget> getBudgetList({
+    required int count,
+  }) {
+    if (state is GetBudgetSuccess) {
+      final budgetList = (state as GetBudgetSuccess).budget;
+      if (count == 0) return budgetList;
+      return budgetList.take(count).toList();
+    }
+    return [];
   }
 }
