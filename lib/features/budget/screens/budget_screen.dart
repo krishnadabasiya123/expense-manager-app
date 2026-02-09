@@ -65,18 +65,15 @@ class _BudgetScreenState extends State<BudgetScreen> {
                   final item = budgetList[index];
                   final result = context.read<GetTransactionCubit>().getTotalBudgetSpent(categoryIds: item.catedoryId, type: item.type, date: item.endDate);
 
-                  log(result.toString());
-                  // for if saved my amt then in 10000 + 900 not display 10900 only display 10000 (orininfgal amt in remaining)
-                  //  var left = result < 0 ? item.amount : item.amount - result;
-                  // final left = item.type == TransactionType.INCOME ? item.amount : (item.amount - result).clamp(0, item.amount);
+                  final spent = result;
 
-                  final spent = result; // total income/expense from cubit
                   final limit = item.amount;
+                  //final absSpent = result.abs();
 
                   if (item.type == TransactionType.INCOME) {
                     if (spent > limit) {
                       // Over saved
-                      left = limit - spent;
+                      left = spent - limit;
                       label = context.tr('overSavedKey');
                     } else {
                       // Remaining to reach goal
@@ -87,8 +84,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                     // EXPENSE
                     if (spent > limit) {
                       // Over spent
-                      // left = spent - limit;
-                      left = limit - spent;
+                      left = spent - limit;
                       label = context.tr('overSpentKey');
                     } else {
                       // Remaining budget
@@ -96,28 +92,23 @@ class _BudgetScreenState extends State<BudgetScreen> {
                       label = context.tr('leftKey');
                     }
                   } else {
-                    log('spent $spent limit $limit');
+                    // ALL Type
 
-                    if (limit < spent && spent < 0) {
-                      left = spent - limit;
+                    if (spent < 0) {
+                      // Income case
+                      left = spent.abs();
                       label = context.tr('overSavedKey');
-                    }
-                    if (limit < spent && spent > 0) {
+                    } else if (spent > limit) {
+                      // Overspent
                       left = spent - limit;
                       label = context.tr('overSpentKey');
-                    }
-                    if (limit > spent) {
+                    } else {
+                      // Normal remaining
                       left = limit - spent;
                       label = context.tr('leftKey');
                     }
                   }
 
-                  // ALWAYS POSITIVE
-                  // left = left.abs();
-                  left = item.type == TransactionType.ALL ? left : left.abs();
-
-                  log('left.toString( ) $left');
-                  //final percentage = (left / item.amount) * 100;
                   return GestureDetector(
                     onTap: () {
                       Navigator.pushNamed(context, Routes.budgetHistory, arguments: {'item': item});

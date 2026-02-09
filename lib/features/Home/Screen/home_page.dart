@@ -17,7 +17,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<HomeMenuItem> homeMenuData = [];
-
+  String label = '';
+  double left = 0;
   @override
   void initState() {
     super.initState();
@@ -160,15 +161,11 @@ class _HomePageState extends State<HomePage> {
                         final item = budgetList[index];
                         final result = context.read<GetTransactionCubit>().getTotalBudgetSpent(categoryIds: item.catedoryId, type: item.type, date: item.endDate);
 
-                        log(result.toString());
-                        // for if saved my amt then in 10000 + 900 not display 10900 only display 10000 (orininfgal amt in remaining)
-                        var left = result < 0 ? item.amount : item.amount - result;
-                        // final left = item.type == TransactionType.INCOME ? item.amount : (item.amount - result).clamp(0, item.amount);
+                        final spent = result;
+                        final percent = (spent / item.amount) * 100;
 
-                        final spent = result; // total income/expense from cubit
                         final limit = item.amount;
-
-                        String label;
+                        //final absSpent = result.abs();
 
                         if (item.type == TransactionType.INCOME) {
                           if (spent > limit) {
@@ -192,19 +189,22 @@ class _HomePageState extends State<HomePage> {
                             label = context.tr('leftKey');
                           }
                         } else {
-                          if (spent > limit) {
+                          // ALL Type
+
+                          if (spent < 0) {
+                            // Income case
+                            left = spent.abs();
+                            label = context.tr('overSavedKey');
+                          } else if (spent > limit) {
+                            // Overspent
                             left = spent - limit;
                             label = context.tr('overSpentKey');
                           } else {
+                            // Normal remaining
                             left = limit - spent;
                             label = context.tr('leftKey');
                           }
                         }
-
-                        // ALWAYS POSITIVE
-                        left = left.abs();
-                        final percent = (spent / item.amount) * 100;
-                        log('percent $percent');
                         return GestureDetector(
                           onTap: () {
                             Navigator.pushNamed(context, Routes.budgetHistory, arguments: {'item': item});
