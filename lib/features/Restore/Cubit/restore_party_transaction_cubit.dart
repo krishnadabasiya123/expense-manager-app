@@ -26,7 +26,7 @@ class RestorePartyTransactionCubit extends Cubit<RestorePartyTransactionState> {
 
   Future<void> restorePartyTransaction(PartyTransaction transaction) async {
     emit(RestorePartyTransactionLoading());
-    Future.delayed(const Duration(seconds: 5), () {
+    Future.delayed(const Duration(seconds: 0), () {
       try {
         partyTransactionLocalData.restoreSoftDeletedPartyTransaction(transaction: transaction);
         emit(RestorePartyTransactionSuccess(transaction));

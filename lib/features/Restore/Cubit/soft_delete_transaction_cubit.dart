@@ -24,7 +24,7 @@ class SoftDeleteTransactionCubit extends Cubit<SoftDeleteTransactionState> {
 
   Future<void> softDeleteTransaction(Transaction transaction) async {
     emit(SoftDeleteTransactionLoading());
-    Future.delayed(const Duration(seconds: 2), () {
+    Future.delayed(const Duration(seconds: 0), () {
       try {
         transactionLocalData.deleteTransactionPermanently(transaction: transaction);
         emit(SoftDeleteTransactionSuccess(transaction));

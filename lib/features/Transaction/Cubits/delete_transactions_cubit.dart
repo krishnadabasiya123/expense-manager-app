@@ -25,7 +25,7 @@ class DeleteTransactionsCubit extends Cubit<DeleteTransactionsState> {
 
   Future<void> deleteTransaction(Transaction transaction) async {
     emit(DeleteTransactionsLoading());
-    Future.delayed(const Duration(seconds: 5), () {
+    Future.delayed(const Duration(seconds: 0), () {
       try {
         // transactionLocalData.deleteTransaction(transactionId);
         //transactionLocalData.deleteTransaction(transaction);

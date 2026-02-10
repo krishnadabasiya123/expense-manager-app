@@ -78,7 +78,6 @@ class _BottomNavigationPageChnageState extends State<BottomNavigationPageChnage>
 
               final recurringCubit = context.read<GetRecurringTransactionCubit>();
 
-              // 🔒 Prevent re-entry
               if (recurringCubit.isProcessing) return;
               recurringCubit.startProcessing();
 
@@ -120,7 +119,6 @@ class _BottomNavigationPageChnageState extends State<BottomNavigationPageChnage>
               } catch (e, st) {
                 log('Recurring processing failed', error: e, stackTrace: st);
               } finally {
-                // ✅ ONLY HERE
                 recurringCubit.endProcessing();
               }
             },

@@ -118,12 +118,27 @@ class _HomePageState extends State<HomePage> {
               if (state is GetBudgetSuccess) {
                 final budgetList = context.read<GetBudgetCubit>().getBudgetList(count: 3);
                 if (budgetList.isEmpty) {
-                  return CustomErrorWidget(
-                    errorMessage: context.tr('noDataFound'),
-                    errorType: CustomErrorType.noDataFound,
-                    onRetry: () {
-                      context.read<GetBudgetCubit>().getBudget();
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.pushNamed(context, Routes.addBudget);
                     },
+                    child: Container(
+                      margin: EdgeInsetsDirectional.only(top: context.height * 0.01),
+                      padding: EdgeInsetsDirectional.all(context.width * 0.05),
+                      width: context.width * 0.9,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).scaffoldBackgroundColor,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: colorScheme.primary),
+                      ),
+                      child: Column(
+                        children: [
+                          Icon(Icons.format_list_bulleted_add, color: colorScheme.primary, size: 40.sp(context)),
+                          // const SizedBox(height: 5),
+                          CustomTextView(text: context.tr('noBudgetFound'), fontSize: 18.sp(context), fontWeight: FontWeight.bold, softWrap: true, maxLines: 3),
+                        ],
+                      ),
+                    ),
                   );
                 }
                 return Column(
@@ -134,21 +149,22 @@ class _HomePageState extends State<HomePage> {
                       child: Row(
                         children: [
                           Expanded(
-                            child: CustomTextView(text: 'Budgets', fontSize: 18.sp(context), fontWeight: FontWeight.bold, softWrap: true, maxLines: 3),
+                            child: CustomTextView(text: context.tr('budgetKey'), fontSize: 18.sp(context), fontWeight: FontWeight.bold, softWrap: true, maxLines: 3),
                           ),
-                          if (budgetList.length <= 3)
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.pushNamed(context, Routes.budget);
-                              },
-                              child: Center(
-                                child: CustomTextView(
-                                  text: context.tr('viewAllKey'),
-                                  fontSize: 12.sp(context),
-                                  color: colorScheme.onTertiary.withValues(alpha: 0.5),
-                                ),
+
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pushNamed(context, Routes.budget);
+                            },
+                            child: Center(
+                              child: CustomTextView(
+                                text: context.tr('viewAllKey'),
+                                fontSize: 12.sp(context),
+                                color: colorScheme.onTertiary.withValues(alpha: 0.5),
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
+                          ),
                         ],
                       ),
                     ),
@@ -165,7 +181,7 @@ class _HomePageState extends State<HomePage> {
                         final percent = (spent / item.amount) * 100;
 
                         final limit = item.amount;
-                        //final absSpent = result.abs();
+                        final parseEndDate = UiUtils.parseDate(item.endDate);
 
                         if (item.type == TransactionType.INCOME) {
                           if (spent > limit) {
@@ -207,6 +223,9 @@ class _HomePageState extends State<HomePage> {
                         }
                         return GestureDetector(
                           onTap: () {
+                            if (parseEndDate.isPast) {
+                              return;
+                            }
                             Navigator.pushNamed(context, Routes.budgetHistory, arguments: {'item': item});
                           },
                           child: Column(
@@ -234,9 +253,6 @@ class _HomePageState extends State<HomePage> {
                                     //   arcStrokeWidth: 3,
                                     // ),
                                     RadialPercentageResultContainer(
-                                      // The key forces widget re-creation only if the percentage changes substantially,
-                                      // ensuring smooth animation restart. (You could also use didUpdateWidget,
-                                      // but since the model itself changes, this is often simpler.)
                                       key: ValueKey('${item.budgetName}_${percent.toStringAsFixed(2)}'),
                                       percentage: percent,
                                       size: const Size(70, 50),
@@ -264,6 +280,23 @@ class _HomePageState extends State<HomePage> {
                                             fontSize: 13.sp(context),
                                             //color: colorScheme.surfaceDim,
                                           ),
+                                          if (parseEndDate.isPast) ...[
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                color: colorScheme.primary.withOpacity(0.2),
+                                                borderRadius: BorderRadius.circular(8),
+                                              ),
+                                              padding: const EdgeInsetsDirectional.symmetric(
+                                                horizontal: 5,
+                                                vertical: 2,
+                                              ),
+                                              child: CustomTextView(
+                                                text: context.tr('endedKey'),
+                                                fontSize: 11.sp(context),
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ],
                                         ],
                                       ),
                                     ),
@@ -272,7 +305,7 @@ class _HomePageState extends State<HomePage> {
 
                                       children: [
                                         CustomTextView(
-                                          text: '${context.symbol}${left.abs()} ',
+                                          text: '${context.symbol}$left ',
                                           fontSize: 15.sp(context),
                                           fontWeight: FontWeight.bold,
                                         ),

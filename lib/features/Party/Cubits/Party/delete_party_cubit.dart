@@ -27,7 +27,7 @@ class DeletePartyCubit extends Cubit<DeletePartyState> {
 
   Future<void> deleteParty(Party party) async {
     emit(DeletePartyLoading());
-    Future.delayed(const Duration(seconds: 5), () async {
+    Future.delayed(const Duration(seconds: 0), () async {
       try {
         partyLocalData.deleteParty(party);
         emit(DeletePartySuccess(party));

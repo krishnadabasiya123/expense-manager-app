@@ -26,7 +26,7 @@ class PermenantlyDeletePartyTransactionCubit extends Cubit<PermenantlyDeletePart
 
   Future<void> permenantlyDeletePartyTransaction({required PartyTransaction transaction}) async {
     emit(PermenantlyDeletePartyTransactionLoading());
-    Future.delayed(const Duration(seconds: 2), () {
+    Future.delayed(const Duration(seconds: 0), () {
       try {
         partyTransactionLocalData.permenantlyDeletePartyTransactionById(partyTransactionId: transaction.id);
         emit(PermenantlyDeletePartyTransactionSuccess(transaction));

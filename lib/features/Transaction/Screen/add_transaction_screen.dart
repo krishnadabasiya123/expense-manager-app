@@ -54,6 +54,7 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
   final FocusNode _titleControllerFocusNode = FocusNode();
   final FocusNode _descriptionControllerFocusNode = FocusNode();
   final FocusNode _amountControllerFocusNode = FocusNode();
+  DateTime? selectedDate;
 
   bool isExpense = false;
   bool isIncome = false;
@@ -299,9 +300,11 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                                     borderSide: const BorderSide(color: Colors.grey),
                                     isReadOnly: true,
                                     onTap: () async {
+                                      
                                       final pickedDate = await UiUtils.selectDate(context, _startDateController);
 
                                       if (pickedDate == null) return;
+                                      selectedDate = pickedDate;
 
                                       if (isCheck.value) {
                                         repeat = (await showRepeatOptionDialogue(context: context))!;

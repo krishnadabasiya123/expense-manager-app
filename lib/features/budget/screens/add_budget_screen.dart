@@ -177,6 +177,8 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
                                   child: CustomRoundedButton(
                                     onPressed: () async {
                                       final budgetId = 'BG'.withDateTimeMillisRandom();
+                                      final parsedStartDate = UiUtils.parseDate(startDateController.text);
+                                      final parsedEndDate = UiUtils.parseDate(endDateController.text);
 
                                       if (amountCtrl.text.isEmpty) {
                                         UiUtils.showCustomSnackBar(context: context, errorMessage: context.tr('PlsenterBudgetAmount'));
@@ -190,7 +192,10 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
                                         UiUtils.showCustomSnackBar(context: context, errorMessage: context.tr('PlsselectCatgoriesLbl'));
                                         return;
                                       }
-
+                                      if (parsedStartDate.isAfter(parsedEndDate)) {
+                                        UiUtils.showCustomSnackBar(context: context, errorMessage: context.tr('start date should be less than end date'));
+                                        return;
+                                      }
                                       if (widget.isEdit) {
                                         context.read<UpdateBudgetCubit>().updateBudget(
                                           Budget(
@@ -605,15 +610,8 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
                   isReadOnly: true,
                   controller: endDateController,
                   onTap: () async {
-                    final parsedStartDate = UiUtils.parseDate(startDateController.text);
-                    final parsedEndDate = UiUtils.parseDate(endDateController.text);
                     if (selectedPeriod == BudgetPeriod.CUSTOM) {
                       final pickedDate = await UiUtils.selectDate(context, endDateController);
-                      log(parsedStartDate.isBefore(parsedEndDate).toString());
-                      if (parsedStartDate.isBefore(parsedEndDate)) {
-                        UiUtils.showCustomSnackBar(context: context, errorMessage: context.tr('start date should be less than end date'));
-                        return;
-                      }
 
                       if (pickedDate == null) return;
 

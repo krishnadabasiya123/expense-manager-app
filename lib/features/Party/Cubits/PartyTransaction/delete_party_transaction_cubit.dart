@@ -27,7 +27,7 @@ class DeletePartyTransactionCubit extends Cubit<DeletePartyTransactionState> {
     required String partyId,
   }) async {
     emit(DeletePartyTransactionLoading());
-    Future.delayed(const Duration(seconds: 2), () async {
+    Future.delayed(const Duration(seconds: 0), () async {
       try {
         partyTransactionLocalData.deletePartyTransaction(transaction: transaction, partyId: partyId);
         emit(DeletePartyTransactionSuccess(transaction));

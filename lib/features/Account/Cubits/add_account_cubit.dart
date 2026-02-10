@@ -24,7 +24,7 @@ class AddAccountCubit extends Cubit<AddAccountState> {
 
   Future<void> addAccount({required Account account}) async {
     emit(AddAccountLoading());
-    Future.delayed(const Duration(seconds: 5), () async {
+    Future.delayed(const Duration(seconds: 0), () async {
       try {
         await accountLocalStorage.saveAccount(account);
 

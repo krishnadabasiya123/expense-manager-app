@@ -129,13 +129,23 @@ class _TransactionListState extends State<TransactionList> {
                                 ),
                               ] else ...[
                                 if (type == TransactionType.TRANSFER) ...[
-                                  CustomTextView(
-                                    text: '$accountFromName → $accountToName',
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                    fontSize: context.isTablet ? 18.sp(context) : 15.sp(context),
-                                    maxLines: 2,
-                                  ),
+                                  if (accountFromName.isNotEmpty && accountToName.isNotEmpty) ...[
+                                    CustomTextView(
+                                      text: '$accountFromName → $accountToName',
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                      fontSize: context.isTablet ? 18.sp(context) : 15.sp(context),
+                                      maxLines: 2,
+                                    ),
+                                  ] else ...[
+                                    CustomTextView(
+                                      text: context.tr('transferTransactionKey'),
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                      fontSize: context.isTablet ? 18.sp(context) : 15.sp(context),
+                                      maxLines: 2,
+                                    ),
+                                  ],
                                 ],
                               ],
                               if (subtitle.isNotEmpty) ...[

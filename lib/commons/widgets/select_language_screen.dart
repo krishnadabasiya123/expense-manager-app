@@ -95,7 +95,7 @@ class _InitialLanguageSelectionScreenState extends State<InitialLanguageSelectio
                       child: FloatingActionButton(
                         onPressed: () {
                           Hive.box<dynamic>(settingsBox).put(isLanguageSelected, true);
-                          Navigator.of(context).pushNamed(Routes.selectCurrency);
+                          Navigator.of(context).pushReplacementNamed(Routes.selectCurrency);
                         },
                         child: const Icon(Icons.check_rounded, color: Colors.white),
                       ),

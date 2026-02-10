@@ -108,13 +108,19 @@ class _BudgetScreenState extends State<BudgetScreen> {
                       label = context.tr('leftKey');
                     }
                   }
-
+                  final parseEndDate = UiUtils.parseDate(item.endDate);
                   return GestureDetector(
                     onTap: () {
-                      Navigator.pushNamed(context, Routes.budgetHistory, arguments: {'item': item});
+                      if (parseEndDate.isPast) {
+                        UiUtils.showCustomSnackBar(context: context, errorMessage: context.tr('budgetEnded'));
+                        return;
+                      } else {
+                        Navigator.pushNamed(context, Routes.budgetHistory, arguments: {'item': item});
+                      }
                     },
                     child: Opacity(
-                      opacity: UiUtils.parseDate(item.endDate).isBefore(DateTime.now()) ? 0.5 : 1,
+                      opacity: parseEndDate.isPast ? 0.5 : 1,
+                      //   opacity: UiUtils.parseDate(item.endDate).isBefore(DateTime.now()) ? 0.5 : 1,
                       child: BudgetCard(
                         title: item.budgetName,
                         left: left,
@@ -172,63 +178,61 @@ class BudgetCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final parseEndDate = UiUtils.parseDate(budget.endDate);
     final colorScheme = Theme.of(context).colorScheme;
     return Container(
       margin: const EdgeInsetsDirectional.only(bottom: 8),
-      padding: const EdgeInsetsDirectional.all(16),
+      padding: const EdgeInsetsDirectional.all(15),
       decoration: BoxDecoration(
-        color: colorScheme.primary.withOpacity(.1),
+        color: colorScheme.primary.withOpacity(0.2),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.white10),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
-
         children: [
           Row(
             children: [
               Expanded(
-                child: Column(
-                  crossAxisAlignment: .start,
-
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: CustomTextView(text: title, fontSize: 18.sp(context), fontWeight: FontWeight.bold, softWrap: true, maxLines: 3),
-                        ),
-                        const SizedBox(width: 5),
-                      ],
+                child: CustomTextView(text: title, fontSize: 15.sp(context), fontWeight: FontWeight.bold, softWrap: true, maxLines: 3),
+              ),
+              Container(
+                padding: EdgeInsetsDirectional.symmetric(horizontal: context.width * 0.02, vertical: 2.sp(context)),
+                decoration: BoxDecoration(
+                  color: colorScheme.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: CustomTextView(text: '${category.length} ${context.tr('categoryKey')}', fontSize: 12.sp(context), color: Colors.black),
+              ),
+              if (!parseEndDate.isPast)
+                PopupMenuButton<String>(
+                  padding: EdgeInsetsGeometry.zero,
+                  constraints: BoxConstraints(
+                    maxHeight: context.screenHeight * (context.isMobile ? 0.5 : 0.1),
+                    maxWidth: context.screenWidth * (context.isMobile ? 1.5 : 2.5),
+                  ),
+                  icon: Container(
+                    height: 36,
+                    width: 5,
+                    alignment: Alignment.centerRight,
+                    child: const Icon(
+                      Icons.more_vert,
                     ),
-                    CustomTextView(text: '${category.length} ${context.tr('categoryKey')}', fontSize: 12.sp(context), color: Colors.black),
+                  ),
+                  onSelected: (value) {
+                    if (value == context.tr('editKey')) {
+                      Navigator.pushNamed(context, Routes.addBudget, arguments: {'item': budget, 'isEdit': true});
+                    } else if (value == context.tr('deleteKey')) {
+                      showDeleteAlertDialog(context: context, budget: budget);
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    _popUpMenuBuild(value: context.tr('editKey'), text: context.tr('editKey'), icon: Icons.edit, color: Colors.black, context: context),
+                    _popUpMenuBuild(value: context.tr('deleteKey'), text: context.tr('deleteKey'), icon: Icons.delete, color: context.colorScheme.expenseColor, context: context),
                   ],
                 ),
-              ),
-
-              PopupMenuButton<String>(
-                constraints: BoxConstraints(
-                  maxHeight: context.screenHeight * (context.isMobile ? 0.5 : 0.1),
-                  maxWidth: context.screenWidth * (context.isMobile ? 1.5 : 2.5),
-                ),
-
-                // padding: EdgeInsetsDirectional.zero,
-                icon: const Icon(Icons.more_vert),
-                onSelected: (value) {
-                  if (value == context.tr('editKey')) {
-                    Navigator.pushNamed(context, Routes.addBudget, arguments: {'item': budget, 'isEdit': true});
-                  } else if (value == context.tr('deleteKey')) {
-                    showDeleteAlertDialog(context: context, budget: budget);
-                  }
-                },
-                itemBuilder: (context) => [
-                  _popUpMenuBuild(value: context.tr('editKey'), text: context.tr('editKey'), icon: Icons.edit, color: Colors.black, context: context),
-                  _popUpMenuBuild(value: context.tr('deleteKey'), text: context.tr('deleteKey'), icon: Icons.delete, color: context.colorScheme.expenseColor, context: context),
-                ],
-              ),
             ],
           ),
-
-          SizedBox(height: context.height * 0.015),
 
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -237,14 +241,14 @@ class BudgetCard extends StatelessWidget {
                 children: [
                   CustomTextView(
                     text: '${context.symbol}$left ',
-                    fontSize: 20.sp(context),
+                    fontSize: 18.sp(context),
                     fontWeight: FontWeight.bold,
                   ),
                   CustomTextView(
                     text: label,
                     fontSize: 12.sp(context),
                     fontWeight: FontWeight.bold,
-                    color: Colors.grey,
+                    color: Colors.black.withOpacity(0.5),
                   ),
                 ],
               ),
@@ -271,9 +275,9 @@ class BudgetCard extends StatelessWidget {
                 value: percent / 100,
 
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  colorScheme.primary,
+                  colorScheme.primary.withValues(alpha: 0.8),
                 ),
-                backgroundColor: colorScheme.surface,
+                backgroundColor: colorScheme.primary.withValues(alpha: 0.2),
               ),
             ),
           ),

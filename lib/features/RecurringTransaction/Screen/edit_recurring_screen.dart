@@ -24,11 +24,13 @@ class EditRecurringScreen extends StatefulWidget {
 
 class EditRecurringDialogueState extends State<EditRecurringScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _startDateController = TextEditingController();
   final TextEditingController _endsDateController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _oldEndsDateController = TextEditingController();
 
+  final FocusNode _startDateControllerFocusNode = FocusNode();
   final FocusNode _endsDateControllerFocusNode = FocusNode();
   final FocusNode _titleControllerFocusNode = FocusNode();
   final FocusNode _amountControllerFocusNode = FocusNode();
@@ -65,6 +67,7 @@ class EditRecurringDialogueState extends State<EditRecurringScreen> {
     accountController.text = context.read<GetAccountCubit>().getAccountName(id: recurring!.accountId);
     selectedCatgoryId = recurring!.categoryId;
     categoryController.text = context.read<GetCategoryCubit>().getCategoryName(recurring!.categoryId);
+    _startDateController.text = recurring!.startDate;
   }
 
   @override
@@ -80,7 +83,6 @@ class EditRecurringDialogueState extends State<EditRecurringScreen> {
         }
       },
       child: Scaffold(
-        // color: Colors.transparent,
         appBar: QAppBar(
           title: CustomTextView(text: context.tr('editRecurringKey'), fontSize: 20.sp(context), color: colorScheme.surface),
         ),
@@ -99,7 +101,25 @@ class EditRecurringDialogueState extends State<EditRecurringScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         CustomTextView(
-                          text: context.tr('dateLbl'),
+                          text: context.tr('startDateRecurringLbl'),
+                          fontSize: 14.sp(context),
+
+                          fontWeight: FontWeight.bold,
+                        ),
+                        SizedBox(height: context.height * 0.01),
+                        CustomTextFormField(
+                          focusNode: _startDateControllerFocusNode,
+                          nextFocusNode: _endsDateControllerFocusNode,
+                          textInputAction: TextInputAction.next,
+                          controller: _startDateController,
+                          suffixIcon: const Icon(
+                            Icons.calendar_month,
+                            color: Colors.black,
+                          ),
+                          isReadOnly: true,
+                        ),
+                        CustomTextView(
+                          text: context.tr('endDateRecurringLbl'),
                           fontSize: 14.sp(context),
 
                           fontWeight: FontWeight.bold,

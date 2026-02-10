@@ -25,7 +25,7 @@ class AddPartyTransactionCubit extends Cubit<AddPartyTransactionState> {
 
   Future<void> addPartyTransaction({required String partyId, required PartyTransaction transaction}) async {
     emit(AddPartyTransactionLoading());
-    Future.delayed(const Duration(seconds: 2), () async {
+    Future.delayed(const Duration(seconds: 0), () async {
       try {
         await partyTransactionLocalData.addPartyTransaction(partyId: partyId, transaction: transaction);
         emit(AddPartyTransactionSuccess(transaction));

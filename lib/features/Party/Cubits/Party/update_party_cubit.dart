@@ -35,7 +35,7 @@ class UpdatePartyCubit extends Cubit<UpdatePartyState> {
     List<PartyTransaction> transaction = const [],
   }) async {
     emit(UpdatePartyLoading());
-    Future.delayed(const Duration(seconds: 5), () async {
+    Future.delayed(const Duration(seconds: 0), () async {
       try {
         party
           ..id = id

@@ -27,6 +27,7 @@
  "homeKey": "Home",
  "calenderKey": "Calendar",
  "budgetKey": "Budgets",
+ "noBudgetFound": "No Budgets Found",
  "goalsKey": "Goals",
  "accountKey": "Account",
  "partyKey": "Party",
@@ -264,6 +265,7 @@
  "loanLbl": "Loan",
  "loanInterestLbl": "Loan Interest",
  "recurringLbl": "Recurring",
+ "noneLbl": "None",
  "paidLbl": "Paid",
  "cancelledLbl": "Cancelled",
  "upcomingLbl": "Upcoming",
@@ -298,5 +300,12 @@
  "leftKey": "Left",
  "overSavedKey": "Over Saved",
  "overSpentKey": "Over Spent",
- "viewAllKey": "View All"
+ "viewAllKey": "View All",
+ "budgetEnded": "Budget ended",
+ "accountToTransferAllTransactionKey": "Account to transfer all trasaction to",
+ "endDateRecurringLbl": "End Date",
+ "startDateRecurringLbl": "Start Date",
+ "transferTransactionKey": "Transfer Transaction",
+ "accountNoLongerExistsKey": "This transaction is linked to an account that no longer exists. It cannot be edited. You can only delete it!",
+ "EditRestrictionKey": "Edit Restriction"
 }

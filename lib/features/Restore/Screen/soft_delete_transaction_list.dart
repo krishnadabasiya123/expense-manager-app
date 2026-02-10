@@ -165,13 +165,23 @@ class _RestoreTransactionCardState extends State<RestoreTransactionCard> {
                           ),
                         ] else ...[
                           if (isTransfer) ...[
-                            CustomTextView(
-                              text: '${widget.accountFromName} → ${widget.accountToName}',
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                              fontSize: context.isTablet ? 18.sp(context) : 15.sp(context),
-                              maxLines: 2,
-                            ),
+                            if (widget.accountFromName.isNotEmpty && widget.accountToName.isNotEmpty) ...[
+                              CustomTextView(
+                                text: '${widget.accountFromName} → ${widget.accountToName}',
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                                fontSize: context.isTablet ? 18.sp(context) : 15.sp(context),
+                                maxLines: 2,
+                              ),
+                            ] else ...[
+                              CustomTextView(
+                                text: context.tr('transferTransactionKey'),
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                                fontSize: context.isTablet ? 18.sp(context) : 15.sp(context),
+                                maxLines: 2,
+                              ),
+                            ],
                           ],
                         ],
                         if (widget.subtitle.isNotEmpty) ...[

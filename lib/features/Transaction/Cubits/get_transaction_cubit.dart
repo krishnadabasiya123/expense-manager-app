@@ -35,6 +35,9 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
     emit(GetTransactionLoading());
     try {
       final transactions = TransactionLocalData().getTransaction();
+      for (final transaction in transactions) {
+        log('transaction ${transaction.toJson()}');
+      }
 
       emit(GetTransactionSuccess(transactions));
     } catch (e) {
@@ -137,27 +140,75 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
     }
   }
 
-  Future<void> updateAccountNameLocallyInTransaction({required String accouutId}) async {
+  Future<void> moveTransactionsLocally({required String fromAccountId, required String toAccountId}) async {
+    await transactionLocalData.moveTransactions(fromAccountId: fromAccountId, toAccountId: toAccountId);
     if (state is GetTransactionSuccess) {
       final transactions = (state as GetTransactionSuccess).transactions;
-      final index = transactions.indexWhere((p) => p.accountId == accouutId || p.accountFromId == accouutId || p.accountToId == accouutId);
-      if (index != -1) {
-        transactions[index].accountId = accouutId;
-        transactions[index].accountFromId = accouutId;
-        transactions[index].accountToId = accouutId;
-        emit(GetTransactionSuccess(transactions));
-      }
+      final updatedTransactions = transactions.map((transaction) {
+        var modified = false;
+        var newAccountId = transaction.accountId;
+        var newAccountFromId = transaction.accountFromId;
+        var newAccountToId = transaction.accountToId;
+
+        if (transaction.type == TransactionType.TRANSFER) {
+          if (transaction.accountFromId == fromAccountId) {
+            newAccountFromId = '';
+            modified = true;
+          }
+          if (transaction.accountToId == fromAccountId) {
+            newAccountToId = '';
+            modified = true;
+          }
+        } else {
+          if (transaction.accountId == fromAccountId) {
+            newAccountId = toAccountId;
+            modified = true;
+          }
+          if (transaction.accountFromId == fromAccountId) {
+            newAccountFromId = toAccountId;
+            modified = true;
+          }
+          if (transaction.accountToId == fromAccountId) {
+            newAccountToId = toAccountId;
+            modified = true;
+          }
+        }
+
+        if (modified) {
+          return transaction.copyWith(
+            accountId: newAccountId,
+            accountFromId: newAccountFromId,
+            accountToId: newAccountToId,
+          );
+        }
+        return transaction;
+      }).toList();
+      emit(GetTransactionSuccess(updatedTransactions));
     }
   }
 
   Future<void> updateCategoryNameLocallyInTransaction({required String categoryId}) async {
     if (state is GetTransactionSuccess) {
       final transactions = (state as GetTransactionSuccess).transactions;
-      final index = transactions.indexWhere((p) => p.categoryId == categoryId);
-      if (index != -1) {
-        transactions[index].categoryId = categoryId;
-        emit(GetTransactionSuccess(transactions));
+      final data = transactions.where((p) => p.categoryId == categoryId).toList();
+      for (final transaction in data) {
+        transaction.categoryId = categoryId;
       }
+      emit(GetTransactionSuccess(transactions));
+    }
+  }
+
+  Future<void> updateAccountNameLocallyInTransaction({required String accouutId}) async {
+    if (state is GetTransactionSuccess) {
+      final transactions = (state as GetTransactionSuccess).transactions;
+      final data = transactions.where((p) => p.accountId == accouutId || p.accountFromId == accouutId || p.accountToId == accouutId).toList();
+      for (final transaction in data) {
+        transaction
+          ..accountId = accouutId
+          ..accountFromId = accouutId
+          ..accountToId = accouutId;
+      }
+      emit(GetTransactionSuccess(transactions));
     }
   }
 
@@ -190,7 +241,7 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
 
             final txDate = _parseDate(tx.date);
 
-            return txDate.year == focusedDay.year && txDate.month == focusedDay.month && tx.type == TransactionType.EXPENSE;
+            return txDate.year == focusedDay.year && txDate.month == focusedDay.month && (tx.type == TransactionType.EXPENSE || tx.accountFromId.isNotEmpty);
           })
           // 🔹 sum
           .fold<double>(
@@ -209,7 +260,7 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
           .where((tx) {
             final txDate = _parseDate(tx.date);
 
-            return txDate.year == focusedDay.year && txDate.month == focusedDay.month && tx.type == TransactionType.INCOME;
+            return txDate.year == focusedDay.year && txDate.month == focusedDay.month && (tx.type == TransactionType.INCOME || tx.accountToId.isNotEmpty);
           })
           .fold<double>(
             0,
@@ -353,13 +404,12 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
   void setNullCategoryValueInTransaction(String id) {
     if (state is GetTransactionSuccess) {
       final transactions = (state as GetTransactionSuccess).transactions;
-
-      final index = transactions.indexWhere((e) => e.categoryId == id);
-
-      if (index != -1) {
-        transactions[index].categoryId = '';
-        emit(GetTransactionSuccess(transactions));
+      for (final transaction in transactions) {
+        if (transaction.categoryId == id) {
+          transaction.categoryId = '';
+        }
       }
+      emit(GetTransactionSuccess(transactions));
     }
   }
 

@@ -33,7 +33,33 @@ class HomeMenuItem {
   @HiveField(4)
   final HomeMenuType type;
 
-  IconData get icon => IconData(iconCode, fontFamily: 'MaterialIcons');
+  IconData get icon {
+    switch (type) {
+      case HomeMenuType.HOME_PAGE_BANNER:
+        return Icons.edit;
+      case HomeMenuType.BUDGETS:
+        return Icons.pie_chart_sharp;
+      case HomeMenuType.UPCOMING_TRANSACTION:
+        return Icons.calendar_view_day_rounded;
+      case HomeMenuType.GOALS:
+        return Icons.abc;
+      case HomeMenuType.ACCOUNT_LIST:
+        return Icons.list;
+      case HomeMenuType.INCOME_EXPENSE:
+        return Icons.import_export;
+      case HomeMenuType.NET_WORTH:
+        return Icons.balance;
+      case HomeMenuType.LOANS:
+        return Icons.label;
+      case HomeMenuType.GRAPHS:
+        return Icons.pie_chart;
+      case HomeMenuType.TRANSACTION_LIST:
+        return Icons.abc;
+      case HomeMenuType.NULL:
+      default:
+        return Icons.help_outline;
+    }
+  }
 
   Map<String, dynamic> toJson() => {'id': id, 'iconCode': iconCode, 'title': title, 'isOn': isOn, 'type': type.name};
 

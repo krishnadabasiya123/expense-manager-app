@@ -59,7 +59,7 @@ class UpdateRecurringTransactionCubit extends Cubit<UpdateRecurringTransactionSt
     required String transactionId,
   }) async {
     emit(UpdateRecurringTransactionLoading());
-    Future.delayed(const Duration(seconds: 5), () {
+    Future.delayed(const Duration(seconds: 0), () {
       try {
         //recurringTransactionLocalData.updateRecurringTransactionByStatus(recurring: transaction, status: status, recurringTransactionId: recurringTransactionId, transactionId: transactionId);
         emit(
@@ -78,7 +78,7 @@ class UpdateRecurringTransactionCubit extends Cubit<UpdateRecurringTransactionSt
 
   Future<void> updateRecurringTransaction({required String recurringId, required String title, required double amount, required String endDate, String? accountId, String? categoryId}) async {
     emit(UpdateRecurringTransactionLoading());
-    Future.delayed(const Duration(seconds: 5), () async {
+    Future.delayed(const Duration(seconds: 0), () async {
       try {
         final recurringTransaction = await recurringTransactionLocalData.updateRecurringTitleAmtDate(
           recurring: recurringId,

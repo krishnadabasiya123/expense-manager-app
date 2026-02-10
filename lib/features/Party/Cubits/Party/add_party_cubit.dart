@@ -27,7 +27,7 @@ class AddPartyCubit extends Cubit<AddPartyState> {
 
   Future<void> addParty(Party party) async {
     emit(AddPartyLoading());
-    Future.delayed(const Duration(seconds: 5), () async {
+    Future.delayed(const Duration(seconds: 0), () async {
       try {
         await partyLocalData.saveParty(party);
         emit(AddPartySuccess(party));

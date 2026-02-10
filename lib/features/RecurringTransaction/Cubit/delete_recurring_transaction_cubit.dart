@@ -27,7 +27,7 @@ class DeleteRecurringTransactionCubit extends Cubit<DeleteRecurringTransactionSt
 
   Future<void> deleteRecurringTransaction({required String recurringId}) async {
     emit(DeleteRecurringTransactionLoading());
-    Future.delayed(const Duration(seconds: 5), () async {
+    Future.delayed(const Duration(seconds: 0), () async {
       try {
         emit(DeleteRecurringTransactionSuccess(recurringId));
       } catch (e) {

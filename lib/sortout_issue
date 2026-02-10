@@ -52,3 +52,17 @@ in all type check budget spent
 
 
 update category -> category nam in transactiona nd in budget change , account same update name
+
+
+
+update name category , account remove indexwhere use loop or map - done
+indexwhere use check one update or multiple update
+recurring edit -> date label. chnage add start date done
+
+
+QUestion
+
+in transaction screen check in blue card income expense include my account transacfer data
+(currently only income nd expense count)
+in recurring edit transaction -> in end date i select date again i select precius date according end date i select chek that issue
+like end date is 14 now i select 15 tehen again i open 16 date come as initial date

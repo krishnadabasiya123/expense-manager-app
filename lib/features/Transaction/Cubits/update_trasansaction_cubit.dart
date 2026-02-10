@@ -24,7 +24,7 @@ class UpdateTrasansactionCubit extends Cubit<UpdateTrasansactionState> {
 
   Future<void> updateTransaction(Transaction transaction) async {
     emit(UpdateTrasansactionLoading());
-    Future.delayed(const Duration(seconds: 7), () async {
+    Future.delayed(const Duration(), () async {
       try {
         emit(UpdateTrasansactionSuccess(transaction));
       } catch (e) {

@@ -24,7 +24,7 @@ class DeleteBudgetCubit extends Cubit<DeleteBudgetState> {
 
   Future<void> deleteBudget(Budget budget) async {
     emit(DeleteBudgetLoading());
-    Future.delayed(const Duration(seconds: 5), () {
+    Future.delayed(const Duration(seconds: 0), () {
       try {
         emit(DeleteBudgetSuccess(budget));
       } catch (e) {

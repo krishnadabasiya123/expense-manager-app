@@ -24,7 +24,7 @@ class AddCategoryCubit extends Cubit<AddCategoryState> {
 
   Future<void> addCategory(List<Category> category) async {
     emit(AddCategoryLoading());
-    Future.delayed(const Duration(seconds: 2), () async {
+    Future.delayed(const Duration(seconds: 0), () async {
       try {
         categoryLocalStorage.saveCategory(category);
         emit(AddCategorySuccess(category));

@@ -24,7 +24,7 @@ class UpdateAccountCubit extends Cubit<UpdateAccountState> {
 
   Future<void> updateAccount({required Account account}) async {
     emit(UpdateAccountLoading());
-    Future.delayed(const Duration(seconds: 5), () async {
+    Future.delayed(const Duration(seconds: 0), () async {
       try {
         await accountLocalStorage.updateAccount(account);
         emit(UpdateAccountSuccess(account));

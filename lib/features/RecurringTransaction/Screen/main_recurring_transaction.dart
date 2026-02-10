@@ -28,7 +28,7 @@ class _RecurringTransactionListState extends State<RecurringTransactionList> {
     final allPaid =
         transactions.isNotEmpty &&
         transactions.every(
-          (e) => e.status == RecurringTransactionStatus.PAID,
+          (e) => e.status == RecurringTransactionStatus.PAID || e.status == RecurringTransactionStatus.CANCELLED,
         );
 
     if (allPaid) {

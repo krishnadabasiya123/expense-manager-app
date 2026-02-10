@@ -52,10 +52,10 @@ class GetSoftDeletePartyTransactionCubit extends Cubit<GetSoftDeletePartyTransac
     partyTransactionLocalData.softDeletePartyTransactionByCategoryId(categoryId: categoryId);
     if (state is GetSoftDeletePartyTransactionSuccess) {
       final transactions = (state as GetSoftDeletePartyTransactionSuccess).transactions;
-      final index = transactions.indexWhere((e) => e.category == categoryId);
-
-      if (index != -1) {
-        transactions[index].category = '';
+      for (final transaction in transactions) {
+        if (transaction.category == categoryId) {
+          transaction.category = '';
+        }
         emit(GetSoftDeletePartyTransactionSuccess(transactions));
       }
     }

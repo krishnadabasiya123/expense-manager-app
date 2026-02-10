@@ -72,6 +72,10 @@ class _TransactionScreenState extends State<TransactionScreen> {
     });
   }
 
+  final List<TransactionType> displayTypes = TransactionType.values
+      .where((e) => e == TransactionType.ALL || e == TransactionType.EXPENSE || e == TransactionType.INCOME || e == TransactionType.TRANSFER)
+      .toList();
+
   @override
   Widget build(BuildContext context) {
     final result = context.read<GetTransactionCubit>().getMinMaxDate();
@@ -237,28 +241,26 @@ class _TransactionScreenState extends State<TransactionScreen> {
                           shrinkWrap: true,
                           scrollDirection: Axis.horizontal,
                           itemBuilder: (context, index) {
-                            final isSelected = selectedTab.value == TransactionType.values[index];
+                            final isSelected = selectedTab.value == displayTypes[index];
                             return GestureDetector(
                               onTap: () {
-                                selectedTab.value = TransactionType.values[index];
+                                selectedTab.value = displayTypes[index];
                               },
-                              child: (TransactionType.values[index] != TransactionType.NONE)
-                                  ? Container(
-                                      margin: const EdgeInsetsDirectional.symmetric(horizontal: 4),
-                                      decoration: BoxDecoration(color: isSelected ? colorScheme.primary : colorScheme.surface, borderRadius: BorderRadius.circular(10)),
-                                      padding: EdgeInsetsDirectional.symmetric(vertical: context.height * 0.008, horizontal: context.width * 0.04),
-                                      child: Center(
-                                        child: CustomTextView(
-                                          text: UiUtils.getTransactionTypeString(TransactionType.values[index]),
-                                          fontSize: context.isTablet ? 16.sp(context) : 14.sp(context),
-                                          color: isSelected ? colorScheme.onPrimary : colorScheme.onSurface,
-                                        ),
-                                      ),
-                                    )
-                                  : const SizedBox.shrink(),
+                              child: Container(
+                                margin: const EdgeInsetsDirectional.symmetric(horizontal: 4),
+                                decoration: BoxDecoration(color: isSelected ? colorScheme.primary : colorScheme.surface, borderRadius: BorderRadius.circular(10)),
+                                padding: EdgeInsetsDirectional.symmetric(vertical: context.height * 0.008, horizontal: context.width * 0.04),
+                                child: Center(
+                                  child: CustomTextView(
+                                    text: context.tr('${displayTypes[index].value}Lbl'),
+                                    fontSize: context.isTablet ? 16.sp(context) : 14.sp(context),
+                                    color: isSelected ? colorScheme.onPrimary : colorScheme.onSurface,
+                                  ),
+                                ),
+                              ),
                             );
                           },
-                          itemCount: TransactionType.values.length,
+                          itemCount: displayTypes.length,
                         ),
                       ),
 

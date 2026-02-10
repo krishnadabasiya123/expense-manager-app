@@ -4,23 +4,35 @@ part 'TransactionType.g.dart';
 @HiveType(typeId: 1)
 enum TransactionType {
   @HiveField(0)
-  ALL,
+  ALL('all'),
   @HiveField(1)
-  EXPENSE,
+  EXPENSE('expense'),
   @HiveField(2)
-  INCOME,
+  INCOME('income'),
   @HiveField(3)
-  TRANSFER,
+  TRANSFER('transfer'),
   @HiveField(4)
-  DEBIT,
+  DEBIT('debit'),
   @HiveField(5)
-  CREDIT,
+  CREDIT('credit'),
   @HiveField(6)
-  LOAN,
+  LOAN('loan'),
   @HiveField(7)
-  LOAN_INTEREST,
+  LOAN_INTEREST('loanInterest'),
   @HiveField(8)
-  RECURRING,
+  RECURRING('recurring'),
   @HiveField(9)
-  NONE,
+  NONE('none')
+  ;
+
+  final String value;
+
+  const TransactionType(this.value);
+
+  static TransactionType fromKey(String key) {
+    return TransactionType.values.firstWhere(
+      (status) => status.value == key,
+      orElse: () => TransactionType.NONE,
+    );
+  }
 }

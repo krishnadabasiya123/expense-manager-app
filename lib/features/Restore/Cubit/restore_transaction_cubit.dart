@@ -24,7 +24,7 @@ class RestoreTransactionCubit extends Cubit<RestoreTransactionState> {
 
   Future<void> restoreTransaction(Transaction transaction) async {
     emit(RestoreTransactionLoading());
-    Future.delayed(const Duration(seconds: 2), () {
+    Future.delayed(const Duration(seconds: 0), () {
       try {
         transactionLocalData.restoreTransaction(transaction);
         emit(RestoreTransactionSuccess(transaction));

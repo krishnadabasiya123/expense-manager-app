@@ -123,13 +123,23 @@ class TransactionDetailsState extends State<TransactionDetails> {
                                     ],
                                   ],
                                   if (isTransfer) ...[
-                                    CustomTextView(
-                                      text: '${context.tr('transferFromLbl')} $accountFromName ${context.tr('transferToLbl')} $accountToName',
-                                      fontSize: 16.sp(context),
-                                      fontWeight: FontWeight.w600,
-                                      softWrap: true,
-                                      maxLines: 2,
-                                    ),
+                                    if (accountFromName.isNotEmpty && accountToName.isNotEmpty) ...[
+                                      CustomTextView(
+                                        text: '${context.tr('transferFromLbl')} $accountFromName ${context.tr('transferToLbl')} $accountToName',
+                                        fontSize: 16.sp(context),
+                                        fontWeight: FontWeight.w600,
+                                        softWrap: true,
+                                        maxLines: 2,
+                                      ),
+                                    ] else ...[
+                                      CustomTextView(
+                                        text: context.tr('transferTransactionKey'),
+                                        fontSize: 16.sp(context),
+                                        fontWeight: FontWeight.w600,
+                                        softWrap: true,
+                                        maxLines: 2,
+                                      ),
+                                    ],
                                   ],
 
                                   CustomTextView(text: UiUtils.convertCustomDate(transaction.date), fontSize: 13.sp(context), color: Colors.grey.shade600),
@@ -164,7 +174,8 @@ class TransactionDetailsState extends State<TransactionDetails> {
                         child: Column(
                           crossAxisAlignment: .start,
                           children: [
-                            CustomTextView(text: context.tr('transactionDetailsKey'), fontSize: 16.sp(context), color: Colors.black, fontWeight: FontWeight.bold),
+                            if (accountName.isNotEmpty || categoryName.isNotEmpty || transaction.description.isNotEmpty)
+                              CustomTextView(text: context.tr('transactionDetailsKey'), fontSize: 16.sp(context), color: Colors.black, fontWeight: FontWeight.bold),
 
                             if (!isTransfer) ...[
                               if (accountName.isNotEmpty) ...[SizedBox(height: context.height * 0.02), _buildTransactionDetails(icon: Icons.wallet, title: 'Account', value: accountName)],
@@ -200,6 +211,12 @@ class TransactionDetailsState extends State<TransactionDetails> {
                     GestureDetector(
                       onTap: () {
                         Navigator.pop(context);
+                        if (transaction.type == TransactionType.TRANSFER) {
+                          if (widget.transaction.accountFromId.isEmpty || widget.transaction.accountToId.isEmpty) {
+                            showAccountNotFoundDialog(context);
+                            return;
+                          }
+                        }
 
                         if (widget.transaction.addFromType == TransactionType.RECURRING) {
                           Navigator.of(context).pushNamed(Routes.editMainRecurringTransaction, arguments: {'recurringId': widget.transaction.recurringId});
@@ -257,6 +274,44 @@ class TransactionDetailsState extends State<TransactionDetails> {
                   ],
                 ),
                 SizedBox(height: context.height * 0.02),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void showAccountNotFoundDialog(BuildContext context) {
+    context.showAppDialog(
+      child: Builder(
+        builder: (context) {
+          return Center(
+            child: AlertDialog(
+              icon: Icon(
+                Icons.warning_amber_rounded,
+                color: Colors.red,
+                size: 40.sp(context),
+              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: CustomTextView(
+                text: context.tr('EditRestrictionKey'),
+                fontWeight: FontWeight.bold,
+                fontSize: 20.sp(context),
+                textAlign: TextAlign.center,
+              ),
+              content: CustomTextView(text: context.tr('accountNoLongerExistsKey'), softWrap: true, maxLines: 5),
+              actions: [
+                CustomRoundedButton(
+                  height: context.height * 0.05,
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  text: context.tr('okKey'),
+                  backgroundColor: Theme.of(context).primaryColor,
+                  borderRadius: BorderRadius.circular(8),
+                  textStyle: TextStyle(fontSize: 15.sp(context)),
+                ),
               ],
             ),
           );

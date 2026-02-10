@@ -137,7 +137,7 @@ class _AccountScreenState extends State<AccountScreen> {
 
                                                       GestureDetector(
                                                         onTap: () {
-                                                          showDeleteAlertDialog(account: account, accountList: accountList);
+                                                          showDeleteAlertDialog(account: account, accountList: accountList, actualBalance: totalActualBalance);
                                                         },
                                                         child: Container(
                                                           height: context.height * .03,
@@ -223,7 +223,7 @@ class _AccountScreenState extends State<AccountScreen> {
     );
   }
 
-  void showDeleteAlertDialog({required Account account, required List<Account> accountList}) {
+  void showDeleteAlertDialog({required Account account, required List<Account> accountList, required double actualBalance}) {
     context.showAppDialog(
       child: BlocProvider(
         create: (context) => DeleteAccountCubit(),
@@ -300,15 +300,15 @@ class _AccountScreenState extends State<AccountScreen> {
                                       final realAccounts = accountList.where((acc) => acc.id != 'last').toList();
 
                                       if (realAccounts.length > 1) {
-                                        context.read<DeleteAccountCubit>().deleteAccount(account: account);
-                                        // final totalTransaction = context.read<GetTransactionCubit>().totalTransactionCount(account: account.id);
-                                        // log('totalTransaction $totalTransaction');
-                                        // if (totalTransaction > 0) {
-                                        //   Navigator.pop(context);
-                                        //   _openAlertDialogueWithMoreTransaction(account: account);
-                                        // } else {
-                                        //   context.read<DeleteAccountCubit>().deleteAccount(account: account);
-                                        // }
+                                        // context.read<DeleteAccountCubit>().deleteAccount(account: account);
+                                        final totalTransaction = context.read<GetTransactionCubit>().totalTransactionCount(account: account.id);
+                                        log('totalTransaction $totalTransaction');
+                                        if (totalTransaction > 0) {
+                                          Navigator.pop(context);
+                                          _openAlertDialogueWithMoreTransaction(account: account, actualBalance: actualBalance);
+                                        } else {
+                                          context.read<DeleteAccountCubit>().deleteAccount(account: account);
+                                        }
                                       } else {
                                         Navigator.pop(context);
                                         showAccountLimitWarning(
@@ -340,7 +340,7 @@ class _AccountScreenState extends State<AccountScreen> {
     );
   }
 
-  void _openAlertDialogueWithMoreTransaction({required Account account}) {
+  void _openAlertDialogueWithMoreTransaction({required Account account, required double actualBalance}) {
     context.showAppDialog(
       child: BlocProvider(
         create: (context) => DeleteAccountCubit(),
@@ -433,9 +433,8 @@ class _AccountScreenState extends State<AccountScreen> {
                                 CustomRoundedButton(
                                   onPressed: () {
                                     Navigator.of(context).pop();
-                                    showSelectAccountSheet(context, account.id);
+                                    showSelectAccountSheet(context, account, actualBalance);
                                   },
-                                  isLoading: state is DeleteAccountLoading,
 
                                   //  backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.6),
                                   backgroundColor: Theme.of(context).colorScheme.surface,
@@ -460,119 +459,91 @@ class _AccountScreenState extends State<AccountScreen> {
     );
   }
 
-  void showSelectAccountSheet(BuildContext context, String accountId) {
-    const primary = Color(0xFF858169);
-    var selected = 'bank';
-
+  void showSelectAccountSheet(BuildContext context, Account accountToDelete, double actualBalance) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      constraints: const BoxConstraints(),
-      builder: (_) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            Widget accountTile({
-              required String id,
-              required String name,
-              required String amount,
-            }) {
-              return InkWell(
-                onTap: () => setState(() => selected = id),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 18),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Radio<String>(
-                            value: id,
-                            groupValue: selected,
-                            activeColor: primary,
-                            onChanged: (v) => setState(() => selected = v!),
-                          ),
-                          Text(
-                            name,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Text(
-                        amount,
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    ],
+      builder: (context) {
+        return BlocProvider(
+          create: (context) => DeleteAccountCubit(),
+          child: StatefulBuilder(
+            builder: (context, StateSetter setState) {
+              return Container(
+                padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(32),
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.12),
+                      blurRadius: 30,
+                      offset: const Offset(0, -8),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CustomTextView(text: context.tr('selectAccountLbl'), fontSize: 20.sp(context), fontWeight: FontWeight.bold, softWrap: true, maxLines: 3),
+
+                    CustomTextView(text: context.tr('accountToTransferAllTransactionKey'), fontSize: 15.sp(context), color: Colors.grey, softWrap: true, maxLines: 3),
+                    BlocBuilder<GetAccountCubit, GetAccountState>(
+                      builder: (context, state) {
+                        if (state is GetAccountSuccess) {
+                          final accountList = state.account;
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: accountList.length,
+                            itemBuilder: (context, index) {
+                              final account = accountList[index];
+                              if (account.id != accountToDelete.id && account.id != 'last') {
+                                return Builder(
+                                  builder: (context) {
+                                    return Row(
+                                      children: [
+                                        Expanded(
+                                          child: RadioListTile<String>(
+                                            title: Text(account.name),
+                                            value: account.id,
+                                            groupValue: selectedAccountId,
+                                            onChanged: (value) {
+                                              selectedAccountId = value!;
+                                              context.read<GetTransactionCubit>().moveTransactionsLocally(
+                                                fromAccountId: accountToDelete.id,
+                                                toAccountId: selectedAccountId,
+                                              );
+                                              context.read<GetAccountCubit>().deleteAccountLocally(account: accountToDelete);
+                                              // context.read<DeleteAccountCubit>().deleteAccount(account: accountToDelete);
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                        ),
+                                        CustomTextView(text: ' ${context.symbol}$actualBalance', fontSize: 15.sp(context), color: Colors.black, softWrap: true, maxLines: 3),
+                                      ],
+                                    );
+                                  },
+                                );
+                              }
+                              return const SizedBox.shrink();
+                            },
+                          );
+                        } else if (state is GetAccountFailure) {
+                          return CustomErrorWidget(
+                            errorMessage: context.tr('dataNotFound'),
+                            onRetry: () {
+                              context.read<GetAccountCubit>().getAccount();
+                            },
+                          );
+                        }
+                        return Container();
+                      },
+                    ),
+                  ],
                 ),
               );
-            }
-
-            final dark = Theme.of(context).brightness == Brightness.dark;
-
-            return Container(
-              padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-              decoration: BoxDecoration(
-                color: dark ? const Color(0xFF2A2A26) : Colors.white,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(32),
-                ),
-              ),
-              child: ListView(
-                children: [
-                  Center(
-                    child: Container(
-                      width: 40,
-                      height: 5,
-                      decoration: BoxDecoration(
-                        color: Colors.grey,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  CustomTextView(
-                    text: 'Select Account',
-                    fontSize: 20.sp(context),
-                    fontWeight: FontWeight.bold,
-                    // style: TextStyle(
-                    //   fontSize: 26,
-                    //   fontWeight: FontWeight.w800,
-                    // ),
-                  ),
-                  const SizedBox(height: 6),
-
-                  const CustomTextView(text: 'Account to transfer all transactions to', color: Colors.grey),
-
-                  const SizedBox(height: 24),
-
-                  accountTile(
-                    id: 'bank',
-                    name: 'Bank',
-                    amount: '-£800 GBP',
-                  ),
-                  const Divider(),
-
-                  accountTile(
-                    id: 'cash',
-                    name: 'Cash',
-                    amount: '£2,000 GBP',
-                  ),
-                  const Divider(),
-
-                  accountTile(
-                    id: 'savings',
-                    name: 'Savings',
-                    amount: '£5,420 GBP',
-                  ),
-                ],
-              ),
-            );
-          },
+            },
+          ),
         );
       },
     );

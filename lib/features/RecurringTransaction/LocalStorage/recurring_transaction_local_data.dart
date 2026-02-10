@@ -109,7 +109,7 @@ class RecurringTransactionLocalData {
     if (recurring == null) return;
 
     final index = recurring.recurringTransactions.indexWhere(
-      (e) => e.scheduleDate == scheduleDate && e.transactionId == null,
+      (e) => e.scheduleDate == scheduleDate && e.transactionId.isEmpty,
     );
 
     if (index == -1) return;

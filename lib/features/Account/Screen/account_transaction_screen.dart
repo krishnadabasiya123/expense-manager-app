@@ -47,7 +47,7 @@ class _AccountTransactionScreenState extends State<AccountTransactionScreen> {
                           final data = context.read<GetTransactionCubit>().getTransactionByAccountId(accountId: widget.account.id);
 
                           if (data.isEmpty) {
-                            return NoDataFoundScreen(title: context.tr('noTransactionFnd'), subTitle: context.tr('noTransactionFndPlsAdd'));
+                            return NoDataFoundScreen(title: context.tr('noTransactionFnd'));
                           }
 
                           return TransactionList(

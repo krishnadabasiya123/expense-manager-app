@@ -343,11 +343,12 @@ class GetPartyCubit extends Cubit<GetPartyState> {
       final transactions = (state as GetPartySuccess).party;
       for (final transaction in transactions) {
         final partyTransaction = transaction.transaction;
-        final index = partyTransaction.indexWhere((p) => p.accountId == accouutId);
-        if (index != -1) {
-          partyTransaction[index].accountId = accouutId;
+        for (final transaction in partyTransaction) {
+          if (transaction.accountId == accouutId) {
+            transaction.accountId = accouutId;
+          }
+          emit(GetPartySuccess(transactions));
         }
-        emit(GetPartySuccess(transactions));
       }
     }
   }
@@ -357,11 +358,12 @@ class GetPartyCubit extends Cubit<GetPartyState> {
       final transactions = (state as GetPartySuccess).party;
       for (final transaction in transactions) {
         final partyTransaction = transaction.transaction;
-        final index = partyTransaction.indexWhere((p) => p.category == categoryId);
-        if (index != -1) {
-          partyTransaction[index].category = categoryId;
+        for (final transaction in partyTransaction) {
+          if (transaction.category == categoryId) {
+            transaction.category = categoryId;
+          }
+          emit(GetPartySuccess(transactions));
         }
-        emit(GetPartySuccess(transactions));
       }
     }
   }

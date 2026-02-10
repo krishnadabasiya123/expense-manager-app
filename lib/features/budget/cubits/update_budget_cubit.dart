@@ -24,7 +24,7 @@ class UpdateBudgetCubit extends Cubit<UpdateBudgetState> {
 
   Future<void> updateBudget(Budget budget) async {
     emit(UpdateBudgetLoading());
-    Future.delayed(const Duration(seconds: 5), () {
+    Future.delayed(const Duration(seconds: 0), () {
       try {
         emit(UpdateBudgetSuccess(budget));
       } catch (e) {

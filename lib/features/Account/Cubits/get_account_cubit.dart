@@ -47,6 +47,8 @@ class GetAccountCubit extends Cubit<GetAccountState> {
   }
 
   Future<void> deleteAccountLocally({required Account account}) async {
+    accountLocalStorage.deleteAccount(account);
+
     if (state is GetAccountSuccess) {
       final oldData = (state as GetAccountSuccess).account..removeWhere((element) => element.id == account.id);
       emit(GetAccountSuccess(oldData));

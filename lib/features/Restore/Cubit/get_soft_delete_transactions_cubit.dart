@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:expenseapp/core/app/all_import_file.dart';
 
 @immutable
@@ -47,10 +49,10 @@ class GetSoftDeleteTransactionsCubit extends Cubit<GetSoftDeleteTransactionsStat
     transactionLocalData.softDeleteTransactionDeleteByCategoryId(categoryId: categoryId);
     if (state is GetSoftDeleteTransactionsSuccess) {
       final transactions = (state as GetSoftDeleteTransactionsSuccess).transactions;
-      final index = transactions.indexWhere((e) => e.categoryId == categoryId);
-
-      if (index != -1) {
-        transactions[index].categoryId = '';
+      for (final transaction in transactions) {
+        if (transaction.categoryId == categoryId) {
+          transaction.categoryId = '';
+        }
         emit(GetSoftDeleteTransactionsSuccess(transactions));
       }
     }

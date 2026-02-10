@@ -265,4 +265,53 @@ class TransactionLocalData {
       await box.deleteAll(keysToDelete);
     }
   }
+
+  Future<void> moveTransactions({
+    required String fromAccountId,
+    required String toAccountId,
+  }) async {
+    for (final key in box.keys) {
+      final transaction = box.get(key);
+      if (transaction == null) continue;
+
+      bool modified = false;
+      String newAccountId = transaction.accountId;
+      String newAccountFromId = transaction.accountFromId;
+      String newAccountToId = transaction.accountToId;
+
+      if (transaction.type == TransactionType.TRANSFER) {
+         if (transaction.accountFromId == fromAccountId) {
+           newAccountFromId = '';
+           modified = true;
+         }
+         if (transaction.accountToId == fromAccountId) {
+           newAccountToId = '';
+           modified = true;
+         }
+      } else {
+        if (transaction.accountId == fromAccountId) {
+          newAccountId = toAccountId;
+          modified = true;
+        }
+        if (transaction.accountFromId == fromAccountId) {
+          newAccountFromId = toAccountId;
+          modified = true;
+        }
+        if (transaction.accountToId == fromAccountId) {
+          newAccountToId = toAccountId;
+          modified = true;
+        }
+      }
+
+      if (modified) {
+        final updatedTransaction = transaction.copyWith(
+          accountId: newAccountId,
+          accountFromId: newAccountFromId,
+          accountToId: newAccountToId,
+        );
+
+        await box.put(key, updatedTransaction);
+      }
+    }
+  }
 }

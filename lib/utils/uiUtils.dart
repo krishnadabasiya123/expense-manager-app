@@ -142,8 +142,30 @@ class UiUtils {
     final colorScheme = Theme.of(context).colorScheme;
 
     final today = DateTime.now();
+    log('today $today');
 
-    final selectedDate = dateController.text.isNotEmpty ? UiUtils.parseDate(dateController.text) : today;
+    // final selectedDate = dateController.text.isNotEmpty ? UiUtils.parseDate(dateController.text) : today;
+    // log('selectedDate $selectedDate');
+    var selectedDate = today;
+
+    if (dateController.text.isNotEmpty) {
+      try {
+        var text = dateController.text;
+
+        if (text.contains(':')) {
+          text = text.split(':').last.trim();
+        }
+
+        if (text.contains('-')) {
+          final parts = text.split(' ');
+          text = parts.first;
+        }
+
+        selectedDate = UiUtils.parseDate(text);
+      } catch (e) {
+        selectedDate = today;
+      }
+    }
 
     DateTime initialDate;
     DateTime firstDate;

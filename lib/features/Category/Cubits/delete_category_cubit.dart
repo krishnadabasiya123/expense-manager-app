@@ -24,7 +24,7 @@ class DeleteCategoryCubit extends Cubit<DeleteCategoryState> {
 
   Future<void> deleteCategory(Category category) async {
     emit(DeleteCategoryLoading());
-    Future.delayed(const Duration(seconds: 2), () async {
+    Future.delayed(const Duration(seconds: 0), () async {
       try {
         await categoryLocalStorage.deleteCategory(category);
         emit(DeleteCategorySuccess(category));

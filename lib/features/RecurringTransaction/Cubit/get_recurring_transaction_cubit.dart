@@ -286,10 +286,10 @@ class GetRecurringTransactionCubit extends Cubit<GetRecurringTransactionState> {
     if (state is GetRecurringTransactionSuccess) {
       final transactions = (state as GetRecurringTransactionSuccess).transactions;
 
-      final index = transactions.indexWhere((e) => e.categoryId == id);
-
-      if (index != -1) {
-        transactions[index].categoryId = '';
+      for (final transaction in transactions) {
+        if (transaction.categoryId == id) {
+          transaction.categoryId = '';
+        }
         emit(GetRecurringTransactionSuccess(transactions));
       }
     }
@@ -361,9 +361,10 @@ class GetRecurringTransactionCubit extends Cubit<GetRecurringTransactionState> {
   Future<void> updateAccountNameLocallyInRecurringTransaction({required String accouutId}) async {
     if (state is GetRecurringTransactionSuccess) {
       final transactions = (state as GetRecurringTransactionSuccess).transactions;
-      final index = transactions.indexWhere((p) => p.accountId == accouutId);
-      if (index != -1) {
-        transactions[index].accountId = accouutId;
+      for (final transaction in transactions) {
+        if (transaction.accountId == accouutId) {
+          transaction.accountId = accouutId;
+        }
         emit(GetRecurringTransactionSuccess(transactions));
       }
     }
@@ -372,11 +373,20 @@ class GetRecurringTransactionCubit extends Cubit<GetRecurringTransactionState> {
   Future<void> updateCategoryNameLocallyInRecurringTransaction({required String categoryId}) async {
     if (state is GetRecurringTransactionSuccess) {
       final transactions = (state as GetRecurringTransactionSuccess).transactions;
-      final index = transactions.indexWhere((p) => p.categoryId == categoryId);
-      if (index != -1) {
-        transactions[index].categoryId = categoryId;
+      for (final transaction in transactions) {
+        if (transaction.categoryId == categoryId) {
+          transaction.categoryId = categoryId;
+        }
         emit(GetRecurringTransactionSuccess(transactions));
       }
     }
+  }
+
+  int getTotalRecurringTransactionCount() {
+    if (state is GetRecurringTransactionSuccess) {
+      final transactions = (state as GetRecurringTransactionSuccess).transactions;
+      return transactions.length;
+    }
+    return 0;
   }
 }
