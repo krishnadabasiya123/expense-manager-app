@@ -145,7 +145,7 @@ class _HomePageState extends State<HomePage> {
                   crossAxisAlignment: .start,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(top: 5, bottom: 5),
+                      padding: const EdgeInsetsDirectional.only(top: 5, bottom: 5),
                       child: Row(
                         children: [
                           Expanded(
@@ -283,7 +283,7 @@ class _HomePageState extends State<HomePage> {
                                           if (parseEndDate.isPast) ...[
                                             Container(
                                               decoration: BoxDecoration(
-                                                color: colorScheme.primary.withOpacity(0.2),
+                                                color: colorScheme.primary.withValues(alpha: 0.2),
                                                 borderRadius: BorderRadius.circular(8),
                                               ),
                                               padding: const EdgeInsetsDirectional.symmetric(

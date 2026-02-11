@@ -123,14 +123,6 @@ class _TransactionListState extends State<TransactionList> {
                                       fontSize: context.isTablet ? 18.sp(context) : 15.sp(context),
                                       maxLines: 2,
                                     ),
-                                  ] else ...[
-                                    CustomTextView(
-                                      text: context.tr('transferTransactionKey'),
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black,
-                                      fontSize: context.isTablet ? 18.sp(context) : 15.sp(context),
-                                      maxLines: 2,
-                                    ),
                                   ],
                                 ],
                               ],

@@ -28,7 +28,7 @@ class FontWeights {
 extension ColorX on Color {
   Color withValues({double? alpha}) {
     if (alpha != null) {
-      return withOpacity(alpha);
+      return withValues(alpha: alpha);
     }
     return this;
   }

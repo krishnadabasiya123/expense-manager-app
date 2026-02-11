@@ -184,7 +184,7 @@ class BudgetCard extends StatelessWidget {
       margin: const EdgeInsetsDirectional.only(bottom: 8),
       padding: const EdgeInsetsDirectional.all(15),
       decoration: BoxDecoration(
-        color: colorScheme.primary.withOpacity(0.2),
+        color: colorScheme.primary.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.white10),
       ),
@@ -248,7 +248,7 @@ class BudgetCard extends StatelessWidget {
                     text: label,
                     fontSize: 12.sp(context),
                     fontWeight: FontWeight.bold,
-                    color: Colors.black.withOpacity(0.5),
+                    color: Colors.black.withValues(alpha: 0.5),
                   ),
                 ],
               ),

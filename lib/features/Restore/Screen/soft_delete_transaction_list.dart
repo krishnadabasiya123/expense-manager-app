@@ -161,14 +161,6 @@ class _RestoreTransactionCardState extends State<RestoreTransactionCard> {
                                 fontSize: context.isTablet ? 18.sp(context) : 15.sp(context),
                                 maxLines: 2,
                               ),
-                            ] else ...[
-                              CustomTextView(
-                                text: context.tr('transferTransactionKey'),
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                                fontSize: context.isTablet ? 18.sp(context) : 15.sp(context),
-                                maxLines: 2,
-                              ),
                             ],
                           ],
                         ],

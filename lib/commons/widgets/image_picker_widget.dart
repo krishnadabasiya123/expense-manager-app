@@ -96,15 +96,14 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
       children: [
         // Add more images button
         Align(
-          child: GestureDetector(
-            onTap: _pickMultipleImages,
-            // borderRadius: BorderRadius.circular(12),
-            child: Container(
-              padding: EdgeInsetsDirectional.symmetric(vertical: 8.sp(context), horizontal: 12.sp(context)),
-              decoration: BoxDecoration(
-                border: Border.all(color: colorScheme.primary.withValues(alpha: 0.3)),
-                borderRadius: BorderRadius.circular(12),
-              ),
+          child: Container(
+            padding: EdgeInsetsDirectional.symmetric(vertical: 8.sp(context), horizontal: 12.sp(context)),
+            decoration: BoxDecoration(
+              border: Border.all(color: colorScheme.primary.withValues(alpha: 0.3)),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: GestureDetector(
+              onTap: _pickMultipleImages,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [

@@ -318,7 +318,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                         log('totalTransaction $totalTransaction');
                                         if (totalTransaction > 0) {
                                           Navigator.pop(context);
-                                          _openAlertDialogueWithMoreTransaction(account: account, actualBalance: actualBalance);
+                                          _openAlertDialogueWithMoreTransaction(account: account);
                                         } else {
                                           context.read<DeleteAccountCubit>().deleteAccount(account: account);
                                         }
@@ -353,7 +353,7 @@ class _AccountScreenState extends State<AccountScreen> {
     );
   }
 
-  void _openAlertDialogueWithMoreTransaction({required Account account, required double actualBalance}) {
+  void _openAlertDialogueWithMoreTransaction({required Account account}) {
     context.showAppDialog(
       child: BlocProvider(
         create: (context) => DeleteAccountCubit(),
@@ -445,8 +445,10 @@ class _AccountScreenState extends State<AccountScreen> {
                                 SizedBox(height: context.height * 0.01),
                                 CustomRoundedButton(
                                   onPressed: () {
-                                    Navigator.of(context).pop();
-                                    showSelectAccountSheet(context, account, actualBalance);
+                                    if (state is! DeleteAccountLoading) {
+                                      Navigator.of(context).pop();
+                                      showSelectAccountSheet(context, account);
+                                    }
                                   },
 
                                   //  backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.6),
@@ -472,7 +474,7 @@ class _AccountScreenState extends State<AccountScreen> {
     );
   }
 
-  void showSelectAccountSheet(BuildContext context, Account accountToDelete, double actualBalance) {
+  void showSelectAccountSheet(BuildContext context, Account accountToDelete) {
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -481,7 +483,7 @@ class _AccountScreenState extends State<AccountScreen> {
           child: StatefulBuilder(
             builder: (context, StateSetter setState) {
               return Container(
-                padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+                padding: const EdgeInsetsDirectional.symmetric(horizontal: 24, vertical: 12),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: const BorderRadius.vertical(
@@ -489,7 +491,7 @@ class _AccountScreenState extends State<AccountScreen> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.12),
+                      color: Colors.black.withValues(alpha: 0.12),
                       blurRadius: 30,
                       offset: const Offset(0, -8),
                     ),
@@ -506,6 +508,7 @@ class _AccountScreenState extends State<AccountScreen> {
                         if (state is GetAccountSuccess) {
                           final accountList = state.account;
                           return ListView.builder(
+                            padding: EdgeInsets.zero,
                             shrinkWrap: true,
                             itemCount: accountList.length,
                             itemBuilder: (context, index) {
@@ -513,10 +516,16 @@ class _AccountScreenState extends State<AccountScreen> {
                               if (account.id != accountToDelete.id && account.id != '-2') {
                                 return Builder(
                                   builder: (context) {
+                                    final totalIncome = context.read<GetTransactionCubit>().getTotalIncomeByAccountId(accountId: account.id);
+                                    final totalExpense = context.read<GetTransactionCubit>().getTotalExpenseByAccountId(accountId: account.id);
+                                    final totalTransfer = context.read<GetTransactionCubit>().getTotalTransferAmount(accountId: account.id);
+                                    final totalActualBalance = account.amount + totalIncome - totalExpense + totalTransfer;
                                     return Row(
                                       children: [
                                         Expanded(
                                           child: RadioListTile<String>(
+                                            contentPadding: EdgeInsets.zero,
+                                            dense: true,
                                             title: Text(account.name),
                                             value: account.id,
                                             groupValue: selectedAccountId,
@@ -532,7 +541,13 @@ class _AccountScreenState extends State<AccountScreen> {
                                             },
                                           ),
                                         ),
-                                        CustomTextView(text: ' ${context.symbol}$actualBalance', fontSize: 15.sp(context), color: Colors.black, softWrap: true, maxLines: 3),
+                                        CustomTextView(
+                                          text: ' ${context.symbol}${totalActualBalance.formatAmt()}',
+                                          fontSize: 15.sp(context),
+                                          color: Colors.black,
+                                          softWrap: true,
+                                          maxLines: 3,
+                                        ),
                                       ],
                                     );
                                   },

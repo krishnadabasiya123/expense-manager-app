@@ -66,7 +66,7 @@ class _PartyTransactionDetailsWidgetState extends State<PartyTransactionDetailsW
                     Container(
                       height: 35.sp(context),
                       width: 35.sp(context),
-                      decoration: BoxDecoration(color: type.color!.withValues(alpha: 0.4), shape: BoxShape.circle),
+                      decoration: BoxDecoration(color: type.color!.withValues(alpha: 0.2), shape: BoxShape.circle),
                       child: Icon(
                         type.icon,
                         color: type.color,
@@ -107,8 +107,9 @@ class _PartyTransactionDetailsWidgetState extends State<PartyTransactionDetailsW
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     //SizedBox(height: context.height * 0.01),
-                    CustomTextView(text: context.tr('partyDetailsKey'), fontSize: 17.sp(context), color: Colors.black, fontWeight: FontWeight.bold),
-
+                    if (description.isNotEmpty || account.isNotEmpty || category.isNotEmpty || widget.transaction.image.isNotEmpty) ...[
+                      CustomTextView(text: context.tr('partyDetailsKey'), fontSize: 17.sp(context), color: Colors.black, fontWeight: FontWeight.bold),
+                    ],
                     SizedBox(height: context.height * 0.01),
 
                     if (description.isNotEmpty) ...[

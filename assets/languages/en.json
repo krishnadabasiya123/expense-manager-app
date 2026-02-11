@@ -308,5 +308,6 @@
  "transferTransactionKey": "Transfer Transaction",
  "accountNoLongerExistsKey": "This transaction is linked to an account that no longer exists. It cannot be edited. You can only delete it!",
  "EditRestrictionKey": "Edit Restriction",
- "totalTransferKey": "Total Transfer"
+ "totalTransferKey": "Total Transfer",
+ "moveTransactionKey": "Move Transactions"
 }

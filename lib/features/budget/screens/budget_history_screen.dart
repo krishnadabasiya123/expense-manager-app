@@ -182,7 +182,7 @@ Widget _categorySection({
       Container(
         padding: const EdgeInsetsDirectional.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: colorScheme.primary.withOpacity(0.2),
+          color: colorScheme.primary.withValues(alpha: 0.2),
           borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
         ),
         child: Row(

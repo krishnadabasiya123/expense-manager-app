@@ -24,7 +24,7 @@ class DeleteAccountCubit extends Cubit<DeleteAccountState> {
 
   Future<void> deleteAccount({required Account account}) async {
     emit(DeleteAccountLoading());
-    Future.delayed(const Duration(seconds: 0), () async {
+    Future.delayed(const Duration(seconds: 5), () async {
       try {
         // accountLocalStorage.deleteAccount(account);
         emit(DeleteAccountSuccess(account));

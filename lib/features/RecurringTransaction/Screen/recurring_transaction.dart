@@ -310,7 +310,6 @@ Future<void> showChangeStatusDialog(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(24),
                 ),
-                // contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
                 content: BlocConsumer<UpdateRecurringTransactionCubit, UpdateRecurringTransactionState>(
                   listener: (context, state) {
                     if (state is UpdateRecurringTransactionSuccess) {
