@@ -38,7 +38,8 @@ class _AccountListWidgetState extends State<AccountListWidget> {
                     final isSelected = widget.selectedAccountId!.value == account.id;
                     final totalIncome = context.read<GetTransactionCubit>().getTotalIncomeByAccountId(accountId: account.id);
                     final totalExpense = context.read<GetTransactionCubit>().getTotalExpenseByAccountId(accountId: account.id);
-                    final totalActualBalance = totalIncome - totalExpense + account.amount;
+                    final totalTransfer = context.read<GetTransactionCubit>().getTotalTransferAmount(accountId: account.id);
+                    final totalActualBalance = totalIncome - totalExpense + account.amount + totalTransfer;
 
                     return GestureDetector(
                       onTap: () {
@@ -53,9 +54,9 @@ class _AccountListWidgetState extends State<AccountListWidget> {
                           color: colorScheme.surface,
                           borderRadius: BorderRadius.circular(15),
 
-                          border: Border.all(color: (isSelected && (account.id != context.tr('lastKey'))) ? colorScheme.primary : colorScheme.surface, width: 2),
+                          border: Border.all(color: (isSelected && (account.id != '-2')) ? colorScheme.primary : colorScheme.surface, width: 2),
                         ),
-                        child: (account.id == context.tr('lastKey'))
+                        child: (account.id == '-2')
                             ? GestureDetector(
                                 onTap: () {
                                   showCreateAccountSheet(context);

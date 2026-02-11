@@ -80,12 +80,14 @@ class _AccountTransactionScreenState extends State<AccountTransactionScreen> {
             builder: (context, state) {
               final totalIncome = context.read<GetTransactionCubit>().getTotalIncomeByAccountId(accountId: widget.account.id);
               final totalExpense = context.read<GetTransactionCubit>().getTotalExpenseByAccountId(accountId: widget.account.id);
-              final totalActualBalance = totalIncome - totalExpense + widget.account.amount;
+              final totalTransfer = context.read<GetTransactionCubit>().getTotalTransferAmount(accountId: widget.account.id);
+              final totalActualBalance = totalIncome - totalExpense + widget.account.amount + totalTransfer;
               return _buildBalanceDetails(
                 initialBalance: widget.account.amount,
                 totalIncome: totalIncome,
                 totalExpense: totalExpense,
                 totalActualBalance: totalActualBalance,
+                totalTransfer: totalTransfer,
               );
             },
           ),
@@ -94,7 +96,7 @@ class _AccountTransactionScreenState extends State<AccountTransactionScreen> {
     );
   }
 
-  Widget _buildBalanceDetails({required double initialBalance, required double totalIncome, required double totalExpense, required double totalActualBalance}) {
+  Widget _buildBalanceDetails({required double initialBalance, required double totalIncome, required double totalExpense, required double totalActualBalance, required double totalTransfer}) {
     final colorScheme = Theme.of(context).colorScheme;
     return Container(
       padding: EdgeInsetsDirectional.only(top: context.height * 0.01, start: context.width * 0.05, end: context.width * 0.05, bottom: context.height * 0.02),
@@ -121,6 +123,7 @@ class _AccountTransactionScreenState extends State<AccountTransactionScreen> {
           CustomTextView(text: 'Summary', fontSize: 16.sp(context), color: Colors.black, fontWeight: FontWeight.bold),
           // const SizedBox(height: 10),
           _summaryRow(context.tr('initialBalanceKey'), initialBalance.formatAmt()),
+          _summaryRow(context.tr('totalTransferKey'), totalTransfer.formatAmt()),
           _summaryRow(context.tr('totalIncomeKey'), totalIncome.formatAmt(), color: context.colorScheme.incomeColor),
           _summaryRow(context.tr('totalExpenseKey'), totalExpense.formatAmt(), color: context.colorScheme.expenseColor),
 

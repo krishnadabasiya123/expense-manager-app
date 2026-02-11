@@ -36,7 +36,7 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
     try {
       final transactions = TransactionLocalData().getTransaction();
       for (final transaction in transactions) {
-        log('transaction ${transaction.toJson()}');
+        log('transaction fetchTransaction ${transaction.toJson()}');
       }
 
       emit(GetTransactionSuccess(transactions));
@@ -145,43 +145,27 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
     if (state is GetTransactionSuccess) {
       final transactions = (state as GetTransactionSuccess).transactions;
       final updatedTransactions = transactions.map((transaction) {
-        var modified = false;
         var newAccountId = transaction.accountId;
         var newAccountFromId = transaction.accountFromId;
         var newAccountToId = transaction.accountToId;
 
         if (transaction.type == TransactionType.TRANSFER) {
           if (transaction.accountFromId == fromAccountId) {
-            newAccountFromId = '';
-            modified = true;
+            newAccountFromId = toAccountId;
           }
           if (transaction.accountToId == fromAccountId) {
-            newAccountToId = '';
-            modified = true;
+            newAccountToId = toAccountId;
           }
         } else {
           if (transaction.accountId == fromAccountId) {
             newAccountId = toAccountId;
-            modified = true;
-          }
-          if (transaction.accountFromId == fromAccountId) {
-            newAccountFromId = toAccountId;
-            modified = true;
-          }
-          if (transaction.accountToId == fromAccountId) {
-            newAccountToId = toAccountId;
-            modified = true;
           }
         }
-
-        if (modified) {
-          return transaction.copyWith(
-            accountId: newAccountId,
-            accountFromId: newAccountFromId,
-            accountToId: newAccountToId,
-          );
-        }
-        return transaction;
+        return transaction.copyWith(
+          accountId: newAccountId,
+          accountFromId: newAccountFromId,
+          accountToId: newAccountToId,
+        );
       }).toList();
       emit(GetTransactionSuccess(updatedTransactions));
     }
@@ -463,9 +447,9 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
 
         // account to id count in income
 
-        if (item.type == TransactionType.TRANSFER && item.accountToId == accountId) {
-          return sum + amount;
-        }
+        // if (item.type == TransactionType.TRANSFER && item.accountToId == accountId) {
+        //   return sum + amount;
+        // }
 
         return sum;
       });
@@ -484,9 +468,31 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
           return sum + amount;
         }
 
-        // account from id count in expense
+        return sum;
+      });
+    }
+    return 0;
+  }
 
-        if (item.type == TransactionType.TRANSFER && item.accountFromId == accountId) {
+  double getTotalTransferAmount({required String accountId}) {
+    if (state is GetTransactionSuccess) {
+      final transactions = (state as GetTransactionSuccess).transactions;
+
+      return transactions.fold<double>(0, (sum, item) {
+        if (item.type != TransactionType.TRANSFER) return sum;
+
+        final amount = item.amount;
+
+        // SAME ACCOUNT TRANSFER → ignore
+        if (item.accountFromId == accountId && item.accountToId == accountId) {
+          return sum;
+        }
+
+        if (item.accountFromId == accountId) {
+          return sum - amount;
+        }
+
+        if (item.accountToId == accountId) {
           return sum + amount;
         }
 

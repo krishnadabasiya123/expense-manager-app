@@ -66,3 +66,18 @@ in transaction screen check in blue card income expense include my account trans
 (currently only income nd expense count)
 in recurring edit transaction -> in end date i select date again i select precius date according end date i select chek that issue
 like end date is 14 now i select 15 tehen again i open 16 date come as initial date
+
+
+
+transactio move time selecet account actual balance gone wrong
+hive method chnage account local storage
+
+i have 2 account in my account list
+1 -> 500 ex , 1000 transfer (1->2)
+
+2-> 1000 income(transafer in)
+
+now i move transaction from 1-> 2
+actual balance 500 
+total transfer -> 0 ??
+but in list view total transfer is 1000 entry

@@ -86,27 +86,13 @@ class _TransactionListState extends State<TransactionList> {
                           height: 30.sp(context),
                           width: 30.sp(context),
                           decoration: BoxDecoration(
-                            color: type == TransactionType.EXPENSE
-                                ? context.colorScheme.expenseColor.withValues(alpha: 0.09)
-                                : type == TransactionType.INCOME
-                                ? context.colorScheme.incomeColor.withValues(alpha: 0.09)
-                                : Colors.blue.shade100,
+                            color: type.color!.withValues(alpha: 0.09),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
-                            type == TransactionType.EXPENSE
-                                ? Icons.arrow_upward
-                                : type == TransactionType.INCOME
-                                ? Icons.arrow_downward
-                                : Icons.transform_outlined,
+                            type.icon,
 
-                            color: type == TransactionType.EXPENSE
-                                ? context.colorScheme.expenseColor
-                                : type == TransactionType.INCOME
-                                ? context.colorScheme.incomeColor
-                                : type == TransactionType.TRANSFER
-                                ? Colors.blue
-                                : Colors.blue,
+                            color: type.color,
 
                             size: 20.sp(context),
                           ),
@@ -172,11 +158,7 @@ class _TransactionListState extends State<TransactionList> {
                                 CustomTextView(
                                   text: amount.formatAmt(),
                                   fontWeight: FontWeight.bold,
-                                  color: isIncome
-                                      ? context.colorScheme.incomeColor
-                                      : type == TransactionType.TRANSFER
-                                      ? Colors.blue
-                                      : context.colorScheme.expenseColor,
+                                  color: type.color,
                                 ),
                               ],
                             ),

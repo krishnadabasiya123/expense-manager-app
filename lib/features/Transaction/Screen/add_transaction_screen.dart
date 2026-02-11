@@ -300,7 +300,6 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                                     borderSide: const BorderSide(color: Colors.grey),
                                     isReadOnly: true,
                                     onTap: () async {
-                                      
                                       final pickedDate = await UiUtils.selectDate(context, _startDateController);
 
                                       if (pickedDate == null) return;
@@ -462,8 +461,6 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                             onPressed: () async {
                               final partyImages = await getPartyImages(_selectedImage.value);
 
-                              //final getFormatedStateDate = getFormatedDate(_startDateController);
-
                               if (_amountController!.text.isEmpty) {
                                 UiUtils.showCustomSnackBar(context: context, errorMessage: context.tr('amountKey'));
                                 return;
@@ -479,6 +476,16 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                               if (isTransfer && selectedAccFromId.value == selectedAccToId.value) {
                                 UiUtils.showCustomSnackBar(context: context, errorMessage: context.tr('sameAccountKey'));
                                 return;
+                              }
+                              if (isCheck.value) {
+                                if (_startDateController.text.isEmpty) {
+                                  UiUtils.showCustomSnackBar(context: context, errorMessage: context.tr('selectStartDate'));
+                                  return;
+                                }
+                                if (_endDateController.text.isEmpty) {
+                                  UiUtils.showCustomSnackBar(context: context, errorMessage: context.tr('selectEndDate'));
+                                  return;
+                                }
                               }
                               final transactionId = 'TR'.withDateTimeMillisRandom();
                               final reccuringID = 'R'.withDateTimeMillisRandom();

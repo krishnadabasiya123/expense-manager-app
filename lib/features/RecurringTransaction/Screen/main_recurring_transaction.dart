@@ -95,9 +95,9 @@ class _RecurringTransactionListState extends State<RecurringTransactionList> {
                       Navigator.of(context).pushNamed(Routes.recurringTransaction, arguments: {'transaction': item});
                     },
                     child: RecurringCard(
-                      icon: item.type == TransactionType.EXPENSE ? Icons.arrow_upward : Icons.arrow_downward,
-                      iconBg: item.type == TransactionType.EXPENSE ? context.colorScheme.expenseColor.withValues(alpha: 0.08) : context.colorScheme.incomeColor.withValues(alpha: 0.08),
-                      iconColor: item.type == TransactionType.EXPENSE ? context.colorScheme.expenseColor : context.colorScheme.incomeColor,
+                      icon: item.type.icon,
+                      iconBg: item.type.color!.withValues(alpha: 0.08),
+                      iconColor: item.type.color,
                       title: item.title,
                       amount: item.amount.toString(),
                       frequency: item.frequency,
@@ -189,7 +189,7 @@ class RecurringCard extends StatelessWidget {
                     CustomTextView(
                       text: amount!,
                       fontSize: 14.sp(context),
-                      color: type == TransactionType.EXPENSE ? context.colorScheme.expenseColor : context.colorScheme.incomeColor,
+                      color: type!.color,
                     ),
 
                     //Text(amount!, style: const TextStyle(color: context.colorScheme.expenseColor, fontSize: 12)),

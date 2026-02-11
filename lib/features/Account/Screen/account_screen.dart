@@ -64,7 +64,7 @@ class _AccountScreenState extends State<AccountScreen> {
                       itemBuilder: (context, index) {
                         final account = accountList[index];
 
-                        return (account.id == context.tr('lastKey'))
+                        return (account.id == '-2')
                             ? Container()
                             : GestureDetector(
                                 onTap: () async {
@@ -75,9 +75,13 @@ class _AccountScreenState extends State<AccountScreen> {
                                 },
                                 child: BlocBuilder<GetTransactionCubit, GetTransactionState>(
                                   builder: (context, state) {
-                                    final totalIncome = state is GetTransactionSuccess ? context.read<GetTransactionCubit>().getTotalIncomeByAccountId(accountId: account.id) : 0;
-                                    final totalExpense = state is GetTransactionSuccess ? context.read<GetTransactionCubit>().getTotalExpenseByAccountId(accountId: account.id) : 0;
-                                    final totalActualBalance = totalIncome - totalExpense + account.amount;
+                                    final totalIncome = context.read<GetTransactionCubit>().getTotalIncomeByAccountId(accountId: account.id);
+                                    final totalExpense = context.read<GetTransactionCubit>().getTotalExpenseByAccountId(accountId: account.id);
+                                    final totalTransfer = context.read<GetTransactionCubit>().getTotalTransferAmount(accountId: account.id);
+                                    final totalActualBalance = account.amount + totalIncome - totalExpense + totalTransfer;
+                                    log('transaction fetchTransaction  total balance ${totalIncome - totalExpense}');
+                                    log('transaction fetchTransaction  total totalTransfer $totalTransfer');
+                                    log('transaction fetchTransaction  total ActualBalance $totalActualBalance');
                                     return Container(
                                       margin: const EdgeInsetsDirectional.only(bottom: 15),
                                       height: context.height * 0.25,
@@ -108,11 +112,20 @@ class _AccountScreenState extends State<AccountScreen> {
                                                       Icon(Icons.wallet, color: Theme.of(context).colorScheme.onSecondary, size: 25.sp(context)),
                                                       const SizedBox(width: 10),
 
+                                                      // Expanded(
+                                                      //   child: UiUtils.marqueeText(
+                                                      //     text: account.name,
+                                                      //     textStyle: TextStyle(fontSize: 17.sp(context)),
+                                                      //     width: context.width * 0.5,
+                                                      //   ),
+                                                      // ),
                                                       Expanded(
-                                                        child: UiUtils.marqueeText(
+                                                        child: CustomTextView(
                                                           text: account.name,
-                                                          textStyle: TextStyle(fontSize: 17.sp(context)),
-                                                          width: context.width * 0.5,
+                                                          fontSize: 17.sp(context),
+                                                          color: Theme.of(context).colorScheme.onSecondary,
+                                                          maxLines: 5,
+                                                          softWrap: true,
                                                         ),
                                                       ),
 
@@ -297,7 +310,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                 Expanded(
                                   child: CustomRoundedButton(
                                     onPressed: () {
-                                      final realAccounts = accountList.where((acc) => acc.id != 'last').toList();
+                                      final realAccounts = accountList.where((acc) => acc.id != '-2').toList();
 
                                       if (realAccounts.length > 1) {
                                         // context.read<DeleteAccountCubit>().deleteAccount(account: account);
@@ -497,7 +510,7 @@ class _AccountScreenState extends State<AccountScreen> {
                             itemCount: accountList.length,
                             itemBuilder: (context, index) {
                               final account = accountList[index];
-                              if (account.id != accountToDelete.id && account.id != 'last') {
+                              if (account.id != accountToDelete.id && account.id != '-2') {
                                 return Builder(
                                   builder: (context) {
                                     return Row(
@@ -656,7 +669,6 @@ class AccountItem extends StatelessWidget {
     }
 
     Widget buildCardTextAndAmonut({required String text, required String amount, required TransactionType type}) {
-      final isIncome = type == TransactionType.INCOME;
       return Column(
         mainAxisAlignment: .spaceEvenly,
         children: [
@@ -664,7 +676,7 @@ class AccountItem extends StatelessWidget {
 
           Row(
             children: [
-              Icon(isIncome ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded, color: isIncome ? context.colorScheme.incomeColor : context.colorScheme.expenseColor, size: 17.sp(context)),
+              Icon(type.icon, color: type.color, size: 17.sp(context)),
               const SizedBox(width: 5),
               CustomTextView(text: '${context.symbol} $amount', fontSize: 17.sp(context), color: Theme.of(context).colorScheme.surface, fontWeight: FontWeight.bold),
             ],
@@ -676,7 +688,7 @@ class AccountItem extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final totalActualBalance = totalIncome - totalExpense + account.amount;
 
-    if (account.id == 'last') return const SizedBox.shrink();
+    if (account.id == '-2') return const SizedBox.shrink();
 
     return GestureDetector(
       onTap: () {

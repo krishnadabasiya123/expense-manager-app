@@ -30,7 +30,7 @@ class GetAccountCubit extends Cubit<GetAccountState> {
     emit(GetAccountLoading());
     try {
       final account = accountLocalStorage.getAccount();
-      final lastAcc = Account(id: 'last', name: '', amount: 0);
+      final lastAcc = Account(id: '-2', name: '', amount: 0);
       final accountData = [...account, lastAcc];
       emit(GetAccountSuccess(accountData));
     } catch (e) {

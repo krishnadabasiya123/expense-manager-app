@@ -12,7 +12,7 @@
  "submitBtn": "સબમિટ કરો",
  "signUpLbl": "સાઇન અપ કરો",
  "noAccountLbl": "ખાતું નથી?",
- "alreadyAccountLbl": "પહેલેથી એકાઉન્ટ છે?",
+ "alreadyAccountLbl": "પહેલેથી જ એકાઉન્ટ છે?",
  "cnPwdLbl": "પાસવર્ડની પુષ્ટિ કરો",
  "cnPwdNotMatchMsg": "પાસવર્ડ મેળ ખાતા નથી",
  "orLbl": "અથવા",
@@ -265,6 +265,7 @@
  "loanLbl": "લોન",
  "loanInterestLbl": "લોન વ્યાજ",
  "recurringLbl": "રિકરિંગ",
+ "noneLbl": "કોઈ નહિ",
  "paidLbl": "ચૂકવેલ",
  "cancelledLbl": "રદ કરેલ",
  "upcomingLbl": "આગામી",
@@ -300,5 +301,11 @@
  "overSavedKey": "ઓવર સેવ",
  "overSpentKey": "વધુ ખર્ચ કર્યો",
  "viewAllKey": "બધા જુઓ",
- "budgetEnded": "બજેટ સમાપ્ત"
+ "budgetEnded": "બજેટ સમાપ્ત",
+ "accountToTransferAllTransactionKey": "તમામ વ્યવહાર ટ્રાન્સફર કરવા માટેનું એકાઉન્ટ",
+ "endDateRecurringLbl": "સમાપ્તિ તારીખ",
+ "startDateRecurringLbl": "પ્રારંભ તારીખ",
+ "transferTransactionKey": "ટ્રાન્સફર ટ્રાન્ઝેક્શન",
+ "accountNoLongerExistsKey": "આ ટ્રાન્ઝેક્શન એવા એકાઉન્ટ સાથે જોડાયેલ છે જે હવે અસ્તિત્વમાં નથી. ",
+ "EditRestrictionKey": "પ્રતિબંધ સંપાદિત કરો"
 }

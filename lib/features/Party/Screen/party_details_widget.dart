@@ -66,10 +66,10 @@ class _PartyTransactionDetailsWidgetState extends State<PartyTransactionDetailsW
                     Container(
                       height: 35.sp(context),
                       width: 35.sp(context),
-                      decoration: BoxDecoration(color: isCredit ? const Color.fromRGBO(155, 230, 158, 1) : const Color.fromARGB(255, 237, 210, 209), shape: BoxShape.circle),
+                      decoration: BoxDecoration(color: type.color!.withValues(alpha: 0.4), shape: BoxShape.circle),
                       child: Icon(
-                        isCredit ? Icons.arrow_downward : Icons.arrow_upward,
-                        color: isCredit ? const Color.fromARGB(255, 36, 119, 39) : context.colorScheme.expenseColor,
+                        type.icon,
+                        color: type.color,
                         size: 20.sp(context),
                       ),
                     ),

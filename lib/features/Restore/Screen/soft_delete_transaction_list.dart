@@ -103,11 +103,7 @@ class _RestoreTransactionCardState extends State<RestoreTransactionCard> {
 
   @override
   Widget build(BuildContext context) {
-    final color = isIncome
-        ? context.colorScheme.incomeColor
-        : isExpense
-        ? context.colorScheme.expenseColor
-        : Colors.blue;
+    final color = widget.type.color;
 
     return Opacity(
       opacity: 1,
@@ -128,19 +124,11 @@ class _RestoreTransactionCardState extends State<RestoreTransactionCard> {
                     height: 30.sp(context),
                     width: 30.sp(context),
                     decoration: BoxDecoration(
-                      color: isExpense
-                          ? context.colorScheme.expenseColor.withValues(alpha: 0.08)
-                          : isIncome
-                          ? context.colorScheme.incomeColor.withValues(alpha: 0.08)
-                          : Colors.blue.shade100,
+                      color: color!.withValues(alpha: 0.08),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
-                      isExpense
-                          ? Icons.arrow_upward
-                          : isIncome
-                          ? Icons.arrow_downward
-                          : Icons.transform_outlined,
+                      widget.type.icon,
 
                       color: color,
 
@@ -191,44 +179,6 @@ class _RestoreTransactionCardState extends State<RestoreTransactionCard> {
                             fontSize: context.isTablet ? 16.sp(context) : 15.sp(context),
                           ),
                         ],
-
-                        // Text('date ${transaction.date}'),
-                        // Text('time ${transaction.time}'),
-                        // Text('type ${transaction.type}'),
-                        // Text('amount ${transaction.amount}'),
-                        // Text('description ${transaction.description}'),
-                        // Text('categoryId ${transaction.categoryId}'),
-                        // Text('accountId ${transaction.accountId}'),
-                        // Text('recurringId ${transaction.recurringId}'),
-                        // Text('accountFromId ${transaction.accountFromId}'),
-                        // Text('accountToId ${transaction.accountToId}'),
-                        // Text('image ${transaction.image}'),
-                        // Text('partyId ${transaction.partyId}'),
-                        // Text('partyTransactionId ${transaction.partyTransactionId}'),
-                        // Text('addFromType ${transaction.addFromType}'),
-                        // //ID
-                        // Text('id ${transaction.id}'),
-                        // //title
-                        // Text('title ${transaction.title}'),
-
-                        /*
-                        this.id,
-    this.date,
-    this.title,
-    this.type,
-    this.amount,
-    this.description,
-    this.categoryId,
-    this.time,
-    this.accountId,
-    this.recurringId,
-    this.accountFromId,
-    this.accountToId,
-    this.image,
-    this.partyId,
-    this.partyTransactionId,
-    this.addFromType,
-                     */
                       ],
                     ),
                   ),

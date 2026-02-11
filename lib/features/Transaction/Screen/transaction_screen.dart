@@ -237,24 +237,29 @@ class _TransactionScreenState extends State<TransactionScreen> {
                       SizedBox(height: context.height * 0.01),
                       SizedBox(
                         height: context.isTablet ? context.height * 0.038 : context.height * 0.042,
+
                         child: ListView.builder(
                           shrinkWrap: true,
+                          //   physics: const NeverScrollableScrollPhysics(),
                           scrollDirection: Axis.horizontal,
                           itemBuilder: (context, index) {
                             final isSelected = selectedTab.value == displayTypes[index];
-                            return GestureDetector(
-                              onTap: () {
-                                selectedTab.value = displayTypes[index];
-                              },
-                              child: Container(
-                                margin: const EdgeInsetsDirectional.symmetric(horizontal: 4),
-                                decoration: BoxDecoration(color: isSelected ? colorScheme.primary : colorScheme.surface, borderRadius: BorderRadius.circular(10)),
-                                padding: EdgeInsetsDirectional.symmetric(vertical: context.height * 0.008, horizontal: context.width * 0.04),
-                                child: Center(
-                                  child: CustomTextView(
-                                    text: context.tr('${displayTypes[index].value}Lbl'),
-                                    fontSize: context.isTablet ? 16.sp(context) : 14.sp(context),
-                                    color: isSelected ? colorScheme.onPrimary : colorScheme.onSurface,
+                            return SizedBox(
+                              width: context.width / displayTypes.length,
+                              child: GestureDetector(
+                                onTap: () {
+                                  selectedTab.value = displayTypes[index];
+                                },
+                                child: Container(
+                                  margin: const EdgeInsetsDirectional.symmetric(horizontal: 4),
+                                  decoration: BoxDecoration(color: isSelected ? colorScheme.primary : colorScheme.surface, borderRadius: BorderRadius.circular(10)),
+                                  padding: EdgeInsetsDirectional.symmetric(vertical: 4.sp(context)),
+                                  child: Center(
+                                    child: CustomTextView(
+                                      text: context.tr('${displayTypes[index].value}Lbl'),
+                                      fontSize: context.isTablet ? 16.sp(context) : 14.sp(context),
+                                      color: isSelected ? colorScheme.onPrimary : colorScheme.onSurface,
+                                    ),
                                   ),
                                 ),
                               ),
