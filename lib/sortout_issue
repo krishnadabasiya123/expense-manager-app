@@ -62,18 +62,68 @@ recurring edit -> date label. chnage add start date done
 
 QUestion
 
+total balance add transfer amt in transaction screen
+
 in transaction screen check in blue card income expense include my account transacfer data
 (currently only income nd expense count)
 in recurring edit transaction -> in end date i select date again i select precius date according end date i select chek that issue
 like end date is 14 now i select 15 tehen again i open 16 date come as initial date
 
 
-
-
-in transaction screen when there is no transfer in listview nothing view check
-
-
 showSelectAccountSheet open onTap transaction Move show here how i know transaction Move? can we give snackBar here?
-in amount controller when write point take multiple issue 
+in amount controller when write point take multiple issue - done
 
-groupValue - deprecated
+image cut in party transaction Details dialogue open - done
+
+in party screen when amt is big  hen in total partiegs check not display proper
+same as in card credit debit amount 
+if there is no amount in credit 0 then display in center - done
+
+above same issue occue in party transation history below card display credit debit balance -> also check same issue - done
+
+alse when i search in transaction screen abd do to another screeen when come back to transaction screen search text come as it as previos written so check this search text shoulb be reset empty
+
+in account screen when amt is big then in total account check not display proper
+same in initial balance and actual balance 
+same as income and expense - done
+
+
+data get last check this in all
+
+
+in recurring transaction when move transaction account id not update - done
+in recurring same end date not set in add transaction 
+same issue in party transaction when move transaction account id not update - done
+
+
+in account screen history when update category that recurring transaction not disply also account not set - done
+check where transaction details widget edit -> recurring affect -> account , catgeory - done
+
+
+
+cattegory name big check also where used in customdropdown and in bottom sheet - done
+
+14 -21 record budget
+i update in one transaction date is 14 (update amount in budget)
+
+
+
+theme chnage remove??
+
+
+14 feb - 21 feb nu budget che work category no ek record che have 21 date pachi ni date che phone ma
+14 - 21 feb vache ni date na transaction update thse ne??
+
+je date change karis te budget start date athva end date pachi ni hoi to change na thy
+edit happen / delete also if 14 -> 19 15 date nu transaction edit/update thse 
+but 20 no add nai thay -> money tracker                                                                                                                                                                                                                                                                                                                                                                                                                
+when i add today transaction data issue is today , february 2026 not come only today come
+
+
+13 feb:
+
+recurring transaction already add thyi gyu che date chnage karine have again ene defaut date kari nakhi again kal ni date avse to
+i chnage tommorow by chnage date again next day that transaction create
+
+
+account not display in dropdown check issue

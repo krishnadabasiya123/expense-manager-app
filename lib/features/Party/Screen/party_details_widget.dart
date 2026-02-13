@@ -76,8 +76,10 @@ class _PartyTransactionDetailsWidgetState extends State<PartyTransactionDetailsW
                     const SizedBox(width: 12),
 
                     Expanded(
+                      flex: 2,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
+
                         children: [
                           CustomTextView(
                             text: isCredit ? context.tr('paymentReceivedKey') : context.tr('outgoingTransferKey'),
@@ -88,12 +90,17 @@ class _PartyTransactionDetailsWidgetState extends State<PartyTransactionDetailsW
                         ],
                       ),
                     ),
+                    SizedBox(width: context.width * 0.02),
 
-                    CustomTextView(
-                      text: '${context.symbol} ${widget.transaction.amount.formatAmt()}',
-                      fontSize: 18.sp(context),
-                      fontWeight: FontWeight.w600,
-                      color: isCredit ? context.colorScheme.incomeColor : context.colorScheme.expenseColor,
+                    Expanded(
+                      child: CustomTextView(
+                        text: '${context.symbol} ${widget.transaction.amount.formatAmt()}',
+                        fontSize: 16.sp(context),
+                        fontWeight: FontWeight.w600,
+                        color: type.color,
+
+                        textAlign: TextAlign.end,
+                      ),
                     ),
                   ],
                 ),
@@ -140,7 +147,7 @@ class _PartyTransactionDetailsWidgetState extends State<PartyTransactionDetailsW
                               child: Image.memory(
                                 widget.transaction.image[index].picture,
 
-                                fit: BoxFit.cover,
+                                fit: BoxFit.fill,
                               ),
                             );
                           },
@@ -212,7 +219,7 @@ class _PartyTransactionDetailsWidgetState extends State<PartyTransactionDetailsW
             children: [
               CustomTextView(text: title, fontSize: 15.sp(context), fontWeight: FontWeight.bold, color: Colors.black),
 
-              CustomTextView(text: value, fontSize: 14.sp(context), color: Colors.black, maxLines: 3, softWrap: true),
+              CustomTextView(text: value, fontSize: 14.sp(context), color: Colors.black),
             ],
           ),
         ),
@@ -240,7 +247,7 @@ class _PartyTransactionDetailsWidgetState extends State<PartyTransactionDetailsW
                   constraints: BoxConstraints(maxHeight: context.height * 0.45, maxWidth: context.width * 0.85),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   title: CustomTextView(text: context.tr('deleteAccountTitleKey'), fontWeight: FontWeight.bold, fontSize: 20.sp(context)),
-                  content: CustomTextView(text: context.tr('deletePartyTransactionDilogueMsg'), softWrap: true, maxLines: 3),
+                  content: CustomTextView(text: context.tr('deletePartyTransactionDilogueMsg'), maxLines: 3),
                   actions: [
                     BlocConsumer<DeletePartyTransactionCubit, DeletePartyTransactionState>(
                       listener: (context, state) {

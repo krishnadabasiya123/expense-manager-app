@@ -188,19 +188,4 @@ class __AddCategoryWidgetState extends State<_AddCategoryWidget> {
       ),
     );
   }
-
-  Widget _buildRadioButton({required TransactionType value, required String text}) {
-    return Row(
-      children: [
-        Radio<TransactionType>(
-          value: value,
-          groupValue: selectedType.value,
-          onChanged: (value) {
-            selectedType.value = value!;
-          },
-        ),
-        CustomTextView(text: text, fontSize: 20.sp(context), color: Colors.black),
-      ],
-    );
-  }
 }

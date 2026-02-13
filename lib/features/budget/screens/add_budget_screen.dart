@@ -9,6 +9,7 @@ import 'package:expenseapp/features/budget/models/enums/BudgetPeriod.dart';
 import 'package:expenseapp/features/budget/models/enums/BudgetType.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 
 class AddBudgetScreen extends StatefulWidget {
@@ -291,6 +292,10 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
           controller: amountCtrl,
           hintText: context.tr('enterBudgetAmount'),
           keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+            LengthLimitingTextInputFormatter(16),
+          ],
         ),
       ],
     );
@@ -385,7 +390,12 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
                   const Icon(Icons.category, color: Colors.grey),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: Text(selectedCategoryText, style: const TextStyle(fontWeight: FontWeight.w500)),
+                    child: Text(
+                      selectedCategoryText,
+                      style: const TextStyle(fontWeight: FontWeight.w500),
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: true,
+                    ),
                   ),
                   Icon((isDialogueOpen.value) ? Icons.expand_less : Icons.expand_more, color: Colors.grey),
                 ],
@@ -407,7 +417,7 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
         return StatefulBuilder(
           builder: (_, setModal) {
             return Padding(
-              padding: const EdgeInsetsDirectional.all(5),
+              padding: const EdgeInsetsDirectional.all(10),
               child: Column(
                 children: [
                   SizedBox(height: context.height * 0.02),
@@ -416,8 +426,8 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
                   Expanded(
                     child: SingleChildScrollView(
                       child: Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
+                        spacing: 5,
+                        runSpacing: 5,
                         children: List.generate(categories.length, (index) {
                           final cat = categories[index];
                           final isSelected = cat['selected'] as bool;
@@ -429,6 +439,8 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
                                 color: isSelected ? Colors.white : Colors.black,
                                 fontWeight: FontWeight.w500,
                               ),
+                              overflow: TextOverflow.ellipsis,
+                              softWrap: true,
                             ),
 
                             selected: isSelected,
@@ -661,7 +673,6 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
             ),
           ),
           fontSize: 12.sp(context),
-          softWrap: true,
           maxLines: 3,
         ),
       ],

@@ -96,7 +96,6 @@ class _PartyScreenState extends State<PartyScreen> {
                     padding: const EdgeInsetsDirectional.symmetric(horizontal: 15),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
-                      //mainAxisSize: MainAxisSize.min,
                       children: [
                         CommonSearchController(
                           controller: searchController,
@@ -122,13 +121,22 @@ class _PartyScreenState extends State<PartyScreen> {
   }
 
   Widget _buildPartyCard({required String text, required String amount, required Color textColor}) {
-    return Column(
-      mainAxisAlignment: .spaceEvenly,
-      children: [
-        CustomTextView(text: text, fontSize: 14.sp(context), color: Colors.black),
+    return Expanded(
+      child: Column(
+        children: [
+          CustomTextView(text: text, fontSize: 14.sp(context), color: Colors.black),
 
-        CustomTextView(text: amount, fontSize: 15.sp(context), color: textColor, fontWeight: FontWeight.bold),
-      ],
+          CustomTextView(
+            text: amount,
+            fontSize: 15.sp(context),
+            color: textColor,
+            fontWeight: FontWeight.bold,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 
@@ -169,12 +177,6 @@ class _PartyScreenState extends State<PartyScreen> {
               return GestureDetector(
                 onTap: () {
                   Navigator.of(context).pushNamed(Routes.partyTransactionList, arguments: {'party': partyData});
-
-                  // Navigator.of(context).push(
-                  //   MaterialPageRoute(
-                  //     builder: (context) => PartyTransactionScreen(party: partyData),
-                  //   ),
-                  // );
                 },
                 behavior: HitTestBehavior.opaque,
                 child: Container(
@@ -200,8 +202,6 @@ class _PartyScreenState extends State<PartyScreen> {
                                   fontSize: 16.sp(context),
                                   color: Theme.of(context).colorScheme.onSecondary,
                                   fontWeight: FontWeight.bold,
-                                  softWrap: true,
-                                  maxLines: 2,
                                 ),
                                 SizedBox(height: context.height * 0.005),
                                 CustomTextView(
@@ -219,9 +219,11 @@ class _PartyScreenState extends State<PartyScreen> {
                               maxHeight: context.screenHeight * (context.isMobile ? 0.5 : 0.1),
                               maxWidth: context.screenWidth * (context.isMobile ? 1.5 : 2.5),
                             ),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            padding: EdgeInsets.zero,
 
                             // padding: EdgeInsetsDirectional.zero,
-                            icon: const Icon(Icons.more_vert),
+                            icon: const Icon(Icons.more_horiz, color: Color(0xFF757575), size: 24),
                             onSelected: (value) {
                               if (value == context.tr('editKey')) {
                                 showCreatePartySheet(context, isEdit: true, party: partyData);
@@ -237,44 +239,45 @@ class _PartyScreenState extends State<PartyScreen> {
                         ],
                       ),
 
-                      Container(
-                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
+                      IntrinsicHeight(
                         child: Row(
                           crossAxisAlignment: .start,
-                          mainAxisAlignment: .spaceEvenly,
                           children: [
-                            _buildPartyCard(text: context.tr('creditKey'), amount: '${context.symbol}  ${totalCredit.formatAmt()}', textColor: context.colorScheme.incomeColor),
-                            Container(width: 1.5, height: context.height * 0.06, color: Colors.grey.shade400),
+                            _buildPartyCard(text: context.tr('creditKey'), amount: '${context.symbol} ${totalCredit.formatAmt()}', textColor: context.colorScheme.incomeColor),
+                            SizedBox(width: context.width * 0.02),
+                            Container(width: 1.5, height: double.infinity, color: Colors.grey.shade400),
+                            SizedBox(width: context.width * 0.02),
                             _buildPartyCard(text: context.tr('debitKey'), amount: '${context.symbol} ${totalDebit.formatAmt()}', textColor: context.colorScheme.expenseColor),
-
-                            Container(width: 1.5, height: context.height * 0.06, color: Colors.grey.shade400),
+                            SizedBox(width: context.width * 0.02),
+                            Container(width: 1.5, height: double.infinity, color: Colors.grey.shade400),
+                            SizedBox(width: context.width * 0.02),
                             _buildPartyCard(text: context.tr('balanceKey'), amount: '${context.symbol} ${totalBalance.formatAmt()}', textColor: Colors.black),
                           ],
                         ),
                       ),
                       SizedBox(height: context.height * 0.01),
-                      Row(
-                        mainAxisAlignment: .end,
-                        children: [
-                          Container(
-                            padding: EdgeInsetsDirectional.symmetric(horizontal: context.width * 0.02, vertical: context.height * 0.005),
-                            decoration: BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor, borderRadius: BorderRadius.circular(5)),
-                            child: Row(
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    //showCreatePartySheet(context, isEdit: true, party: partyData);
-                                  },
-                                  behavior: HitTestBehavior.opaque,
-                                  child: CustomTextView(text: context.tr('viewReportKey'), fontSize: 10.sp(context), color: colorScheme.primary, fontWeight: FontWeight.bold),
-                                ),
-                                SizedBox(width: context.width * 0.02),
-                                Icon(Icons.arrow_forward_ios, size: 10.sp(context), color: colorScheme.primary),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
+                      // Row(
+                      //   mainAxisAlignment: .end,
+                      //   children: [
+                      //     Container(
+                      //       padding: EdgeInsetsDirectional.symmetric(horizontal: context.width * 0.02, vertical: context.height * 0.005),
+                      //       decoration: BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor, borderRadius: BorderRadius.circular(5)),
+                      //       child: Row(
+                      //         children: [
+                      //           GestureDetector(
+                      //             onTap: () {
+                      //               //showCreatePartySheet(context, isEdit: true, party: partyData);
+                      //             },
+                      //             behavior: HitTestBehavior.opaque,
+                      //             child: CustomTextView(text: context.tr('viewReportKey'), fontSize: 10.sp(context), color: colorScheme.primary, fontWeight: FontWeight.bold),
+                      //           ),
+                      //           SizedBox(width: context.width * 0.02),
+                      //           Icon(Icons.arrow_forward_ios, size: 10.sp(context), color: colorScheme.primary),
+                      //         ],
+                      //       ),
+                      //     ),
+                      //   ],
+                      // ),
                     ],
                   ),
                 ),
@@ -314,22 +317,23 @@ class _PartyScreenState extends State<PartyScreen> {
     return Column(
       children: [
         SizedBox(height: context.height * 0.005),
-
         BlocBuilder<GetPartyCubit, GetPartyState>(
           builder: (context, state) {
             final totalBalance = (state is GetPartySuccess) ? context.read<GetPartyCubit>().getTotalNetBalance(partyId: state.party).formatAmt() : '0';
             final totalTransactionCount = context.read<GetPartyCubit>().getTotalPartyTransactionCount();
 
-            return Row(
-              children: [
-                Expanded(
-                  child: _buildCard(text: context.tr('netBalanceKey'), amount: '${context.symbol} $totalBalance', color: Colors.blue.shade100, borderColor: Colors.blue),
-                ),
-                SizedBox(width: context.width * 0.02),
-                Expanded(
-                  child: _buildCard(text: context.tr('totalPartiesKey'), amount: totalTransactionCount.toString(), color: Colors.grey.shade300, borderColor: Colors.grey),
-                ),
-              ],
+            return IntrinsicHeight(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _buildCard(text: context.tr('netBalanceKey'), amount: '${context.symbol} $totalBalance', color: Colors.blue.shade100, borderColor: Colors.blue),
+                  ),
+                  SizedBox(width: context.width * 0.02),
+                  Expanded(
+                    child: _buildCard(text: context.tr('totalPartiesKey'), amount: totalTransactionCount.toString(), color: Colors.grey.shade300, borderColor: Colors.grey),
+                  ),
+                ],
+              ),
             );
           },
         ),
@@ -339,14 +343,13 @@ class _PartyScreenState extends State<PartyScreen> {
 
   Widget _buildCard({required String text, required String amount, Color? color, Color? borderColor}) {
     return Container(
-      height: context.isTablet ? context.height * 0.08 : context.height * 0.1,
+      padding: const EdgeInsetsDirectional.all(8),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: borderColor ?? Colors.grey),
       ),
       child: Column(
-        mainAxisAlignment: .spaceEvenly,
         children: [
           CustomTextView(
             text: text,
@@ -356,9 +359,11 @@ class _PartyScreenState extends State<PartyScreen> {
 
           CustomTextView(
             text: amount,
-            fontSize: 18.sp(context),
+            fontSize: 17.sp(context),
             color: Theme.of(context).colorScheme.onSecondary,
             fontWeight: FontWeight.bold,
+
+            textAlign: TextAlign.center,
           ),
         ],
       ),
@@ -386,7 +391,7 @@ class _PartyScreenState extends State<PartyScreen> {
                   //constraints: BoxConstraints(maxHeight: size.height * 0.45, maxWidth: size.width * 0.85),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   title: CustomTextView(text: context.tr('deleteAccountTitleKey'), fontWeight: FontWeight.bold, fontSize: 20.sp(context)),
-                  content: CustomTextView(text: context.tr('deletePartyDialogMsg'), softWrap: true, maxLines: 3),
+                  content: CustomTextView(text: context.tr('deletePartyDialogMsg'), maxLines: 3),
                   actions: [
                     BlocConsumer<DeletePartyCubit, DeletePartyState>(
                       listener: (context, state) {

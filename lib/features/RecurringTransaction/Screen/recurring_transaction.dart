@@ -92,8 +92,11 @@ class _SubscriptionSummary extends StatelessWidget {
           SizedBox(height: context.height * 0.01),
           CustomTextView(
             text: '${context.symbol} ${recurring.amount}',
-            fontSize: 25.sp(context),
+            fontSize: 20.sp(context),
             fontWeight: FontWeight.w900,
+            overflow: TextOverflow.ellipsis,
+            softWrap: true,
+            maxLines: 2,
           ),
           Divider(height: context.height * 0.03),
           Row(
@@ -217,6 +220,8 @@ class _TransactionLog extends StatelessWidget {
 
                             PopupMenuButton(
                               icon: isPaid ? const SizedBox.shrink() : const Icon(Icons.more_vert),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+
                               itemBuilder: (context) {
                                 final items = <PopupMenuEntry<String>>[
                                   if (isCancelled && date.isToday || date.isPast)

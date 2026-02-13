@@ -1,22 +1,20 @@
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
-class CustomTextView extends StatelessWidget {
-  const CustomTextView({
+class NewCustomTextView extends StatelessWidget {
+  const NewCustomTextView({
     required this.text,
     super.key,
     this.fontSize,
     this.color,
     this.fontFamily,
     this.textAlign,
-    this.maxLines,
+    this.maxLines, // Leave this as optional
     this.fontWeight,
-    this.softWrap = true,
+    this.softWrap, // Removed default here to handle it in build
     this.overflow,
     this.decoration,
     this.letterspacing,
-    this.height,
   });
 
   final String text;
@@ -30,15 +28,20 @@ class CustomTextView extends StatelessWidget {
   final TextOverflow? overflow;
   final TextDecoration? decoration;
   final double? letterspacing;
-  final double? height;
 
   @override
   Widget build(BuildContext context) {
     return Text(
+      text, // Put text first for readability
       textAlign: textAlign ?? TextAlign.left,
-      maxLines: maxLines, // Leave this as optional
-      text,
+
+      // FIX: Removing the "?? 1" allows the text to take
+      // as many lines as it needs if maxLines is not provided.
+      maxLines: maxLines,
+
+      // FIX: Default to true so it wraps to the next line automatically
       softWrap: softWrap ?? true,
+
       overflow: overflow ?? TextOverflow.clip,
       style: TextStyle(
         fontSize: fontSize ?? 15.sp(context),
@@ -46,7 +49,7 @@ class CustomTextView extends StatelessWidget {
         fontWeight: fontWeight,
         decoration: decoration,
         letterSpacing: letterspacing,
-        //height: 1.1,
+        fontFamily: fontFamily,
       ),
     );
   }

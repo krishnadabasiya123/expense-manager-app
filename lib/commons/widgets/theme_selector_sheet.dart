@@ -29,7 +29,7 @@ class _ThemeSelectorWidget extends StatelessWidget {
       child: BlocBuilder<ThemeCubit, ThemeState>(
         bloc: context.read<ThemeCubit>(),
         builder: (context, state) {
-          AppThemeType? currTheme = state.appTheme;
+          final currTheme = state.appTheme;
           final colorScheme = Theme.of(context).colorScheme;
 
           return Padding(
@@ -45,69 +45,32 @@ class _ThemeSelectorWidget extends StatelessWidget {
                 Divider(color: colorScheme.onTertiary.withValues(alpha: 0.2), thickness: 1),
                 SizedBox(height: size.height * 0.02),
 
-                Container(
-                  decoration: BoxDecoration(
-                    color: currTheme == AppThemeType.light ? Theme.of(context).primaryColor : colorScheme.onTertiary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: RadioListTile<AppThemeType>(
-                    toggleable: true,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    tileColor: colorScheme.onTertiary.withValues(alpha: 0.2),
-                    value: AppThemeType.light,
-                    groupValue: currTheme,
-                    activeColor: Colors.white,
-                    title: Text(
-                      context.tr('lightTheme'),
-                      style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16.sp(context), color: currTheme == AppThemeType.light ? Colors.white : colorScheme.onTertiary),
-                    ),
-                    secondary: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: currTheme == AppThemeType.light ? Colors.white : colorScheme.onTertiary.withValues(alpha: 0.2)),
-                        borderRadius: BorderRadius.circular(20),
+                RadioGroup<AppThemeType>(
+                  groupValue: currTheme,
+                  onChanged: (value) {
+                    if (value != null) {
+                      context.read<ThemeCubit>().changeTheme(value);
+                    }
+                  },
+                  child: Column(
+                    children: [
+                      _buildThemeTile(
+                        context,
+                        type: AppThemeType.light,
+                        label: 'lightTheme',
+                        currentSelection: currTheme,
                       ),
-                      padding: const EdgeInsetsDirectional.all(2),
-                      child: const QImage(imageUrl: AppImages.loginScreen, width: 76, height: 28),
-                    ),
-                    controlAffinity: ListTileControlAffinity.leading,
-                    onChanged: (v) {
-                      currTheme = v;
-                      context.read<ThemeCubit>().changeTheme(currTheme!);
-                    },
-                  ),
-                ),
-                SizedBox(height: size.height * 0.01),
-                Container(
-                  decoration: BoxDecoration(
-                    color: currTheme == AppThemeType.dark ? Theme.of(context).primaryColor : colorScheme.onTertiary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: RadioListTile<AppThemeType>(
-                    toggleable: true,
-                    value: AppThemeType.dark,
-                    groupValue: currTheme,
-                    activeColor: Colors.white,
-                    title: Text(
-                      context.tr('darkTheme'),
-                      style: TextStyle(fontWeight: FontWeights.medium, fontSize: 16.sp(context), color: currTheme == AppThemeType.dark ? Colors.white : colorScheme.onTertiary),
-                    ),
-                    secondary: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: currTheme == AppThemeType.dark ? Colors.white : colorScheme.onTertiary.withValues(alpha: 0.2)),
-                        borderRadius: BorderRadius.circular(20),
+                      SizedBox(height: size.height * 0.01),
+                      _buildThemeTile(
+                        context,
+                        type: AppThemeType.dark,
+                        label: 'darkTheme',
+                        currentSelection: currTheme,
                       ),
-                      padding: const EdgeInsetsDirectional.all(2),
-                      child: const QImage(imageUrl: AppImages.loginScreen, width: 76, height: 28),
-                    ),
-                    controlAffinity: ListTileControlAffinity.leading,
-                    onChanged: (v) {
-                      currTheme = v;
-                      context.read<ThemeCubit>().changeTheme(currTheme!);
-                    },
+                    ],
                   ),
                 ),
 
-                ///
                 const Spacer(),
                 CustomRoundedButton(
                   onPressed: () => Navigator.pop(context),
@@ -128,4 +91,47 @@ class _ThemeSelectorWidget extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget _buildThemeTile(
+  BuildContext context, {
+  required AppThemeType type,
+  required String label,
+  required AppThemeType? currentSelection,
+}) {
+  final isSelected = currentSelection == type;
+  final colorScheme = Theme.of(context).colorScheme;
+  final contentColor = isSelected ? Colors.white : colorScheme.onTertiary;
+
+  return Container(
+    decoration: BoxDecoration(
+      color: isSelected ? Theme.of(context).primaryColor : colorScheme.onTertiary.withValues(alpha: 0.1),
+      borderRadius: BorderRadius.circular(10),
+    ),
+    child: RadioListTile<AppThemeType>(
+      value: type,
+      toggleable: true,
+      activeColor: Colors.white,
+      controlAffinity: ListTileControlAffinity.leading,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      title: Text(
+        context.tr(label),
+        style: TextStyle(
+          fontWeight: FontWeight.w500,
+          fontSize: 16.sp(context),
+          color: contentColor,
+        ),
+      ),
+      secondary: Container(
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: contentColor.withValues(alpha: isSelected ? 1.0 : 0.2),
+          ),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        padding: const EdgeInsetsDirectional.all(2),
+        child: const QImage(imageUrl: AppImages.loginScreen, width: 76, height: 28),
+      ),
+    ),
+  );
 }

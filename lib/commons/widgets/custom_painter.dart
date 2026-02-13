@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -211,12 +212,14 @@ class _RadialPercentageResultContainerState extends State<RadialPercentageResult
 
         // 3. Percentage Text (Centered on top)
         Text(
-          '${widget.percentage.toStringAsFixed(0)}%',
+          '${widget.percentage.clamp(0, 100).toInt()}%',
           style: TextStyle(
             fontSize: widget.textFontSize,
             fontWeight: FontWeights.bold,
             fontFamily: GoogleFonts.manrope().fontFamily,
           ),
+          maxLines: 2,
+          softWrap: true,
         ),
       ],
     );

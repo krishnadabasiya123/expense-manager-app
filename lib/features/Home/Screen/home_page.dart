@@ -1,5 +1,6 @@
 import 'package:expenseapp/commons/widgets/BottomNavigationPageChange.dart';
 import 'package:expenseapp/commons/widgets/custom_painter.dart';
+import 'package:expenseapp/commons/widgets/new_custom_text_view.dart';
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/features/Home/Cubits/edit_home_cubit.dart';
 import 'package:expenseapp/features/Home/Model/HomeMenuItem.dart';
@@ -135,7 +136,7 @@ class _HomePageState extends State<HomePage> {
                         children: [
                           Icon(Icons.format_list_bulleted_add, color: colorScheme.primary, size: 40.sp(context)),
                           // const SizedBox(height: 5),
-                          CustomTextView(text: context.tr('noBudgetFound'), fontSize: 18.sp(context), fontWeight: FontWeight.bold, softWrap: true, maxLines: 3),
+                          CustomTextView(text: context.tr('noBudgetFound'), fontSize: 18.sp(context), fontWeight: FontWeight.bold, maxLines: 3),
                         ],
                       ),
                     ),
@@ -149,7 +150,7 @@ class _HomePageState extends State<HomePage> {
                       child: Row(
                         children: [
                           Expanded(
-                            child: CustomTextView(text: context.tr('budgetKey'), fontSize: 18.sp(context), fontWeight: FontWeight.bold, softWrap: true, maxLines: 3),
+                            child: CustomTextView(text: context.tr('budgetKey'), fontSize: 18.sp(context), fontWeight: FontWeight.bold, maxLines: 3),
                           ),
 
                           GestureDetector(
@@ -223,9 +224,6 @@ class _HomePageState extends State<HomePage> {
                         }
                         return GestureDetector(
                           onTap: () {
-                            if (parseEndDate.isPast) {
-                              return;
-                            }
                             Navigator.pushNamed(context, Routes.budgetHistory, arguments: {'item': item});
                           },
                           child: Column(
@@ -234,7 +232,7 @@ class _HomePageState extends State<HomePage> {
                             children: [
                               Container(
                                 margin: const EdgeInsetsDirectional.only(bottom: 7),
-                                padding: EdgeInsetsDirectional.symmetric(horizontal: context.width * 0.04, vertical: context.height * 0.02),
+                                padding: EdgeInsetsDirectional.symmetric(vertical: context.height * 0.02),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(16),
@@ -242,16 +240,6 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 child: Row(
                                   children: [
-                                    // RadialPercentageResultContainer(
-                                    //   percentage: percent,
-                                    //   size: const Size(70, 50),
-
-                                    //   // circleColor: Colors.grey, // Track color
-                                    //   arcColor: colorScheme.primary, // Progress color
-                                    //   textFontSize: 10,
-                                    //   circleStrokeWidth: 3,
-                                    //   arcStrokeWidth: 3,
-                                    // ),
                                     RadialPercentageResultContainer(
                                       key: ValueKey('${item.budgetName}_${percent.toStringAsFixed(2)}'),
                                       percentage: percent,
@@ -262,7 +250,7 @@ class _HomePageState extends State<HomePage> {
                                       circleStrokeWidth: 3,
                                       textFontSize: 11,
                                     ),
-                                    // SizedBox(width: context.width * 0.03),
+                                    SizedBox(width: context.width * 0.01),
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -271,8 +259,6 @@ class _HomePageState extends State<HomePage> {
                                             text: item.budgetName,
                                             fontSize: 14.sp(context),
                                             fontWeight: FontWeight.w600,
-                                            softWrap: true,
-                                            maxLines: 3,
                                           ),
                                           SizedBox(height: context.height * 0.003),
                                           CustomTextView(
@@ -283,7 +269,7 @@ class _HomePageState extends State<HomePage> {
                                           if (parseEndDate.isPast) ...[
                                             Container(
                                               decoration: BoxDecoration(
-                                                color: colorScheme.primary.withValues(alpha: 0.2),
+                                                color: Colors.red.withValues(alpha: 0.2),
                                                 borderRadius: BorderRadius.circular(8),
                                               ),
                                               padding: const EdgeInsetsDirectional.symmetric(
@@ -294,30 +280,38 @@ class _HomePageState extends State<HomePage> {
                                                 text: context.tr('endedKey'),
                                                 fontSize: 11.sp(context),
                                                 fontWeight: FontWeight.w600,
+                                                color: Colors.red,
                                               ),
                                             ),
                                           ],
                                         ],
                                       ),
                                     ),
-                                    Column(
-                                      crossAxisAlignment: .end,
+                                    const SizedBox(width: 10),
 
-                                      children: [
-                                        CustomTextView(
-                                          text: '${context.symbol}$left ',
-                                          fontSize: 15.sp(context),
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: .end,
 
-                                        CustomTextView(
-                                          text: label,
-                                          fontSize: 12.sp(context),
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.grey,
-                                        ),
-                                      ],
+                                        children: [
+                                          CustomTextView(
+                                            text: '${context.symbol}${left.formatAmt()} ',
+
+                                            fontSize: 15.sp(context),
+                                            fontWeight: FontWeight.bold,
+                                            textAlign: TextAlign.end,
+                                          ),
+
+                                          CustomTextView(
+                                            text: label,
+                                            fontSize: 12.sp(context),
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.grey,
+                                          ),
+                                        ],
+                                      ),
                                     ),
+                                    SizedBox(width: context.width * 0.03),
                                   ],
                                 ),
                               ),
@@ -343,7 +337,7 @@ class _HomePageState extends State<HomePage> {
   Widget _buildCard({required String text, required String amount, required int count, Color? color}) {
     final colorScheme = Theme.of(context).colorScheme;
     return Container(
-      padding: EdgeInsetsDirectional.symmetric(horizontal: context.width * 0.01, vertical: context.height * 0.02),
+      padding: EdgeInsetsDirectional.symmetric(horizontal: context.width * 0.02, vertical: context.height * 0.02),
       //   height: context.height * 0.1,
       decoration: BoxDecoration(
         color: colorScheme.surface,
@@ -356,7 +350,7 @@ class _HomePageState extends State<HomePage> {
         children: [
           CustomTextView(text: text, fontSize: 16.sp(context), color: colorScheme.onTertiary, fontWeight: FontWeight.bold),
 
-          CustomTextView(
+          NewCustomTextView(
             text: '${context.symbol} $amount',
             fontSize: 18.sp(context),
             color: color,
@@ -406,16 +400,18 @@ class _HomePageState extends State<HomePage> {
             final incomeTransactionCount = context.read<GetTransactionCubit>().totalIncomeTransactionCount();
             final expenseTransactionCount = context.read<GetTransactionCubit>().totalExpenseTransactionCount();
 
-            return Row(
-              children: [
-                Expanded(
-                  child: _buildCard(text: context.tr('expenseKey'), amount: totalExpense, color: Colors.red, count: expenseTransactionCount),
-                ),
-                SizedBox(width: context.width * 0.03),
-                Expanded(
-                  child: _buildCard(text: context.tr('incomeKey'), amount: totalIncome, color: Colors.green, count: incomeTransactionCount),
-                ),
-              ],
+            return IntrinsicHeight(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _buildCard(text: context.tr('expenseKey'), amount: totalExpense, color: Colors.red, count: expenseTransactionCount),
+                  ),
+                  SizedBox(width: context.width * 0.03),
+                  Expanded(
+                    child: _buildCard(text: context.tr('incomeKey'), amount: totalIncome, color: Colors.green, count: incomeTransactionCount),
+                  ),
+                ],
+              ),
             );
           },
         ),

@@ -5,6 +5,7 @@ import 'package:expenseapp/features/RecurringTransaction/Model/Recurring.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class EditRecurringScreen extends StatefulWidget {
   const EditRecurringScreen({required this.recurringId, super.key});
@@ -59,11 +60,13 @@ class EditRecurringDialogueState extends State<EditRecurringScreen> {
   void initState() {
     super.initState();
     recurring = context.read<GetRecurringTransactionCubit>().getRecurringTransactionById(recurringId: widget.recurringId);
+    log('recurring ${recurring!.toJson()}');
     _endsDateController.text = recurring!.endDate;
     _oldEndsDateController.text = recurring!.endDate;
     _amountController.text = recurring!.amount.toString();
     _titleController.text = recurring!.title;
     selectedAccountId = recurring!.accountId;
+    log('selectedAccountId in recurring $selectedAccountId');
     accountController.text = context.read<GetAccountCubit>().getAccountName(id: recurring!.accountId);
     selectedCatgoryId = recurring!.categoryId;
     categoryController.text = context.read<GetCategoryCubit>().getCategoryName(recurring!.categoryId);
@@ -169,6 +172,10 @@ class EditRecurringDialogueState extends State<EditRecurringScreen> {
                         CustomTextFormField(
                           focusNode: _amountControllerFocusNode,
                           controller: _amountController,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+                            LengthLimitingTextInputFormatter(16),
+                          ],
                           textInputAction: TextInputAction.done,
                           hintText: context.tr('amountKey'),
                           keyboardType: TextInputType.number,
@@ -246,6 +253,7 @@ class EditRecurringDialogueState extends State<EditRecurringScreen> {
                   listener: (context, state) {
                     if (state is UpdateRecurringTransactionSuccess) {
                       context.read<GetRecurringTransactionCubit>().updateRecurringTransactionLocally(recurringTransaction: state.transaction!);
+                      log('recurring GetRecurringTransactionCubit ${state.transaction!.toJson()}');
                       context.read<GetTransactionCubit>().updateRecurringDetailsLocallyInTransaction(recurring: state.transaction!);
                       //if end date chnage create new transaction
                       context.read<GetRecurringTransactionCubit>().updateRecurringTransaction(state.transaction!);

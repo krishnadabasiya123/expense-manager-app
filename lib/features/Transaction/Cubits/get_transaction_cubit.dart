@@ -65,19 +65,6 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
     return false;
   }
 
-  Future<void> addTransactionLocallyTest(
-    Transaction transaction,
-  ) async {
-    try {
-      final currentState = state;
-      if (currentState is GetTransactionSuccess) {
-        final updatedList = List<Transaction>.from(currentState.transactions)..insert(0, transaction);
-
-        emit(GetTransactionSuccess(updatedList));
-      }
-    } catch (e) {}
-  }
-
   Future<void> addTransactionLocally(
     Transaction transaction,
   ) async {
@@ -86,7 +73,7 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
 
       final currentState = state;
       if (currentState is GetTransactionSuccess) {
-        final updatedList = List<Transaction>.from(currentState.transactions)..insert(0, transaction);
+        final updatedList = List<Transaction>.from(currentState.transactions)..insert(currentState.transactions.length, transaction);
 
         emit(GetTransactionSuccess(updatedList));
       }
@@ -99,8 +86,9 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
 
       if (state is GetTransactionSuccess) {
         final currentState = state as GetTransactionSuccess;
-        final oldList = currentState.transactions;
-        final updatedList = [...oldList, ...transactions];
+        //final oldList = currentState.transactions;
+        // final updatedList = [...oldList, ...transactions];
+        final updatedList = List<Transaction>.from(currentState.transactions)..insertAll(currentState.transactions.length, transactions);
 
         emit(GetTransactionSuccess(updatedList));
       }
@@ -158,6 +146,7 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
           }
         } else {
           if (transaction.accountId == fromAccountId) {
+            log('update account id $fromAccountId to $toAccountId');
             newAccountId = toAccountId;
           }
         }
@@ -187,10 +176,15 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
       final transactions = (state as GetTransactionSuccess).transactions;
       final data = transactions.where((p) => p.accountId == accouutId || p.accountFromId == accouutId || p.accountToId == accouutId).toList();
       for (final transaction in data) {
-        transaction
-          ..accountId = accouutId
-          ..accountFromId = accouutId
-          ..accountToId = accouutId;
+        if (transaction.accountId == accouutId) {
+          transaction.accountId = accouutId;
+        }
+        if (transaction.accountFromId == accouutId) {
+          transaction.accountFromId = accouutId;
+        }
+        if (transaction.accountToId == accouutId) {
+          transaction.accountToId = accouutId;
+        }
       }
       emit(GetTransactionSuccess(transactions));
     }
@@ -225,7 +219,7 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
 
             final txDate = _parseDate(tx.date);
 
-            return txDate.year == focusedDay.year && txDate.month == focusedDay.month && (tx.type == TransactionType.EXPENSE || tx.accountFromId.isNotEmpty);
+            return txDate.year == focusedDay.year && txDate.month == focusedDay.month && tx.type == TransactionType.EXPENSE;
           })
           // 🔹 sum
           .fold<double>(
@@ -244,7 +238,7 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
           .where((tx) {
             final txDate = _parseDate(tx.date);
 
-            return txDate.year == focusedDay.year && txDate.month == focusedDay.month && (tx.type == TransactionType.INCOME || tx.accountToId.isNotEmpty);
+            return txDate.year == focusedDay.year && txDate.month == focusedDay.month && tx.type == TransactionType.INCOME;
           })
           .fold<double>(
             0,
@@ -274,7 +268,10 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
   }
 
   double getTotalBalance() {
-    return getTotalIncome() - getTotalExpense();
+    if (state is GetTransactionSuccess) {
+      return getTotalIncome() - getTotalExpense();
+    }
+    return 0;
   }
 
   List<Map<String, dynamic>> getTransactionByFilterDate({

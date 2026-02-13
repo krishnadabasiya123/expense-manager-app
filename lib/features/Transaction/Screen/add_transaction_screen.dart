@@ -13,6 +13,7 @@ import 'package:expenseapp/features/Transaction/Widgets/show_category_dialogue.d
 import 'package:expenseapp/features/Transaction/Widgets/show_repeat_option_dialogue.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 class AddTransactionScreen extends StatefulWidget {
@@ -194,6 +195,10 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                       nextFocusNode: _descriptionControllerFocusNode,
                       controller: _amountController ?? TextEditingController(),
                       textInputAction: TextInputAction.next,
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(16),
+                        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+                      ],
 
                       hintText: context.tr('amountLbl'),
                       radius: 15,

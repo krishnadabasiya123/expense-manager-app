@@ -97,9 +97,9 @@ class _PartyTransactionScreenState extends State<PartyTransactionScreen> {
                 final totalBalance = context.read<GetPartyCubit>().getTotalPartyTransactionBalance(partyId: partyDetails!.id).formatAmt();
 
                 return Row(
-                  mainAxisAlignment: .spaceEvenly,
+                  crossAxisAlignment: .start,
                   children: [
-                    _buildCard(text: context.tr('creditKey'), amount: '${context.symbol}  $totalCredit', textColor: colorScheme.primary),
+                    _buildCard(text: context.tr('creditKey'), amount: '${context.symbol} $totalCredit', textColor: colorScheme.primary),
                     SizedBox(width: context.width * 0.02),
                     _buildCard(text: context.tr('debitKey'), amount: '${context.symbol} $totalDebit', textColor: colorScheme.primary),
                     SizedBox(width: context.width * 0.02),
@@ -117,7 +117,7 @@ class _PartyTransactionScreenState extends State<PartyTransactionScreen> {
   Widget _buildCard({required String text, required String amount, Color? bgColor, Color? textColor}) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsetsDirectional.all(5),
+        padding: const EdgeInsetsDirectional.all(10),
         color: bgColor,
 
         child: Column(
@@ -129,7 +129,16 @@ class _PartyTransactionScreenState extends State<PartyTransactionScreen> {
               color: textColor,
             ),
 
-            CustomTextView(text: amount, fontSize: 16.sp(context), color: textColor, fontWeight: FontWeight.bold),
+            CustomTextView(
+              text: amount,
+              fontSize: 16.sp(context),
+              color: textColor,
+              fontWeight: FontWeight.bold,
+              softWrap: true,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
+              textAlign: TextAlign.center,
+            ),
           ],
         ),
       ),
@@ -253,24 +262,26 @@ class _LedgerItemRowState extends State<LedgerItemRow> {
 
             SizedBox(width: context.width * 0.03),
 
-            Expanded(
-              child: CustomTextView(
-                text: isCredit ? context.tr('paymentReceivedKey') : context.tr('outgoingTransferKey'),
-                fontWeight: FontWeight.w900,
-                color: Colors.black,
-                fontSize: 15.sp(context),
-              ),
+            CustomTextView(
+              text: isCredit ? context.tr('paymentReceivedKey') : context.tr('outgoingTransferKey'),
+              fontWeight: FontWeight.w900,
+              color: Colors.black,
+              fontSize: 15.sp(context),
             ),
+            SizedBox(width: context.width * 0.03),
 
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                CustomTextView(
-                  text: isCredit ? '+ ${context.symbol}${widget.credit.formatAmt()}' : '- ${context.symbol}${widget.debit.formatAmt()}',
-                  //fontWeight: FontWeight.bold,
-                  color: type.color,
-                ),
-              ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  CustomTextView(
+                    text: isCredit ? '+ ${context.symbol}${widget.credit.formatAmt()}' : '- ${context.symbol}${widget.debit.formatAmt()}',
+                    softWrap: true,
+                    color: type.color,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             ),
           ],
         ),

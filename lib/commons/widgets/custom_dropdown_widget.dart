@@ -205,6 +205,12 @@ class _CustomDropdownState extends State<CustomDropdown> with TickerProviderStat
         trailingIcon: widget.showSelectedIcon && isSelected ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary, size: 16) : item['trailingIcon'] as Widget?,
         enabled: item['enabled'] as bool? ?? true,
         style: MenuItemButton.styleFrom(foregroundColor: Colors.white, textStyle: widget.menuItemStyle, padding: widget.contentPadding),
+        labelWidget: Text(
+          label,
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+          style: widget.menuItemStyle,
+        ),
       );
     }).toList();
   }

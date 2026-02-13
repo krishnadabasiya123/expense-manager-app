@@ -6,6 +6,7 @@ import 'package:expenseapp/features/Party/Cubits/PartyTransaction/update_party_t
 import 'package:expenseapp/features/Transaction/Widgets/show_category_dialogue.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 class AddPartyTransactionWidget extends StatefulWidget {
@@ -68,7 +69,7 @@ class _AddPartyTransactionWidgetState extends State<AddPartyTransactionWidget> {
     categoryController.text = widget.isEdit ? context.read<GetCategoryCubit>().getCategoryName(widget.partyTransaction!.category) : '';
     selectedAccountId = widget.isEdit ? widget.partyTransaction?.accountId ?? '' : '';
     accountController.text = context.read<GetAccountCubit>().getAccountName(id: widget.partyTransaction?.accountId ?? '');
-
+    log('selectedAccountId $selectedAccountId');
     loadImages();
   }
 
@@ -224,6 +225,10 @@ class _AddPartyTransactionWidgetState extends State<AddPartyTransactionWidget> {
                           controller: _amountController,
                           hintText: context.tr('amtHintKey'),
                           keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+                            LengthLimitingTextInputFormatter(16),
+                          ],
                         ),
                         SizedBox(height: context.height * 0.02),
                         if (!widget.isEdit) ...[
@@ -485,21 +490,24 @@ class _AddPartyTransactionWidgetState extends State<AddPartyTransactionWidget> {
   }
 
   Widget _buildRadioButton({required TransactionType value, required String text}) {
-    return Row(
-      children: [
-        Radio<TransactionType>(
-          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-
-          value: value,
-          groupValue: selectedType,
-          onChanged: (value) {
-            setState(() {
-              selectedType = value!;
-            });
-          },
-        ),
-        CustomTextView(text: text),
-      ],
+    return RadioGroup<TransactionType>(
+      groupValue: selectedType,
+      onChanged: (value) {
+        if (value != null) {
+          setState(() {
+            selectedType = value;
+          });
+        }
+      },
+      child: Row(
+        children: [
+          Radio<TransactionType>(
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            value: value,
+          ),
+          CustomTextView(text: text),
+        ],
+      ),
     );
   }
 

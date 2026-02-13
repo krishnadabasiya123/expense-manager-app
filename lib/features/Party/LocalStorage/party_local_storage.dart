@@ -29,4 +29,27 @@ class PartyLocalData {
   Future<void> deleteParty(Party party) async {
     await party.delete();
   }
+
+  Future<void> updateAccountIdWhenMoveTransaction({
+    required String fromAccountId,
+    required String toAccountId,
+  }) async {
+    for (final key in box.keys) {
+      final parent = box.get(key);
+      if (parent == null) continue;
+
+      final updatedList = parent.transaction.map((tx) {
+        if (tx.accountId == fromAccountId) {
+          return tx.copyWith(accountId: toAccountId);
+        }
+        return tx;
+      }).toList();
+
+      final updatedParent = parent.copyWith(
+        transaction: updatedList,
+      );
+
+      await box.put(key, updatedParent);
+    }
+  }
 }

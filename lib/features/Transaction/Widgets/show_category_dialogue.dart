@@ -41,36 +41,44 @@ class CategoryBottomSheetState extends State<CategoryBottomSheet> {
             children: [
               CustomTextView(text: context.tr('selectCategoryLbl'), fontSize: 18.sp(context), fontWeight: FontWeight.bold, color: colorScheme.onTertiary),
               const SizedBox(height: 10),
+
               Expanded(
                 child: BlocBuilder<GetCategoryCubit, GetCategoryState>(
                   builder: (context, state) {
                     if (state is GetCategorySuccess) {
-                      return ListView.builder(
-                        padding: EdgeInsetsDirectional.zero,
-                        itemCount: state.category.length,
-                        itemBuilder: (_, index) {
-                          final category = state.category[index];
+                      return RadioGroup<String>(
+                        groupValue: widget.selectedCategoryId.value,
+                        onChanged: (value) {
+                          if (value == null) return;
 
-                          return RadioListTile<String>(
-                            value: category.id,
-                            controlAffinity: ListTileControlAffinity.trailing,
-                            groupValue: widget.selectedCategoryId.value,
-                            // groupValue: widget.selectedCategoryId.value,
-                            title: CustomTextView(text: category.name, fontSize: 15.sp(context), color: colorScheme.onTertiary, softWrap: true, maxLines: 2),
-                            dense: true,
-                            visualDensity: const VisualDensity(vertical: -2, horizontal: -3),
-                            contentPadding: EdgeInsetsDirectional.zero,
-                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            onChanged: (value) {
-                              // if (widget.selectedCategoryId.value == category.id) {
-                              //   Navigator.pop(context);
-                              // }
-                              widget.selectedCategoryId.value = value!;
-                              widget.categoryController.text = category.name;
-                              Navigator.pop(context);
-                            },
-                          );
+                          final selectedCategory = state.category.firstWhere((c) => c.id == value);
+
+                          widget.selectedCategoryId.value = value;
+                          widget.categoryController.text = selectedCategory.name;
+
+                          Navigator.pop(context);
                         },
+                        child: ListView.builder(
+                          padding: EdgeInsetsDirectional.zero,
+                          itemCount: state.category.length,
+                          itemBuilder: (context, index) {
+                            final category = state.category[index];
+
+                            return RadioListTile<String>(
+                              value: category.id,
+                              controlAffinity: ListTileControlAffinity.trailing,
+                              title: CustomTextView(
+                                text: category.name,
+                                fontSize: 15.sp(context),
+                                color: colorScheme.onTertiary,
+                              ),
+                              dense: true,
+                              visualDensity: const VisualDensity(vertical: -2, horizontal: -3),
+                              contentPadding: EdgeInsetsDirectional.zero,
+                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            );
+                          },
+                        ),
                       );
                     }
                     return const CustomCircularProgressIndicator();

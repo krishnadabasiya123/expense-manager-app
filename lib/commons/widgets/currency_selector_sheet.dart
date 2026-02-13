@@ -52,40 +52,43 @@ class _CurrencySelectorWidgetState extends State<CurrencySelectorWidget> {
               Expanded(
                 child: BlocBuilder<CurrencyCubit, String>(
                   builder: (context, selectedCurrencyName) {
-                    return ListView.builder(
-                      padding: EdgeInsetsDirectional.zero,
-                      itemCount: currecyList.length,
-                      itemBuilder: (context, index) {
-                        final currency = currecyList[index];
-                        final isSelected = currency['name']! == selectedCurrencyName;
-
-                        return Container(
-                          margin: EdgeInsetsDirectional.only(bottom: context.height * 0.012),
-                          padding: EdgeInsetsDirectional.symmetric(
-                            horizontal: context.width * 0.01,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: isSelected ? colorScheme.primary : colorScheme.onTertiary.withValues(alpha: 0.1),
-                          ),
-                          child: RadioListTile<String>(
-                            value: currency['name']!,
-                            groupValue: selectedCurrencyName,
-                            onChanged: (value) {
-                              if (value == null) return;
-
-                              context.read<CurrencyCubit>().updateCurrencyByName(value);
-                            },
-                            activeColor: Colors.white,
-                            title: CustomTextView(
-                              text: currency['name']!,
-                              fontSize: 16.sp(context),
-                              color: isSelected ? Colors.white : Colors.black,
-                              fontWeight: FontWeights.bold,
-                            ),
-                          ),
-                        );
+                    return RadioGroup<String>(
+                      groupValue: selectedCurrencyName,
+                      onChanged: (value) {
+                        if (value != null) {
+                          context.read<CurrencyCubit>().updateCurrencyByName(value);
+                        }
                       },
+                      child: ListView.builder(
+                        padding: EdgeInsetsDirectional.zero,
+                        itemCount: currecyList.length,
+                        itemBuilder: (context, index) {
+                          final currency = currecyList[index];
+                          final currencyName = currency['name']!;
+                          final isSelected = currencyName == selectedCurrencyName;
+
+                          return Container(
+                            margin: EdgeInsetsDirectional.only(bottom: context.height * 0.012),
+                            padding: EdgeInsetsDirectional.symmetric(
+                              horizontal: context.width * 0.01,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: isSelected ? colorScheme.primary : colorScheme.onTertiary.withValues(alpha: 0.1),
+                            ),
+                            child: RadioListTile<String>(
+                              value: currencyName,
+                              activeColor: Colors.white,
+                              title: CustomTextView(
+                                text: currencyName,
+                                fontSize: 16.sp(context),
+                                color: isSelected ? Colors.white : Colors.black,
+                                fontWeight: FontWeights.bold,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     );
                   },
                 ),

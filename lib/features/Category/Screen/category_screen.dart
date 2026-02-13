@@ -121,7 +121,13 @@ class _CategoryScreenState extends State<CategoryScreen> {
                             child: Row(
                               children: [
                                 Expanded(
-                                  child: CustomTextView(text: categoryDetails.name, fontSize: 17.sp(context), color: Colors.black, softWrap: true, maxLines: 4, fontWeight: FontWeight.w300),
+                                  child: CustomTextView(
+                                    text: categoryDetails.name,
+                                    fontSize: 17.sp(context),
+                                    color: Colors.black,
+
+                                    fontWeight: FontWeight.w300,
+                                  ),
                                 ),
 
                                 PopupMenuButton<String>(
@@ -130,7 +136,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
                                     maxWidth: context.screenWidth * (context.isMobile ? 1 : 2),
                                   ),
-
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                                   padding: EdgeInsetsDirectional.zero,
                                   icon: (categoryDetails.isDefault) ? const Icon(Icons.more_vert, color: Colors.grey) : null,
                                   onSelected: (value) {
@@ -232,7 +238,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     fontWeight: FontWeight.bold,
                     fontSize: 20.sp(context),
                   ),
-                  content: CustomTextView(text: context.tr('deleteCategoryMsgDialogueKey'), softWrap: true, maxLines: 3),
+                  content: CustomTextView(text: context.tr('deleteCategoryMsgDialogueKey'), maxLines: 3),
                   actions: [
                     BlocConsumer<DeleteCategoryCubit, DeleteCategoryState>(
                       listener: (context, state) {

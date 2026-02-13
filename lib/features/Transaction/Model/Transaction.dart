@@ -162,10 +162,19 @@ extension TransactionFiltering on List<Transaction> {
   }
 
   // Sort Descending
+  // List<Transaction> sortByDate() {
+  //   // We create a copy so we don't mutate the original list
+  //   return [...this]..sort((a, b) {
+  //     return b.date.split('.').reversed.join().compareTo(a.date.split('.').reversed.join());
+  //   });
+  // }
+
   List<Transaction> sortByDate() {
-    // We create a copy so we don't mutate the original list
     return [...this]..sort((a, b) {
-      return b.date.split('.').reversed.join().compareTo(a.date.split('.').reversed.join());
+      final dateA = DateFormat('dd.MM.yyyy').parse(a.date);
+      final dateB = DateFormat('dd.MM.yyyy').parse(b.date);
+
+      return dateB.compareTo(dateA); // newest first
     });
   }
 

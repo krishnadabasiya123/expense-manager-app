@@ -67,9 +67,9 @@ class GetPartyCubit extends Cubit<GetPartyState> {
 
   Future<void> addPartyLocally(Party party) async {
     if (state is GetPartySuccess) {
-      final oldData = (state as GetPartySuccess).party;
-      final newData = [party, ...oldData];
-      emit(GetPartySuccess(newData));
+      final currentState = state as GetPartySuccess;
+      final updatedList = List<Party>.from(currentState.party)..insert(currentState.party.length, party);
+      emit(GetPartySuccess(updatedList));
     }
   }
 
@@ -150,7 +150,7 @@ class GetPartyCubit extends Cubit<GetPartyState> {
     if (state is GetPartySuccess) {
       final party = (state as GetPartySuccess).party;
 
-      final partyTransaction = party.where((p) => p.id == partyId).first.transaction ?? [];
+      final partyTransaction = party.where((p) => p.id == partyId).first.transaction;
 
       try {
         final dateFormat = DateFormat('dd.MM.yyyy');
@@ -365,6 +365,33 @@ class GetPartyCubit extends Cubit<GetPartyState> {
           emit(GetPartySuccess(transactions));
         }
       }
+    }
+  }
+
+  Future<void> updateAccountIdInPartyTransactionWhenMoveTransaction({
+    required String fromAccountId,
+    required String toAccountId,
+  }) async {
+    await partyLocalData.updateAccountIdWhenMoveTransaction(
+      fromAccountId: fromAccountId,
+      toAccountId: toAccountId,
+    );
+
+    if (state is GetPartySuccess) {
+      final parties = (state as GetPartySuccess).party;
+
+      final updatedParties = parties.map((party) {
+        final updatedList = party.transaction.map((tx) {
+          if (tx.accountId == fromAccountId) {
+            return tx.copyWith(accountId: toAccountId);
+          }
+          return tx;
+        }).toList();
+
+        return party.copyWith(transaction: updatedList);
+      }).toList();
+
+      emit(GetPartySuccess(updatedParties));
     }
   }
 }

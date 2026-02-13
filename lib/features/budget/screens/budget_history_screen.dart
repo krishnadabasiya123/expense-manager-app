@@ -65,21 +65,18 @@ class _BudgetHistoryScreenState extends State<BudgetHistoryScreen> {
                     child: _categorySection(
                       title: categoryName,
                       total: total.formatAmt(),
-                      icon: Icons.music_note,
                       context: context,
                       children: [
                         ListView.separated(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-
                           itemBuilder: (context, index) {
                             final item = transaction[index];
                             final type = item.type;
                             final subtitle = item.title;
                             final accountName = context.read<GetAccountCubit>().getAccountName(id: item.accountId);
                             final amount = item.amount;
-                            final isIncome = type == TransactionType.INCOME;
-                            final isExpense = type == TransactionType.EXPENSE;
+
                             final date = UiUtils.parseDate(item.date);
                             return Container(
                               padding: const EdgeInsetsDirectional.all(10),
@@ -89,31 +86,29 @@ class _BudgetHistoryScreenState extends State<BudgetHistoryScreen> {
                                     height: 30.sp(context),
                                     width: 30.sp(context),
                                     decoration: BoxDecoration(
-                                      color: isExpense ? context.colorScheme.expenseColor.withValues(alpha: 0.09) : context.colorScheme.incomeColor.withValues(alpha: 0.09),
+                                      color: type.color!.withValues(alpha: 0.09),
                                       shape: BoxShape.circle,
                                     ),
+
                                     child: Icon(
-                                      isExpense ? Icons.arrow_upward : Icons.arrow_downward,
-
-                                      color: isExpense ? context.colorScheme.expenseColor : context.colorScheme.incomeColor,
-
+                                      type.icon,
+                                      color: type.color,
                                       size: 20.sp(context),
                                     ),
                                   ),
 
-                                  SizedBox(width: context.width * 0.03),
+                                  SizedBox(width: context.width * 0.02),
 
                                   Expanded(
+                                    flex: 2,
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
-                                      mainAxisAlignment: .center,
                                       children: [
                                         CustomTextView(
                                           text: UiUtils.covertInBuiltDate(date, context),
                                           fontWeight: FontWeight.bold,
                                           color: Colors.black,
                                           fontSize: context.isTablet ? 18.sp(context) : 15.sp(context),
-                                          maxLines: 2,
                                         ),
 
                                         if (subtitle.isNotEmpty) ...[
@@ -127,26 +122,38 @@ class _BudgetHistoryScreenState extends State<BudgetHistoryScreen> {
                                     ),
                                   ),
 
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-
-                                    children: [
-                                      Row(
-                                        children: [
-                                          if (item.recurringId.isNotEmpty) ...[
-                                            Icon(Icons.repeat, color: Colors.black, size: 15.sp(context)),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          children: [
+                                            if (item.recurringId.isNotEmpty) ...[
+                                              QImage(
+                                                imageUrl: AppImages.repeatIcon,
+                                                fit: BoxFit.contain,
+                                                height: 12.sp(context),
+                                              ),
+                                              const SizedBox(width: 4),
+                                            ],
+                                            CustomTextView(
+                                              text: amount.formatAmt(),
+                                              fontWeight: FontWeight.bold,
+                                              color: type.color,
+                                              textAlign: TextAlign.end,
+                                            ),
                                           ],
-                                          SizedBox(width: context.width * 0.02),
-                                          CustomTextView(
-                                            text: amount.formatAmt(),
-                                            fontWeight: FontWeight.bold,
-                                            color: isIncome ? context.colorScheme.incomeColor : context.colorScheme.expenseColor,
-                                          ),
-                                        ],
-                                      ),
+                                        ),
 
-                                      CustomTextView(text: accountName, fontSize: 14.sp(context), color: Colors.grey.shade600),
-                                    ],
+                                        CustomTextView(
+                                          text: accountName,
+                                          fontSize: 14.sp(context),
+                                          color: Colors.grey.shade600,
+                                          textAlign: TextAlign.end,
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
@@ -172,7 +179,6 @@ class _BudgetHistoryScreenState extends State<BudgetHistoryScreen> {
 Widget _categorySection({
   required String title,
   required String total,
-  required IconData icon,
   required List<Widget> children,
   required BuildContext context,
 }) {
@@ -186,14 +192,18 @@ Widget _categorySection({
           borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: .spaceEvenly,
           children: [
-            Row(
-              children: [
-                CustomTextView(text: title.toUpperCase(), fontSize: 13.sp(context), fontWeight: FontWeight.bold),
-              ],
+            Expanded(
+              child: CustomTextView(text: title, fontSize: 13.sp(context), fontWeight: FontWeight.bold),
             ),
-            CustomTextView(text: total, fontSize: 13.sp(context), fontWeight: FontWeight.bold),
+            const SizedBox(width: 10),
+            CustomTextView(
+              text: '${context.symbol}$total',
+              fontSize: 13.sp(context),
+              fontWeight: FontWeight.bold,
+              textAlign: TextAlign.end,
+            ),
           ],
         ),
       ),

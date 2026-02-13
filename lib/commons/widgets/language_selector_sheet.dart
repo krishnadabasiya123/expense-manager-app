@@ -1,4 +1,3 @@
-
 import 'package:expenseapp/commons/models/Language.dart';
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/features/localization/auth_localization_cubit.dart';
@@ -32,7 +31,7 @@ class _LanguageSelectorWidget extends StatelessWidget {
         builder: (context, state) {
           final textStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: 18.sp(context), color: Theme.of(context).colorScheme.onTertiary);
 
-          var currLangId = state.language.languageCode;
+          final currLangId = state.language.languageCode;
 
           return Padding(
             padding: EdgeInsetsDirectional.symmetric(horizontal: size.width * UiUtils.hzMarginPct),
@@ -40,42 +39,51 @@ class _LanguageSelectorWidget extends StatelessWidget {
               children: [
                 CustomTextView(text: context.tr('selectLanguageKey'), fontWeight: FontWeight.w800, fontSize: 18.sp(context), color: colorScheme.onTertiary),
                 const Divider(),
+
                 Expanded(
                   child: Container(
                     margin: EdgeInsetsDirectional.zero,
-                    constraints: BoxConstraints(minHeight: size.height * .2, maxHeight: size.height * .4),
-                    child: ListView.separated(
-                      itemBuilder: (_, i) {
-                        final supportedLanguage = supportedLocales[i];
-                        final languageId = supportedLanguage;
-                        final languageName = languageModels[supportedLanguage]!.name;
-                        final colorScheme = Theme.of(context).colorScheme;
-                        return Container(
-                          decoration: BoxDecoration(
-                            color: currLangId == languageId ? Theme.of(context).primaryColor : colorScheme.onTertiary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: RadioListTile(
-                            toggleable: true,
-                            activeColor: Colors.white,
-                            value: languageId,
-                            title: CustomTextView(
-                              text: languageName,
-                              color: currLangId == languageId ? Colors.white : colorScheme.onTertiary,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16.sp(context),
-                            ),
-                            groupValue: currLangId,
-                            onChanged: (value) {
-                              if (value == null) return;
-                              currLangId = value;
-                              context.read<AppLocalizationCubit>().changeLanguage(value);
-                            },
-                          ),
-                        );
+                    constraints: BoxConstraints(
+                      minHeight: size.height * .2,
+                      maxHeight: size.height * .4,
+                    ),
+                    child: RadioGroup<String>(
+                      groupValue: currLangId,
+                      onChanged: (value) {
+                        if (value == null) return;
+                        context.read<AppLocalizationCubit>().changeLanguage(value);
                       },
-                      separatorBuilder: (_, i) => const SizedBox(height: 12),
-                      itemCount: supportedLocales.length,
+                      child: ListView.separated(
+                        itemBuilder: (context, i) {
+                          final languageId = supportedLocales[i];
+                          final languageName = languageModels[languageId]!.name;
+                          final colorScheme = Theme.of(context).colorScheme;
+                          final isSelected = currLangId == languageId;
+
+                          return Container(
+                            decoration: BoxDecoration(
+                              color: isSelected ? Theme.of(context).primaryColor : colorScheme.onTertiary.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: RadioListTile<String>(
+                              value: languageId,
+                              toggleable: true,
+                              activeColor: Colors.white,
+                              title: CustomTextView(
+                                text: languageName,
+                                color: isSelected ? Colors.white : colorScheme.onTertiary,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16.sp(context),
+                                overflow: TextOverflow.ellipsis,
+                                softWrap: true,
+                                maxLines: 2,
+                              ),
+                            ),
+                          );
+                        },
+                        separatorBuilder: (_, i) => const SizedBox(height: 12),
+                        itemCount: supportedLocales.length,
+                      ),
                     ),
                   ),
                 ),

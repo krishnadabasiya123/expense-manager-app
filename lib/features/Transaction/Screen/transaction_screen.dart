@@ -27,7 +27,6 @@ class _TransactionScreenState extends State<TransactionScreen> {
   void initState() {
     _focusedDay = DateTime.now();
     searchController.addListener(_onSearch);
-
     super.initState();
   }
 
@@ -38,8 +37,8 @@ class _TransactionScreenState extends State<TransactionScreen> {
     super.dispose();
   }
 
-  List<Map<String, dynamic>> getTransactionByFilterDate({String? searchText, DateTime? date, TransactionType? seelectedTab}) {
-    return context.read<GetTransactionCubit>().getTransactionByFilterDate(date: _focusedDay, selectedTab: selectedTab.value, searchText: searchText ?? '');
+  List<Map<String, dynamic>> getTransactionByFilterDate({String searchText = '', DateTime? date, TransactionType? seelectedTab}) {
+    return context.read<GetTransactionCubit>().getTransactionByFilterDate(date: _focusedDay, selectedTab: selectedTab.value, searchText: searchText);
   }
 
   void _onSearch() {
@@ -159,30 +158,46 @@ class _TransactionScreenState extends State<TransactionScreen> {
                         builder: (context, state) {
                           final totalExpense = context.read<GetTransactionCubit>().getTotalExpenseFilterByMonth(_focusedDay);
                           final totalIncome = context.read<GetTransactionCubit>().getTotalIncomeFilterByMonth(_focusedDay);
-                          final totalBalance = totalExpense - totalIncome;
+
+                          final totalBalance = totalIncome - totalExpense;
                           return Column(
                             children: [
-                              CustomTextView(text: context.tr('totalBalanceKey'), fontSize: 16.sp(context), color: colorScheme.surface),
-                              CustomTextView(text: '${context.symbol} ${totalBalance.formatAmt()}', fontSize: 22.sp(context), color: Colors.white, fontWeight: FontWeight.bold),
+                              CustomTextView(
+                                text: context.tr('totalBalanceKey'),
+                                fontSize: 16.sp(context),
+                                color: colorScheme.surface,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              const SizedBox(height: 2),
+                              CustomTextView(
+                                text: '${context.symbol} ${totalBalance.formatAmt()}',
+                                fontSize: 14.sp(context),
+                                color: Colors.white,
+
+                                textAlign: TextAlign.center,
+                              ),
 
                               Divider(color: Colors.white.withValues(alpha: 0.35), thickness: 0.8),
 
                               Row(
+                                crossAxisAlignment: .start,
                                 children: [
                                   Expanded(
                                     child: _buildAmountTile(
                                       icon: Icons.arrow_downward_rounded,
-                                      label: context.tr('incomeKeyC'),
+                                      label: context.tr('incomeKey'),
                                       amount: '+ ${context.symbol}${totalIncome.formatAmt()}',
                                       color: context.colorScheme.incomeColor,
                                     ),
                                   ),
 
-                                  _buildAmountTile(
-                                    icon: Icons.arrow_upward_rounded,
-                                    label: context.tr('expenseKeyC'),
-                                    amount: '- ${context.symbol}${totalExpense.formatAmt()}',
-                                    color: context.colorScheme.expenseColor,
+                                  Expanded(
+                                    child: _buildAmountTile(
+                                      icon: Icons.arrow_upward_rounded,
+                                      label: context.tr('expenseKey'),
+                                      amount: '- ${context.symbol}${totalExpense.formatAmt()}',
+                                      color: context.colorScheme.expenseColor,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -196,26 +211,28 @@ class _TransactionScreenState extends State<TransactionScreen> {
               else
                 BlocBuilder<GetTransactionCubit, GetTransactionState>(
                   builder: (context, state) {
-                    final expense = context.read<GetTransactionCubit>().getTotalExpense().formatAmt();
+                    final expense = context.read<GetTransactionCubit>().getTotalExpense();
 
-                    final income = context.read<GetTransactionCubit>().getTotalIncome().formatAmt();
+                    final income = context.read<GetTransactionCubit>().getTotalIncome();
 
-                    final balance = context.read<GetTransactionCubit>().getTotalBalance().formatAmt();
+                    final balance = income - expense;
 
-                    return Row(
-                      children: [
-                        Expanded(
-                          child: _buildCard(text: context.tr('expenseKey'), amount: expense, colorScheme: colorScheme),
-                        ),
-                        SizedBox(width: context.width * 0.02),
-                        Expanded(
-                          child: _buildCard(text: context.tr('incomeKey'), amount: income, colorScheme: colorScheme),
-                        ),
-                        SizedBox(width: context.width * 0.02),
-                        Expanded(
-                          child: _buildCard(text: context.tr('balanceKey'), amount: balance, colorScheme: colorScheme),
-                        ),
-                      ],
+                    return IntrinsicHeight(
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: _buildCard(text: context.tr('expenseKey'), amount: expense.formatAmt(), colorScheme: colorScheme),
+                          ),
+                          SizedBox(width: context.width * 0.02),
+                          Expanded(
+                            child: _buildCard(text: context.tr('incomeKey'), amount: income.formatAmt(), colorScheme: colorScheme),
+                          ),
+                          SizedBox(width: context.width * 0.02),
+                          Expanded(
+                            child: _buildCard(text: context.tr('balanceKey'), amount: balance.formatAmt(), colorScheme: colorScheme),
+                          ),
+                        ],
+                      ),
                     );
                   },
                 ),
@@ -316,6 +333,8 @@ class _TransactionScreenState extends State<TransactionScreen> {
 
   Widget _buildAmountTile({required IconData icon, required String label, required String amount, required Color color}) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+
       children: [
         Container(
           padding: const EdgeInsetsDirectional.all(6),
@@ -323,22 +342,26 @@ class _TransactionScreenState extends State<TransactionScreen> {
           child: Icon(icon, size: 16.sp(context), color: color),
         ),
         const SizedBox(width: 8),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CustomTextView(
-              text: label,
-              color: Colors.white70,
-              fontSize: 12.sp(context),
-            ),
-            const SizedBox(height: 2),
-            CustomTextView(
-              text: amount,
-              color: color,
-              fontSize: 14.sp(context),
-              fontWeight: FontWeight.w600,
-            ),
-          ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CustomTextView(
+                text: label,
+                color: Colors.white,
+                fontSize: 15.sp(context),
+                fontWeight: FontWeight.bold,
+              ),
+              const SizedBox(height: 5),
+              CustomTextView(
+                text: amount,
+                //  text: '6t578467584687564756456748657845784t5784587465847656',
+                color: color,
+                fontSize: 14.sp(context),
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -353,11 +376,16 @@ class _TransactionScreenState extends State<TransactionScreen> {
       child: Padding(
         padding: const EdgeInsetsDirectional.all(15),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          //mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CustomTextView(text: text, fontSize: 20.sp(context), color: colorScheme.surface, fontWeight: FontWeight.bold),
-
-            CustomTextView(text: '${context.symbol} $amount', fontSize: 18.sp(context), color: colorScheme.surface),
+            CustomTextView(text: text, fontSize: 16.sp(context), color: colorScheme.surface, fontWeight: FontWeight.bold),
+            const SizedBox(height: 5),
+            CustomTextView(
+              text: '${context.symbol} $amount',
+              fontSize: 14.sp(context),
+              color: colorScheme.surface,
+              textAlign: TextAlign.center,
+            ),
           ],
         ),
       ),

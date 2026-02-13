@@ -92,22 +92,15 @@ class TransactionDetailsState extends State<TransactionDetails> {
                               width: 40.sp(context),
                               decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
                               child: Icon(
-                                isExpense
-                                    ? Icons.arrow_upward
-                                    : isIncome
-                                    ? Icons.arrow_downward
-                                    : Icons.transform_outlined,
+                                type.icon,
 
-                                color: isExpense
-                                    ? context.colorScheme.expenseColor
-                                    : isIncome
-                                    ? Colors.green
-                                    : Colors.blue,
+                                color: type.color,
                                 size: 20.sp(context),
                               ),
                             ),
                             SizedBox(width: context.width * 0.02),
                             Expanded(
+                              flex: 2,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -115,10 +108,8 @@ class TransactionDetailsState extends State<TransactionDetails> {
                                     if (!isTransfer) ...[
                                       CustomTextView(
                                         text: transaction.title,
-                                        fontSize: 18.sp(context),
+                                        fontSize: 16.sp(context),
                                         fontWeight: FontWeight.w600,
-                                        softWrap: true,
-                                        maxLines: 2,
                                       ),
                                     ],
                                   ],
@@ -128,39 +119,38 @@ class TransactionDetailsState extends State<TransactionDetails> {
                                         text: '${context.tr('transferFromLbl')} $accountFromName ${context.tr('transferToLbl')} $accountToName',
                                         fontSize: 16.sp(context),
                                         fontWeight: FontWeight.w600,
-                                        softWrap: true,
-                                        maxLines: 2,
                                       ),
                                     ] else ...[
                                       CustomTextView(
                                         text: context.tr('transferTransactionKey'),
                                         fontSize: 16.sp(context),
                                         fontWeight: FontWeight.w600,
-                                        softWrap: true,
-                                        maxLines: 2,
                                       ),
                                     ],
                                   ],
 
-                                  CustomTextView(text: UiUtils.convertCustomDate(transaction.date), fontSize: 13.sp(context), color: Colors.grey.shade600),
+                                  CustomTextView(
+                                    text: UiUtils.convertCustomDate(transaction.date),
+                                    fontSize: 13.sp(context),
+                                    color: Colors.grey.shade600,
+                                  ),
                                 ],
                               ),
                             ),
-                            const SizedBox(width: 12),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                CustomTextView(
-                                  text: transaction.amount.formatAmt(),
-                                  fontSize: 15.sp(context),
-                                  fontWeight: FontWeight.w600,
-                                  color: isIncome
-                                      ? Colors.green
-                                      : isTransfer
-                                      ? Colors.blue
-                                      : context.colorScheme.expenseColor,
-                                ),
-                              ],
+                            SizedBox(width: context.width * 0.03),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  CustomTextView(
+                                    text: '${context.symbol}${transaction.amount.formatAmt()}',
+                                    fontSize: 15.sp(context),
+                                    fontWeight: FontWeight.w600,
+                                    color: type.color,
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -212,7 +202,7 @@ class TransactionDetailsState extends State<TransactionDetails> {
                       onTap: () {
                         Navigator.pop(context);
                         if (transaction.type == TransactionType.TRANSFER) {
-                          if (widget.transaction.accountFromId.isEmpty || widget.transaction.accountToId.isEmpty) {
+                          if (widget.transaction.accountFromId == widget.transaction.accountToId) {
                             showAccountNotFoundDialog(context);
                             return;
                           }
@@ -300,7 +290,7 @@ class TransactionDetailsState extends State<TransactionDetails> {
                 fontSize: 20.sp(context),
                 textAlign: TextAlign.center,
               ),
-              content: CustomTextView(text: context.tr('accountNoLongerExistsKey'), softWrap: true, maxLines: 5),
+              content: CustomTextView(text: context.tr('accountNoLongerExistsKey')),
               actions: [
                 CustomRoundedButton(
                   height: context.height * 0.05,
@@ -337,7 +327,11 @@ class TransactionDetailsState extends State<TransactionDetails> {
             crossAxisAlignment: .start,
             children: [
               CustomTextView(text: title, fontSize: 15.sp(context), fontWeight: FontWeight.bold, color: Colors.black),
-              CustomTextView(text: value, fontSize: 13.sp(context), color: Colors.black, maxLines: 3, softWrap: true),
+              CustomTextView(
+                text: value,
+                fontSize: 13.sp(context),
+                color: Colors.black,
+              ),
             ],
           ),
         ),
@@ -363,7 +357,9 @@ class TransactionDetailsState extends State<TransactionDetails> {
                 child: AlertDialog(
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   title: CustomTextView(text: context.tr('deleteAccountTitleKey'), fontWeight: FontWeight.bold, fontSize: 18.sp(context)),
-                  content: CustomTextView(text: context.tr('deleteTransactionDialogMsg'), softWrap: true, maxLines: 3),
+                  content: CustomTextView(
+                    text: context.tr('deleteTransactionDialogMsg'),
+                  ),
                   actions: [
                     BlocConsumer<DeleteTransactionsCubit, DeleteTransactionsState>(
                       listener: (context, state) {

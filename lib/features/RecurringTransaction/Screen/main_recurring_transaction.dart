@@ -180,7 +180,8 @@ class RecurringCard extends StatelessWidget {
                         fontSize: 17.sp(context),
                         fontWeight: FontWeight.bold,
                         softWrap: true,
-                        maxLines: 3,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                     // Text(title!, style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -190,12 +191,14 @@ class RecurringCard extends StatelessWidget {
                       text: amount!,
                       fontSize: 14.sp(context),
                       color: type!.color,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: true,
+                      maxLines: 2,
                     ),
-
-                    //Text(amount!, style: const TextStyle(color: context.colorScheme.expenseColor, fontSize: 12)),
                   ],
                 ),
               ),
+              SizedBox(width: context.width * 0.02),
 
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -212,15 +215,21 @@ class RecurringCard extends StatelessWidget {
                         child: CustomTextView(text: UiUtils.getRecurringFrequencyString(frequency!), fontSize: 12.sp(context), fontWeight: FontWeight.bold),
                       ),
                       PopupMenuButton(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         itemBuilder: (context) {
                           final items = <PopupMenuEntry<String>>[
                             _buildPopupMenu(
                               value: context.tr('editKey'),
                               text: context.tr('editKey'),
+                              context: context,
+                              icon: Icons.edit_rounded,
                             ),
                             _buildPopupMenu(
                               value: context.tr('deleteKey'),
                               text: context.tr('deleteKey'),
+                              context: context,
+                              icon: Icons.delete_outline_rounded,
+                              color: Colors.red,
                             ),
                           ];
                           return items;
@@ -255,12 +264,20 @@ class RecurringCard extends StatelessWidget {
     );
   }
 
-  PopupMenuItem<String> _buildPopupMenu({required String value, required String text}) {
+  PopupMenuItem<String> _buildPopupMenu({required String value, required String text, required BuildContext context, required IconData icon, Color? color}) {
     return PopupMenuItem(
       value: value,
-      child: Text(
-        text,
-        style: const TextStyle(color: Colors.black),
+      child: Row(
+        children: [
+          Expanded(
+            child: CustomTextView(text: text, fontSize: 15.sp(context)),
+          ),
+          Icon(
+            icon,
+            size: 18.sp(context),
+            color: color ?? Colors.black,
+          ),
+        ],
       ),
     );
   }

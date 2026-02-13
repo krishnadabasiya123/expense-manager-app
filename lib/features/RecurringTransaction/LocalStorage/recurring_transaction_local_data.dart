@@ -132,4 +132,25 @@ class RecurringTransactionLocalData {
       await box.delete(key);
     }
   }
+
+  Future<void> updateRecurringAccountIdWhenMoveTransaction({
+    required String fromAccountId,
+    required String toAccountId,
+  }) async {
+    for (final key in box.keys) {
+      final transaction = box.get(key);
+      if (transaction == null) continue;
+      var newAccountId = transaction.accountId;
+
+      if (transaction.accountId == fromAccountId) {
+        newAccountId = toAccountId;
+      }
+
+      final updatedTransaction = transaction.copyWith(
+        accountId: newAccountId,
+      );
+
+      await box.put(key, updatedTransaction);
+    }
+  }
 }

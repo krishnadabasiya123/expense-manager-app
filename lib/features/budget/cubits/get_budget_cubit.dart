@@ -42,9 +42,9 @@ class GetBudgetCubit extends Cubit<GetBudgetState> {
   Future<void> addBudgetLocally(Budget budget) async {
     await budgetLocalStorage.saveBudget(budget);
     if (state is GetBudgetSuccess) {
-      final bugdetList = (state as GetBudgetSuccess).budget;
-      final newBudgetList = [budget, ...bugdetList];
-      emit(GetBudgetSuccess(newBudgetList));
+      final currentState = state as GetBudgetSuccess;
+      final updatedList = List<Budget>.from(currentState.budget)..insert(currentState.budget.length, budget);
+      emit(GetBudgetSuccess(updatedList));
     }
   }
 

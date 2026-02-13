@@ -81,4 +81,38 @@ class PartyTransaction extends HiveObject {
       'partyName': partyName,
     };
   }
+
+  PartyTransaction copyWith({
+    String? id,
+    String? date,
+    TransactionType? type,
+    double? amount,
+    String? description,
+    String? category,
+    bool? isMainTransaction,
+    String? accountId,
+    List<ImageData>? image,
+    String? createdAt,
+    String? updatedAt,
+    String? mainTransactionId,
+    String? partyId,
+    String? partyName,
+  }) {
+    return PartyTransaction(
+      id: id ?? this.id,
+      date: date ?? this.date,
+      type: type ?? this.type,
+      amount: amount ?? this.amount,
+      description: description ?? this.description,
+      category: category ?? this.category,
+      isMainTransaction: isMainTransaction ?? this.isMainTransaction,
+      accountId: accountId ?? this.accountId,
+      image: image ?? this.image,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      mainTransactionId: mainTransactionId ?? this.mainTransactionId,
+      partyId: partyId ?? this.partyId,
+      partyName: partyName ?? this.partyName,
+    );
+  } 
 }

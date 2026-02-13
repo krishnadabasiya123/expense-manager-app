@@ -300,7 +300,7 @@ class UiUtils {
     final isToday = parsedDate.year == now.year && parsedDate.month == now.month && parsedDate.day == now.day;
 
     if (isToday) {
-      return 'Today, ${DateFormat('MMMM yyyy').format(parsedDate)}';
+      return 'Today';
     }
 
     return DateFormat('MMMM d, yyyy').format(parsedDate);

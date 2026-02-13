@@ -5,6 +5,7 @@ import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/features/Account/Cubits/delete_account_cubit.dart';
 import 'package:expenseapp/features/Account/Screen/show_account_create_screen.dart';
 import 'package:expenseapp/features/Account/Widgets/handle_account_delete_sucess.dart';
+import 'package:expenseapp/features/RecurringTransaction/Cubit/get_recurring_transaction_cubit.dart';
 import 'package:expenseapp/features/Restore/Cubit/get_soft_delete_party_transaction_cubit.dart';
 import 'package:expenseapp/features/Restore/Cubit/get_soft_delete_transactions_cubit.dart';
 import 'package:flutter/cupertino.dart';
@@ -79,9 +80,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                     final totalExpense = context.read<GetTransactionCubit>().getTotalExpenseByAccountId(accountId: account.id);
                                     final totalTransfer = context.read<GetTransactionCubit>().getTotalTransferAmount(accountId: account.id);
                                     final totalActualBalance = account.amount + totalIncome - totalExpense + totalTransfer;
-                                    log('transaction fetchTransaction  total balance ${totalIncome - totalExpense}');
-                                    log('transaction fetchTransaction  total totalTransfer $totalTransfer');
-                                    log('transaction fetchTransaction  total ActualBalance $totalActualBalance');
+
                                     return Container(
                                       margin: const EdgeInsetsDirectional.only(bottom: 15),
                                       height: context.height * 0.25,
@@ -112,23 +111,22 @@ class _AccountScreenState extends State<AccountScreen> {
                                                       Icon(Icons.wallet, color: Theme.of(context).colorScheme.onSecondary, size: 25.sp(context)),
                                                       const SizedBox(width: 10),
 
-                                                      // Expanded(
-                                                      //   child: UiUtils.marqueeText(
-                                                      //     text: account.name,
-                                                      //     textStyle: TextStyle(fontSize: 17.sp(context)),
-                                                      //     width: context.width * 0.5,
-                                                      //   ),
-                                                      // ),
                                                       Expanded(
-                                                        child: CustomTextView(
+                                                        child: UiUtils.marqueeText(
                                                           text: account.name,
-                                                          fontSize: 17.sp(context),
-                                                          color: Theme.of(context).colorScheme.onSecondary,
-                                                          maxLines: 5,
-                                                          softWrap: true,
+                                                          textStyle: TextStyle(fontSize: 17.sp(context)),
+                                                          width: context.width * 0.5,
                                                         ),
                                                       ),
 
+                                                      // Expanded(
+                                                      //   child: CustomTextView(
+                                                      //     text: account.name,
+                                                      //     fontSize: 17.sp(context),
+                                                      //     color: Theme.of(context).colorScheme.onSecondary,
+                                                      //     overflow: TextOverflow.ellipsis,
+                                                      //   ),
+                                                      // ),
                                                       GestureDetector(
                                                         onTap: () {
                                                           showCreateAccountSheet(context, isEdit: true, account: account);
@@ -174,12 +172,18 @@ class _AccountScreenState extends State<AccountScreen> {
                                                   ),
                                                   Row(
                                                     mainAxisAlignment: .spaceEvenly,
+                                                    // crossAxisAlignment: .start,
                                                     children: [
                                                       _buildInitialBalanceCardTextAndAmonut(
                                                         text: context.tr('initialBalanceKey'),
                                                         amount: account.amount.formatAmt(),
                                                       ),
-                                                      Container(width: 1.5, height: context.height * 0.07, color: colorScheme.surfaceDim),
+                                                      SizedBox(width: context.width * 0.02),
+                                                      Center(
+                                                        child: Container(width: 1.5, height: context.height * .07, color: colorScheme.surfaceDim),
+                                                      ),
+                                                      SizedBox(width: context.width * 0.02),
+
                                                       _buildInitialBalanceCardTextAndAmonut(
                                                         text: context.tr('actualBalanceKey'),
                                                         amount: totalActualBalance.formatAmt(),
@@ -192,12 +196,15 @@ class _AccountScreenState extends State<AccountScreen> {
                                           ),
                                           Container(
                                             //  height: context.height * 0.09,
-                                            padding: const EdgeInsetsDirectional.only(top: 6, bottom: 6),
+                                            padding: const EdgeInsetsDirectional.all(6),
                                             child: Row(
                                               mainAxisAlignment: .spaceEvenly,
                                               children: [
                                                 _buildCardTextAndAmonut(text: context.tr('totalIncomeKey'), amount: totalIncome.formatAmt(), type: TransactionType.INCOME),
+                                                SizedBox(width: context.width * 0.02),
                                                 Container(width: 1.5, height: context.height * 0.07, color: colorScheme.surface),
+                                                SizedBox(width: context.width * 0.02),
+
                                                 _buildCardTextAndAmonut(text: context.tr('totalExpenseKey'), amount: totalExpense.formatAmt(), type: TransactionType.EXPENSE),
                                               ],
                                             ),
@@ -507,54 +514,69 @@ class _AccountScreenState extends State<AccountScreen> {
                       builder: (context, state) {
                         if (state is GetAccountSuccess) {
                           final accountList = state.account;
-                          return ListView.builder(
-                            padding: EdgeInsets.zero,
-                            shrinkWrap: true,
-                            itemCount: accountList.length,
-                            itemBuilder: (context, index) {
-                              final account = accountList[index];
-                              if (account.id != accountToDelete.id && account.id != '-2') {
+                          return RadioGroup<String>(
+                            groupValue: selectedAccountId,
+                            onChanged: (value) {
+                              if (value == null) return;
+
+                              context.read<GetTransactionCubit>().moveTransactionsLocally(
+                                fromAccountId: accountToDelete.id,
+                                toAccountId: value,
+                              );
+
+                              context.read<GetRecurringTransactionCubit>().updateAccountIdInRecurringWhenMoveTransaction(fromAccountId: accountToDelete.id, toAccountId: value);
+
+                              context.read<GetPartyCubit>().updateAccountIdInPartyTransactionWhenMoveTransaction(fromAccountId: accountToDelete.id, toAccountId: value);
+                              context.read<GetAccountCubit>().deleteAccountLocally(account: accountToDelete);
+
+                              Navigator.of(context).pop();
+                            },
+                            child: ListView.builder(
+                              padding: EdgeInsets.zero,
+                              shrinkWrap: true,
+                              itemCount: accountList.length,
+                              itemBuilder: (context, index) {
+                                final account = accountList[index];
+
+                                if (account.id == accountToDelete.id || account.id == '-2') {
+                                  return const SizedBox.shrink();
+                                }
+
                                 return Builder(
                                   builder: (context) {
-                                    final totalIncome = context.read<GetTransactionCubit>().getTotalIncomeByAccountId(accountId: account.id);
-                                    final totalExpense = context.read<GetTransactionCubit>().getTotalExpenseByAccountId(accountId: account.id);
-                                    final totalTransfer = context.read<GetTransactionCubit>().getTotalTransferAmount(accountId: account.id);
-                                    final totalActualBalance = account.amount + totalIncome - totalExpense + totalTransfer;
+                                    final cubit = context.read<GetTransactionCubit>();
+                                    final totalActualBalance =
+                                        account.amount +
+                                        cubit.getTotalIncomeByAccountId(accountId: account.id) -
+                                        cubit.getTotalExpenseByAccountId(accountId: account.id) +
+                                        cubit.getTotalTransferAmount(accountId: account.id);
+
                                     return Row(
                                       children: [
                                         Expanded(
                                           child: RadioListTile<String>(
                                             contentPadding: EdgeInsets.zero,
                                             dense: true,
-                                            title: Text(account.name),
+                                            title: CustomTextView(text: account.name, fontSize: 15.sp(context), color: Colors.black, overflow: TextOverflow.ellipsis),
                                             value: account.id,
-                                            groupValue: selectedAccountId,
-                                            onChanged: (value) {
-                                              selectedAccountId = value!;
-                                              context.read<GetTransactionCubit>().moveTransactionsLocally(
-                                                fromAccountId: accountToDelete.id,
-                                                toAccountId: selectedAccountId,
-                                              );
-                                              context.read<GetAccountCubit>().deleteAccountLocally(account: accountToDelete);
-                                              // context.read<DeleteAccountCubit>().deleteAccount(account: accountToDelete);
-                                              Navigator.of(context).pop();
-                                            },
                                           ),
                                         ),
-                                        CustomTextView(
-                                          text: ' ${context.symbol}${totalActualBalance.formatAmt()}',
-                                          fontSize: 15.sp(context),
-                                          color: Colors.black,
-                                          softWrap: true,
-                                          maxLines: 3,
+                                        Expanded(
+                                          child: CustomTextView(
+                                            text: ' ${context.symbol}${totalActualBalance.formatAmt()}',
+                                            fontSize: 15.sp(context),
+                                            color: Colors.black,
+                                            softWrap: true,
+                                            overflow: TextOverflow.ellipsis,
+                                            textAlign: TextAlign.end,
+                                          ),
                                         ),
                                       ],
                                     );
                                   },
                                 );
-                              }
-                              return const SizedBox.shrink();
-                            },
+                              },
+                            ),
                           );
                         } else if (state is GetAccountFailure) {
                           return CustomErrorWidget(
@@ -578,31 +600,60 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 
   Widget _buildCardTextAndAmonut({required String text, required String amount, required TransactionType type}) {
-    final isIncome = type == TransactionType.INCOME;
-    return Column(
-      mainAxisAlignment: .spaceEvenly,
-      children: [
-        CustomTextView(text: text, fontSize: 12.sp(context), color: Theme.of(context).colorScheme.surface, fontWeight: FontWeight.w400),
+    return Expanded(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CustomTextView(
+            text: text,
+            fontSize: 12.sp(context),
+            color: Theme.of(context).colorScheme.surface,
+            fontWeight: FontWeight.w400,
+            textAlign: TextAlign.center,
+          ),
 
-        Row(
-          children: [
-            Icon(isIncome ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded, color: isIncome ? context.colorScheme.incomeColor : context.colorScheme.expenseColor, size: 17.sp(context)),
-            const SizedBox(width: 5),
-            CustomTextView(text: '${context.symbol} $amount', fontSize: 17.sp(context), color: Theme.of(context).colorScheme.surface, fontWeight: FontWeight.bold),
-          ],
-        ),
-      ],
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(type.icon, color: type.color, size: 17.sp(context)),
+              const SizedBox(width: 5),
+
+              Flexible(
+                child: CustomTextView(
+                  text: '${context.symbol} $amount',
+                  fontSize: 17.sp(context),
+                  color: Theme.of(context).colorScheme.surface,
+                  fontWeight: FontWeight.bold,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: true,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildInitialBalanceCardTextAndAmonut({required String text, required String amount}) {
-    return Column(
-      mainAxisAlignment: .spaceEvenly,
-      children: [
-        CustomTextView(text: text, fontSize: 15.sp(context), color: Colors.black, fontWeight: FontWeight.w400),
+    return Expanded(
+      child: Column(
+        mainAxisAlignment: .spaceEvenly,
 
-        CustomTextView(text: '${context.symbol} $amount', fontSize: 17.sp(context), color: Colors.black, fontWeight: FontWeight.bold),
-      ],
+        children: [
+          CustomTextView(text: text, fontSize: 15.sp(context), color: Colors.black, fontWeight: FontWeight.w400),
+
+          CustomTextView(
+            text: '${context.symbol} $amount',
+            fontSize: 17.sp(context),
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            softWrap: true,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
     );
   }
 
@@ -658,178 +709,193 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 }
 
-class AccountItem extends StatelessWidget {
-  const AccountItem({
-    required this.account,
-    required this.totalIncome,
-    required this.totalExpense,
-    super.key,
-  });
+// class AccountItem extends StatelessWidget {
+//   const AccountItem({
+//     required this.account,
+//     required this.totalIncome,
+//     required this.totalExpense,
+//     super.key,
+//   });
 
-  final Account account;
-  final double totalIncome;
-  final double totalExpense;
+//   final Account account;
+//   final double totalIncome;
+//   final double totalExpense;
 
-  @override
-  Widget build(BuildContext context) {
-    Widget buildInitialBalanceCardTextAndAmonut({required String text, required String amount}) {
-      return Column(
-        mainAxisAlignment: .spaceEvenly,
-        children: [
-          CustomTextView(text: text, fontSize: 15.sp(context), color: Colors.black, fontWeight: FontWeight.w400),
+//   @override
+//   Widget build(BuildContext context) {
+//     Widget buildInitialBalanceCardTextAndAmonut({required String text, required String amount}) {
+//       return Column(
+//         mainAxisAlignment: .spaceEvenly,
+//         children: [
+//           CustomTextView(text: text, fontSize: 15.sp(context), color: Colors.black, fontWeight: FontWeight.w400),
 
-          CustomTextView(text: '${context.symbol} $amount', fontSize: 17.sp(context), color: Colors.black, fontWeight: FontWeight.bold),
-        ],
-      );
-    }
+//           CustomTextView(text: '${context.symbol} $amount', fontSize: 17.sp(context), color: Colors.black, fontWeight: FontWeight.bold),
+//         ],
+//       );
+//     }
 
-    Widget buildCardTextAndAmonut({required String text, required String amount, required TransactionType type}) {
-      return Column(
-        mainAxisAlignment: .spaceEvenly,
-        children: [
-          CustomTextView(text: text, fontSize: 12.sp(context), color: Theme.of(context).colorScheme.surface, fontWeight: FontWeight.w400),
+//     Widget buildCardTextAndAmonut({required String text, required String amount, required TransactionType type}) {
+//       return Expanded(
+//         child: Column(
+//           mainAxisAlignment: .spaceEvenly,
+//           children: [
+//             CustomTextView(text: text, fontSize: 12.sp(context), color: Theme.of(context).colorScheme.surface, fontWeight: FontWeight.w400),
 
-          Row(
-            children: [
-              Icon(type.icon, color: type.color, size: 17.sp(context)),
-              const SizedBox(width: 5),
-              CustomTextView(text: '${context.symbol} $amount', fontSize: 17.sp(context), color: Theme.of(context).colorScheme.surface, fontWeight: FontWeight.bold),
-            ],
-          ),
-        ],
-      );
-    }
+//             Expanded(
+//               child: Row(
+//                 children: [
+//                   Icon(type.icon, color: type.color, size: 17.sp(context)),
+//                   const SizedBox(width: 5),
+//                   Expanded(
+//                     child: CustomTextView(
+//                       text: '${context.symbol} $amount',
+//                       fontSize: 17.sp(context),
+//                       color: Theme.of(context).colorScheme.surface,
+//                       fontWeight: FontWeight.bold,
+//                       // softWrap: true,
+//                       overflow: TextOverflow.ellipsis,
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ],
+//         ),
+//       );
+//     }
 
-    final colorScheme = Theme.of(context).colorScheme;
-    final totalActualBalance = totalIncome - totalExpense + account.amount;
+//     final colorScheme = Theme.of(context).colorScheme;
+//     final totalActualBalance = totalIncome - totalExpense + account.amount;
 
-    if (account.id == '-2') return const SizedBox.shrink();
+//     if (account.id == '-2') return const SizedBox.shrink();
 
-    return GestureDetector(
-      onTap: () {
-        Navigator.of(context).pushNamed(
-          Routes.accountTransaction,
-          arguments: {
-            'account': account,
-            'totalActualBalance': totalActualBalance,
-            'totalIncome': totalIncome,
-            'totalExpense': totalExpense,
-          },
-        );
-      },
-      child: Container(
-        margin: const EdgeInsetsDirectional.only(bottom: 15),
-        height: context.height * 0.25,
-        width: context.width * 0.8,
-        decoration: BoxDecoration(
-          color: colorScheme.secondary,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          children: [
-            Expanded(
-              child: Container(
-                padding: EdgeInsetsDirectional.symmetric(horizontal: context.width * 0.05, vertical: context.height * 0.01),
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color.fromARGB(255, 229, 222, 222).withValues(alpha: .2),
-                      blurRadius: 15,
-                      spreadRadius: -6,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
-                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
-                  color: Colors.white,
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(Icons.wallet, color: colorScheme.onSecondary, size: 25.sp(context)),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: UiUtils.marqueeText(
-                            text: account.name,
-                            textStyle: TextStyle(fontSize: 17.sp(context)),
-                            width: context.width * 0.5,
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            showCreateAccountSheet(context, isEdit: true, account: account);
-                          },
-                          child: Padding(
-                            padding: const EdgeInsetsDirectional.only(start: 8),
-                            child: Container(
-                              height: context.height * .03,
-                              width: context.height * .03,
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey),
-                                borderRadius: BorderRadius.circular(2),
-                              ),
-                              child: Center(child: Icon(Icons.edit, size: context.height * .017)),
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: context.width * 0.02),
-                        GestureDetector(
-                          onTap: () {
-                            // showDeleteAlertDialog(account: account, accountList: []);
-                          },
-                          child: Container(
-                            height: context.height * .03,
-                            width: context.height * .03,
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                            child: Center(
-                              child: Icon(Icons.delete, color: context.colorScheme.expenseColor, size: context.height * .017),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const CustomHorizontalDivider(
-                      padding: EdgeInsetsDirectional.only(top: 5, bottom: 5),
-                      endOpacity: 0.5,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        buildInitialBalanceCardTextAndAmonut(
-                          text: context.tr('initialBalanceKey'),
-                          amount: account.amount.formatAmt(),
-                        ),
-                        Container(width: 1.5, height: context.height * 0.07, color: colorScheme.surfaceDim),
-                        buildInitialBalanceCardTextAndAmonut(
-                          text: context.tr('actualBalanceKey'),
-                          amount: totalActualBalance.formatAmt(),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Container(
-              padding: const EdgeInsetsDirectional.only(top: 6, bottom: 6),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  buildCardTextAndAmonut(text: context.tr('totalIncomeKey'), amount: totalIncome.formatAmt(), type: TransactionType.INCOME),
-                  Container(width: 1.5, height: context.height * 0.07, color: colorScheme.surface),
-                  buildCardTextAndAmonut(text: context.tr('totalExpenseKey'), amount: totalExpense.formatAmt(), type: TransactionType.EXPENSE),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+//     return GestureDetector(
+//       onTap: () {
+//         Navigator.of(context).pushNamed(
+//           Routes.accountTransaction,
+//           arguments: {
+//             'account': account,
+//             'totalActualBalance': totalActualBalance,
+//             'totalIncome': totalIncome,
+//             'totalExpense': totalExpense,
+//           },
+//         );
+//       },
+//       child: Container(
+//         margin: const EdgeInsetsDirectional.only(bottom: 15),
+//         height: context.height * 0.25,
+//         width: context.width * 0.8,
+//         decoration: BoxDecoration(
+//           color: colorScheme.secondary,
+//           borderRadius: BorderRadius.circular(20),
+//         ),
+//         child: Column(
+//           children: [
+//             Expanded(
+//               child: Container(
+//                 padding: EdgeInsetsDirectional.symmetric(horizontal: context.width * 0.05, vertical: context.height * 0.01),
+//                 width: double.infinity,
+//                 decoration: BoxDecoration(
+//                   boxShadow: [
+//                     BoxShadow(
+//                       color: const Color.fromARGB(255, 229, 222, 222).withValues(alpha: .2),
+//                       blurRadius: 15,
+//                       spreadRadius: -6,
+//                       offset: const Offset(0, 10),
+//                     ),
+//                   ],
+//                   borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+//                   color: Colors.white,
+//                 ),
+//                 child: Column(
+//                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//                   children: [
+//                     Row(
+//                       crossAxisAlignment: CrossAxisAlignment.start,
+//                       children: [
+//                         Icon(Icons.wallet, color: colorScheme.onSecondary, size: 25.sp(context)),
+//                         const SizedBox(width: 10),
+//                         Expanded(
+//                           child: UiUtils.marqueeText(
+//                             text: account.name,
+//                             textStyle: TextStyle(fontSize: 17.sp(context)),
+//                             width: context.width * 0.5,
+//                           ),
+//                         ),
+//                         GestureDetector(
+//                           onTap: () {
+//                             showCreateAccountSheet(context, isEdit: true, account: account);
+//                           },
+//                           child: Padding(
+//                             padding: const EdgeInsetsDirectional.only(start: 8),
+//                             child: Container(
+//                               height: context.height * .03,
+//                               width: context.height * .03,
+//                               decoration: BoxDecoration(
+//                                 border: Border.all(color: Colors.grey),
+//                                 borderRadius: BorderRadius.circular(2),
+//                               ),
+//                               child: Center(child: Icon(Icons.edit, size: context.height * .017)),
+//                             ),
+//                           ),
+//                         ),
+//                         SizedBox(width: context.width * 0.02),
+//                         GestureDetector(
+//                           onTap: () {
+//                             // showDeleteAlertDialog(account: account, accountList: []);
+//                           },
+//                           child: Container(
+//                             height: context.height * .03,
+//                             width: context.height * .03,
+//                             decoration: BoxDecoration(
+//                               border: Border.all(color: Colors.grey),
+//                               borderRadius: BorderRadius.circular(2),
+//                             ),
+//                             child: Center(
+//                               child: Icon(Icons.delete, color: context.colorScheme.expenseColor, size: context.height * .017),
+//                             ),
+//                           ),
+//                         ),
+//                       ],
+//                     ),
+//                     const CustomHorizontalDivider(
+//                       padding: EdgeInsetsDirectional.only(top: 5, bottom: 5),
+//                       endOpacity: 0.5,
+//                     ),
+//                     Row(
+//                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//                       children: [
+//                         buildInitialBalanceCardTextAndAmonut(
+//                           text: context.tr('initialBalanceKey'),
+//                           amount: account.amount.formatAmt(),
+//                         ),
+//                         Container(width: 1.5, height: context.height * 0.07, color: colorScheme.surfaceDim),
+//                         buildInitialBalanceCardTextAndAmonut(
+//                           text: context.tr('actualBalanceKey'),
+//                           amount: totalActualBalance.formatAmt(),
+//                         ),
+//                       ],
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//             ),
+
+//             Row(
+//               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//               children: [
+//                 Expanded(
+//                   child: buildCardTextAndAmonut(text: context.tr('totalIncomeKey'), amount: totalIncome.formatAmt(), type: TransactionType.INCOME),
+//                 ),
+//                 Container(width: 1.5, height: context.height * 0.07, color: colorScheme.surface),
+//                 Expanded(
+//                   child: buildCardTextAndAmonut(text: context.tr('totalExpenseKey'), amount: totalExpense.formatAmt(), type: TransactionType.EXPENSE),
+//                 ),
+//               ],
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }

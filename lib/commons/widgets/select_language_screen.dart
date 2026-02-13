@@ -46,44 +46,48 @@ class _InitialLanguageSelectionScreenState extends State<InitialLanguageSelectio
                   ),
 
                   SizedBox(height: context.height * 0.01),
-                  //   CommonSearchController(controller: _searchController, hintText: 'Search (English)', hintTextColor: colorScheme.onSecondary),
                   Expanded(
-                    child: ListView.builder(
-                      padding: EdgeInsetsDirectional.zero,
-                      itemCount: supportedLocales.length,
-                      itemBuilder: (context, index) {
-                        final langCode = supportedLocales[index];
-                        final selectedLang = state.language.languageCode;
-                        final languageName = languageModels[langCode]!.name;
-                        final isSelected = langCode == selectedLang;
+                    child: RadioGroup<String>(
+                      groupValue: state.language.languageCode,
+                      onChanged: (value) {
+                        if (value != null) {
+                          context.read<AppLocalizationCubit>().changeLanguage(value);
+                        }
+                      },
+                      child: ListView.builder(
+                        padding: EdgeInsetsDirectional.zero,
+                        itemCount: supportedLocales.length,
+                        itemBuilder: (context, index) {
+                          final langCode = supportedLocales[index];
+                          final selectedLang = state.language.languageCode;
+                          final languageName = languageModels[langCode]!.name;
+                          final isSelected = langCode == selectedLang;
 
-                        return Container(
-                          margin: EdgeInsetsDirectional.only(bottom: context.height * 0.012),
-                          // height: context.height * 0.08,
-                          padding: EdgeInsetsDirectional.symmetric(
-                            horizontal: context.width * 0.01,
-                            vertical: context.isTablet ? context.height * 0.007 : context.height * 0.004,
-                          ),
-
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(10), color: isSelected ? colorScheme.primary : colorScheme.primary.withValues(alpha: 0.3)),
-                          child: Center(
+                          return Container(
+                            margin: EdgeInsetsDirectional.only(bottom: context.height * 0.012),
+                            padding: EdgeInsetsDirectional.symmetric(
+                              horizontal: context.width * 0.01,
+                              vertical: context.isTablet ? context.height * 0.007 : context.height * 0.004,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: isSelected ? colorScheme.primary : colorScheme.primary.withValues(alpha: 0.3),
+                            ),
                             child: RadioListTile<String>(
                               value: langCode,
-                              groupValue: selectedLang,
-                              onChanged: (value) {
-                                if (value == null) return;
-                                context.read<AppLocalizationCubit>().changeLanguage(value);
-                              },
                               activeColor: Colors.white,
                               title: CustomTextView(
                                 text: languageName,
                                 fontSize: context.isTablet ? 18.sp(context) : 16.sp(context),
-                                color: isSelected ? Colors.white : const Color.fromARGB(255, 0, 0, 0),
+                                color: isSelected ? Colors.white : Colors.black,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                softWrap: true,
                               ),
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     ),
                   ),
 

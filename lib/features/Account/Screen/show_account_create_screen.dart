@@ -3,6 +3,7 @@ import 'package:expenseapp/features/Account/Cubits/add_account_cubit.dart';
 import 'package:expenseapp/features/Account/Cubits/update_account_cubit.dart';
 import 'package:expenseapp/features/RecurringTransaction/Cubit/get_recurring_transaction_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 void showCreateAccountSheet(
   BuildContext context, {
@@ -108,6 +109,10 @@ class _AccountCreateWidgetState extends State<_AccountCreateWidget> {
                         keyboardType: TextInputType.number,
                         hintText: context.tr('balanceKey'),
                         prefixIcon: const Icon(Icons.currency_bitcoin),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+                          LengthLimitingTextInputFormatter(16),
+                        ],
                       ),
                       const Spacer(),
                       BlocConsumer<UpdateAccountCubit, UpdateAccountState>(

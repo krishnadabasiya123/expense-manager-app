@@ -62,7 +62,6 @@ class _TransactionListState extends State<TransactionList> {
               final accountFromName = context.read<GetAccountCubit>().getAccountName(id: item.accountFromId);
               final accountToName = context.read<GetAccountCubit>().getAccountName(id: item.accountToId);
               final amount = item.amount;
-              final isIncome = type == TransactionType.INCOME;
 
               return GestureDetector(
                 onTap: () {
@@ -108,10 +107,10 @@ class _TransactionListState extends State<TransactionList> {
                               if (categoryName.isNotEmpty && (type == TransactionType.EXPENSE || type == TransactionType.INCOME)) ...[
                                 CustomTextView(
                                   text: categoryName,
+
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black,
                                   fontSize: context.isTablet ? 18.sp(context) : 15.sp(context),
-                                  maxLines: 2,
                                 ),
                               ] else ...[
                                 if (type == TransactionType.TRANSFER) ...[
@@ -121,7 +120,6 @@ class _TransactionListState extends State<TransactionList> {
                                       fontWeight: FontWeight.bold,
                                       color: Colors.black,
                                       fontSize: context.isTablet ? 18.sp(context) : 15.sp(context),
-                                      maxLines: 2,
                                     ),
                                   ],
                                 ],
@@ -136,26 +134,49 @@ class _TransactionListState extends State<TransactionList> {
                             ],
                           ),
                         ),
-
+                        SizedBox(width: context.width * 0.03),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
-
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Row(
+                              mainAxisSize: MainAxisSize.min,
+
                               children: [
+                                // if (item.recurringId.isNotEmpty) Icon(Icons.repeat, size: 15.sp(context)),
                                 if (item.recurringId.isNotEmpty) ...[
-                                  Icon(Icons.repeat, color: Colors.black, size: 15.sp(context)),
+                                  QImage(
+                                    imageUrl: AppImages.repeatIcon,
+                                    fit: BoxFit.contain,
+                                    height: 12.sp(context),
+                                  ),
                                 ],
-                                SizedBox(width: context.width * 0.02),
-                                CustomTextView(
-                                  text: amount.formatAmt(),
-                                  fontWeight: FontWeight.bold,
-                                  color: type.color,
+
+                                const SizedBox(width: 6),
+
+                                ConstrainedBox(
+                                  constraints: BoxConstraints(
+                                    maxWidth: context.width * 0.3,
+                                  ),
+                                  child: CustomTextView(
+                                    text: amount.formatAmt(),
+                                    fontWeight: FontWeight.bold,
+                                    color: type.color,
+
+                                    textAlign: TextAlign.end,
+                                  ),
                                 ),
                               ],
                             ),
 
-                            if (type != TransactionType.TRANSFER) CustomTextView(text: accountName, fontSize: 14.sp(context), color: Colors.grey.shade600),
+                            if (type != TransactionType.TRANSFER)
+                              CustomTextView(
+                                text: accountName,
+                                fontSize: 14.sp(context),
+                                color: Colors.grey.shade600,
+
+                                overflow: TextOverflow.ellipsis,
+                              ),
                           ],
                         ),
                       ],
@@ -204,8 +225,6 @@ Future<void> showRecurringWarningDialog({required BuildContext context, required
           ),
           content: CustomTextView(
             text: context.tr('recurringDialogueMsg'),
-            softWrap: true,
-            maxLines: 4,
             textAlign: TextAlign.center,
             fontSize: 16.sp(context),
           ),

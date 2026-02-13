@@ -1,10 +1,10 @@
+import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:flutter/material.dart';
 import 'package:expenseapp/core/app/app.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 
 void main() async {
   runApp(await initializeApp());
@@ -937,6 +937,494 @@ void main() async {
 //           );
 //         },
 //       ),
+//     );
+//   }
+// }
+// import 'package:flutter/material.dart';
+
+// void main() {
+//   runApp(const MyApp());
+// }
+
+// class MyApp extends StatelessWidget {
+//   const MyApp({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       debugShowCheckedModeBanner: false,
+//       home: Scaffold(
+//         backgroundColor: Colors.grey[100],
+//         body: const Center(
+//           child: TransactionOverviewCard(),
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+// class TransactionOverviewCard extends StatelessWidget {
+//   const TransactionOverviewCard({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       margin: const EdgeInsets.all(16),
+//       padding: const EdgeInsets.all(16),
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(12),
+//         boxShadow: [
+//           BoxShadow(
+//             color: Colors.black.withOpacity(0.05),
+//             blurRadius: 10,
+//             spreadRadius: 1,
+//           ),
+//         ],
+//       ),
+//       child: Column(
+//         mainAxisSize: MainAxisSize.min,
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           // Header Row
+//           Row(
+//             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//             children: [
+//               const Text(
+//                 'Last records overview',
+//                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+//               ),
+//               Icon(Icons.more_vert, color: Colors.grey[600]),
+//             ],
+//           ),
+//           const SizedBox(height: 16),
+//           Text(
+//             'LAST 30 DAYS',
+//             style: TextStyle(color: Colors.grey[500], fontSize: 12, fontWeight: FontWeight.w600),
+//           ),
+//           const SizedBox(height: 20),
+
+//           // First Record
+//           const TransactionItem(
+//             icon: Icons.swap_horiz,
+//             iconColor: Colors.lightGreen,
+//             title: 'Transfer, withdrawal',
+//             amount: '-₹500',
+//             amountColor: Colors.red,
+//             description: 'Heysvsysbshs shs sgs sgs sgs shs sgs shs sgs shs sgs shs sgs shs s s',
+//             date: 'Feb 10',
+//             subInfo: '→ ...outside of Wallet',
+//           ),
+
+//           const Divider(height: 32),
+
+//           // Second Record
+//           const TransactionItem(
+//             icon: Icons.restaurant,
+//             iconColor: Colors.orange,
+//             title: 'Food & Drinks',
+//             amount: '₹900,000,000,000.00',
+//             amountColor: Colors.teal,
+//             description: 'He7eveusbdis dud dud dkd did did dud xjd xjd dhd dud xjd dud dud xjd xkc xjd xjd xjx xkc dud did d zud. D d d',
+//             date: 'Feb 10',
+//           ),
+
+//           const SizedBox(height: 20),
+//           Text(
+//             'Show more',
+//             style: TextStyle(color: Colors.blue[700], fontWeight: FontWeight.bold),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
+// class TransactionItem extends StatelessWidget {
+//   const TransactionItem({
+//     required this.icon,
+//     required this.iconColor,
+//     required this.title,
+//     required this.amount,
+//     required this.amountColor,
+//     required this.description,
+//     required this.date,
+//     super.key,
+//     this.subInfo,
+//   });
+//   final IconData icon;
+//   final Color iconColor;
+//   final String title;
+//   final String amount;
+//   final Color amountColor;
+//   final String description;
+//   final String date;
+//   final String? subInfo;
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Row(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         // Left Icon
+//         CircleAvatar(
+//           backgroundColor: iconColor,
+//           radius: 20,
+//           child: Icon(icon, color: Colors.white),
+//         ),
+//         const SizedBox(width: 12),
+
+//         // Right side content
+//         Expanded(
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               // FIRST ROW: Title and Amount
+//               Row(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//                   Expanded(
+//                     child: Text(
+//                       title,
+//                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+//                       maxLines: 1,
+//                       overflow: TextOverflow.ellipsis,
+//                     ),
+//                   ),
+//                   Text(
+//                     amount,
+//                     style: TextStyle(fontWeight: FontWeight.bold, color: amountColor, fontSize: 14),
+//                   ),
+//                 ],
+//               ),
+//               const SizedBox(height: 4),
+
+//               // SECOND ROW: Full Description and Date
+//               Row(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//                   Expanded(
+//                     child: Text(
+//                       description,
+//                       style: TextStyle(color: Colors.grey[600], fontSize: 14),
+//                       // No maxLines here ensures full text is shown
+//                     ),
+//                   ),
+//                   const SizedBox(width: 8),
+//                   Text(
+//                     date,
+//                     style: TextStyle(color: Colors.grey[500], fontSize: 13),
+//                   ),
+//                 ],
+//               ),
+
+//               // OPTIONAL SUB-INFO
+//               if (subInfo != null) ...[
+//                 const SizedBox(height: 4),
+//                 Text(
+//                   subInfo!,
+//                   style: TextStyle(color: Colors.grey[500], fontSize: 13),
+//                 ),
+//               ],
+//             ],
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+// }
+// import 'package:flutter/material.dart';
+
+// void main() {
+//   runApp(const MyApp());
+// }
+
+// class MyApp extends StatelessWidget {
+//   const MyApp({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       debugShowCheckedModeBanner: false,
+//       home: Scaffold(
+//         backgroundColor: Colors.grey[100],
+//         body: const Center(
+//           child: TransactionOverviewCard(),
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+// class TransactionOverviewCard extends StatelessWidget {
+//   const TransactionOverviewCard({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       margin: const EdgeInsets.all(16),
+//       padding: const EdgeInsets.all(16),
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(12),
+//         boxShadow: [
+//           BoxShadow(
+//             color: Colors.black.withOpacity(0.05),
+//             blurRadius: 10,
+//             spreadRadius: 1,
+//           ),
+//         ],
+//       ),
+//       // We use SingleChildScrollView in case the total card becomes taller than the screen
+//       child: SingleChildScrollView(
+//         child: Column(
+//           mainAxisSize: MainAxisSize.min,
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             // Header Row
+//             Row(
+//               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//               children: [
+//                 const Text(
+//                   'Last records overview',
+//                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+//                 ),
+//                 Icon(Icons.more_vert, color: Colors.grey[600]),
+//               ],
+//             ),
+//             const SizedBox(height: 16),
+//             Text(
+//               'LAST 30 DAYS',
+//               style: TextStyle(color: Colors.grey[500], fontSize: 12, fontWeight: FontWeight.w600),
+//             ),
+//             const SizedBox(height: 20),
+
+//             // First Record with HUGE Amount
+//             const TransactionItem(
+//               icon: Icons.swap_horiz,
+//               iconColor: Colors.lightGreen,
+//               title: 'Transfer, withdrawal ghkfhgkf fhgkjhfgk. jkfhgkjfh',
+//               // Example of extremely large amount string
+//               amount: '-₹50086758675868756875687568756875658756785687567856875756758757565676576576576576576576576576576576565765765765765765765765765765765765765765765765765765765765765',
+//               amountColor: Colors.red,
+//               description: 'Heysvsysbshs shs sgs sgs sgs shs sgs shs sgs shs sgs shs sgs shs s s',
+//               date: 'Feb 10',
+//               subInfo: '→ ...outside of Wallet',
+//             ),
+
+//             const Divider(height: 32),
+
+//             // Second Record
+//             const TransactionItem(
+//               icon: Icons.restaurant,
+//               iconColor: Colors.orange,
+//               title: 'Food & Drinks',
+//               amount: '₹900,000,000,000.00',
+//               amountColor: Colors.teal,
+//               description: 'He7eveusbdis dud dud dkd did did dud xjd xjd dhd dud xjd dud dud xjd xkc xjd xjd xjx xkc dud did d zud. D d d',
+//               date: 'Feb 10',
+//             ),
+
+//             const SizedBox(height: 20),
+//             Text(
+//               'Show more',
+//               style: TextStyle(color: Colors.blue[700], fontWeight: FontWeight.bold),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+// extension AmountFormatter on num {
+//   String formatAmt({int decimal = 1}) {
+//     final isNegative = this < 0;
+//     final value = abs();
+
+//     final formatted = NumberFormat.compact().format(value).toUpperCase();
+
+//     return isNegative ? '-$formatted' : formatted;
+//   }
+// }
+
+// class TransactionItem extends StatelessWidget {
+//   const TransactionItem({
+//     required this.icon,
+//     required this.iconColor,
+//     required this.title,
+//     required this.amount,
+//     required this.amountColor,
+//     required this.description,
+//     required this.date,
+//     super.key,
+//     this.subInfo,
+//   });
+
+//   final IconData icon;
+//   final Color iconColor;
+//   final String title;
+//   final String amount;
+//   final Color amountColor;
+//   final String description;
+//   final String date;
+//   final String? subInfo;
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Row(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         // Left Icon (Fixed width)
+//         CircleAvatar(
+//           backgroundColor: iconColor,
+//           radius: 20,
+//           child: Icon(icon, color: Colors.white),
+//         ),
+//         const SizedBox(width: 12),
+
+//         // Right side content (Flexible width)
+//         // Expanded(
+//         //   child: Column(
+//         //     crossAxisAlignment: CrossAxisAlignment.start,
+//         //     children: [
+//         //       // FIRST ROW: Title and Amount
+//         //       Row(
+//         //         crossAxisAlignment: CrossAxisAlignment.start,
+//         //         children: [
+//         //           // We wrap Title in Expanded so it shares space
+//         //           Expanded(
+//         //             flex: 2, // Gives the title a bit of priority
+//         //             child: Text(
+//         //               title,
+//         //               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+
+//         //               // Removed maxLines so it shows full text
+//         //             ),
+//         //           ),
+//         //           const SizedBox(width: 8),
+//         //           // WE WRAP AMOUNT IN EXPANDED TOO
+//         //           // This forces the long number string to wrap to the next line
+//         //           Expanded(
+//         //             flex: 3, // Gives amount more space to show long numbers
+//         //             child: Text(
+//         //               amount,
+//         //               textAlign: TextAlign.right, // Keeps amount aligned to the right
+//         //               style: TextStyle(
+//         //                 fontWeight: FontWeight.bold,
+//         //                 color: amountColor,
+//         //                 fontSize: 14,
+//         //               ),
+//         //             ),
+//         //           ),
+//         //         ],
+//         //       ),
+//         //       const SizedBox(height: 4),
+
+//         //       // SECOND ROW: Full Description and Date
+//         //       Row(
+//         //         crossAxisAlignment: CrossAxisAlignment.start,
+//         //         children: [
+//         //           Expanded(
+//         //             child: Text(
+//         //               description,
+//         //               style: TextStyle(color: Colors.grey[600], fontSize: 14),
+//         //             ),
+//         //           ),
+//         //           const SizedBox(width: 8),
+//         //           Text(
+//         //             date,
+//         //             style: TextStyle(color: Colors.grey[500], fontSize: 13),
+//         //           ),
+//         //         ],
+//         //       ),
+
+//         //       // OPTIONAL SUB-INFO
+//         //       if (subInfo != null) ...[
+//         //         const SizedBox(height: 4),
+//         //         Text(
+//         //           subInfo!,
+//         //           style: TextStyle(color: Colors.grey[500], fontSize: 13),
+//         //         ),
+//         //       ],
+//         //     ],
+//         //   ),
+//         // ),
+//         Expanded(
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               // FIRST ROW: Title and Amount
+//               Row(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//                   // TITLE: Wrapped in Expanded
+//                   // It will take all space NOT used by the amount
+//                   Expanded(
+//                     flex: 3, // Higher flex ensures title gets priority
+//                     child: Text(
+//                       title,
+//                       style: const TextStyle(
+//                         fontWeight: FontWeight.bold,
+//                         fontSize: 16,
+//                       ),
+//                       // softWrap is true by default, maxLines is null by default
+//                     ),
+//                   ),
+
+//                   const SizedBox(width: 8),
+
+//                   // AMOUNT: Wrapped in Flexible
+//                   // Flexible allows it to be SMALL if the number is small
+//                   Flexible(
+//                     flex: 2, // Limits how wide the amount can get before wrapping
+//                     child: Text(
+//                       amount,
+//                       textAlign: TextAlign.right,
+//                       style: TextStyle(
+//                         fontWeight: FontWeight.bold,
+//                         color: amountColor,
+//                         fontSize: 14,
+//                       ),
+//                       // We don't set maxLines so it can wrap if it's a huge number
+//                     ),
+//                   ),
+//                 ],
+//               ),
+
+//               const SizedBox(height: 4),
+
+//               // SECOND ROW: Description and Date
+//               Row(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//                   Expanded(
+//                     child: Text(
+//                       description,
+//                       style: TextStyle(color: Colors.grey[600], fontSize: 14),
+//                       maxLines: 2,
+//                       overflow: TextOverflow.ellipsis,
+//                     ),
+//                   ),
+//                   const SizedBox(width: 8),
+//                   Text(
+//                     date,
+//                     style: TextStyle(color: Colors.grey[500], fontSize: 13),
+//                   ),
+//                 ],
+//               ),
+
+//               if (subInfo != null) ...[
+//                 const SizedBox(height: 4),
+//                 Text(
+//                   subInfo!,
+//                   style: TextStyle(color: Colors.grey[500], fontSize: 13),
+//                 ),
+//               ],
+//             ],
+//           ),
+//         ),
+//       ],
 //     );
 //   }
 // }

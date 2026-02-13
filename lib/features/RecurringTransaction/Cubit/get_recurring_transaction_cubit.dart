@@ -389,4 +389,24 @@ class GetRecurringTransactionCubit extends Cubit<GetRecurringTransactionState> {
     }
     return 0;
   }
+
+  Future<void> updateAccountIdInRecurringWhenMoveTransaction({required String fromAccountId, required String toAccountId}) async {
+    await recurringTransactionLocalData.updateRecurringAccountIdWhenMoveTransaction(fromAccountId: fromAccountId, toAccountId: toAccountId);
+    if (state is GetRecurringTransactionSuccess) {
+      final transactions = (state as GetRecurringTransactionSuccess).transactions;
+      final updatedTransactions = transactions.map((transaction) {
+        var newAccountId = transaction.accountId;
+
+        if (transaction.accountId == fromAccountId) {
+          log('update account id $fromAccountId to $toAccountId');
+          newAccountId = toAccountId;
+        }
+
+        return transaction.copyWith(
+          accountId: newAccountId,
+        );
+      }).toList();
+      emit(GetRecurringTransactionSuccess(updatedTransactions));
+    }
+  }
 }

@@ -1,5 +1,6 @@
 import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class CustomTextFormField extends StatefulWidget {
   const CustomTextFormField({
@@ -25,6 +26,7 @@ class CustomTextFormField extends StatefulWidget {
     this.isReadOnly = false,
     this.onTap,
     this.textInputAction,
+    this.inputFormatters,
   });
 
   final TextEditingController controller;
@@ -48,6 +50,7 @@ class CustomTextFormField extends StatefulWidget {
   final bool isReadOnly;
   final VoidCallback? onTap;
   final TextInputAction? textInputAction;
+  final List<TextInputFormatter>? inputFormatters;
 
   @override
   State<CustomTextFormField> createState() => _CustomTextFormFieldState();
@@ -70,6 +73,10 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
         FocusManager.instance.primaryFocus?.unfocus();
       },
       textInputAction: widget.textInputAction,
+      // inputFormatters: [
+      //   FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+      // ],
+      inputFormatters: widget.inputFormatters,
 
       onTap: widget.onTap,
       onFieldSubmitted: (value) {

@@ -12,4 +12,7 @@ class AppImages {
   static const String noInternet = '$_image/noInternet_icon.svg';
   static const String noDataFound = '$_image/no_data_found.png';
   static const String generalError = '$_image/general_error.png';
+
+  //icons
+  static const String repeatIcon = '$_image/repeat_icon.svg';
 }

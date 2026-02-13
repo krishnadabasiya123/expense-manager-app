@@ -65,24 +65,20 @@ class ResporePartyCard extends StatefulWidget {
 }
 
 class _ResporePartyCardState extends State<ResporePartyCard> {
-  bool isCredit = false;
-  bool isDebit = false;
   String accountName = '';
   String categoryName = '';
 
   @override
   void initState() {
     super.initState();
-    isCredit = widget.party.type == TransactionType.CREDIT;
-    isDebit = widget.party.type == TransactionType.DEBIT;
-    accountName = context.read<GetAccountCubit>().getAccountName(id: widget.party.accountId ?? '');
-    categoryName = context.read<GetCategoryCubit>().getCategoryName(widget.party.category ?? '');
+    // isCredit = widget.party.type == TransactionType.CREDIT;
+    // isDebit = widget.party.type == TransactionType.DEBIT;
+    accountName = context.read<GetAccountCubit>().getAccountName(id: widget.party.accountId);
+    categoryName = context.read<GetCategoryCubit>().getCategoryName(widget.party.category);
   }
 
   @override
   Widget build(BuildContext context) {
-    final color = isCredit ? context.colorScheme.incomeColor : Colors.red;
-
     return Opacity(
       opacity: 1,
       child: Card(
@@ -102,19 +98,20 @@ class _ResporePartyCardState extends State<ResporePartyCard> {
                     height: 30.sp(context),
                     width: 30.sp(context),
                     decoration: BoxDecoration(
-                      color: isDebit ? context.colorScheme.expenseColor.withValues(alpha: 0.08) : context.colorScheme.incomeColor.withValues(alpha: 0.08),
+                      color: widget.party.type.color!.withValues(alpha: 0.08),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
-                      isDebit ? Icons.arrow_upward : Icons.arrow_downward,
+                      widget.party.type.icon,
 
-                      color: color,
+                      color: widget.party.type.color,
                       size: 20.sp(context),
                     ),
                   ),
                   SizedBox(width: context.width * 0.03),
 
                   Expanded(
+                    flex: 2,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: .center,
@@ -124,29 +121,33 @@ class _ResporePartyCardState extends State<ResporePartyCard> {
                           fontWeight: FontWeight.bold,
                           color: Colors.black,
                           fontSize: 15,
-                          maxLines: 2,
                         ),
                       ],
                     ),
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisAlignment: .center,
+                  // SizedBox(width: context.width * 0.02),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisAlignment: .center,
 
-                    children: [
-                      CustomTextView(
-                        text: widget.party.amount.formatAmt(),
-                        fontWeight: FontWeight.bold,
-                        color: color,
-                      ),
-
-                      if (accountName.isNotEmpty) ...[
+                      children: [
                         CustomTextView(
-                          text: accountName,
-                          color: Colors.black,
+                          text: widget.party.amount.formatAmt(),
+                          fontWeight: FontWeight.bold,
+                          color: widget.party.type.color,
                         ),
+
+                        if (accountName.isNotEmpty) ...[
+                          CustomTextView(
+                            //text: 'hjdgfjhwsg jhsdgsdg shdjshd sdsjdf sjdsjhfd',
+                            text: accountName,
+                            color: Colors.black,
+                            textAlign: TextAlign.end,
+                          ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
                 ],
               ),
@@ -212,7 +213,7 @@ class _ResporePartyCardState extends State<ResporePartyCard> {
                   constraints: BoxConstraints(maxHeight: context.height * 0.45, maxWidth: context.width * 0.85),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   title: CustomTextView(text: context.tr('deleteAccountTitleKey'), fontWeight: FontWeight.bold, fontSize: 18.sp(context)),
-                  content: CustomTextView(text: context.tr('deleteRestoreTransactionDialogMsg'), softWrap: true, maxLines: 3),
+                  content: CustomTextView(text: context.tr('deleteRestoreTransactionDialogMsg'), maxLines: 3),
                   actions: [
                     BlocConsumer<PermenantlyDeletePartyTransactionCubit, PermenantlyDeletePartyTransactionState>(
                       listener: (context, state) {
@@ -299,7 +300,7 @@ Future<void> showPartyTransactionRestoreAlertDialog({required PartyTransaction t
                 constraints: BoxConstraints(maxHeight: context.height * 0.45, maxWidth: context.width * 0.85),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 title: CustomTextView(text: context.tr('restoreTitleKey'), fontWeight: FontWeight.bold, fontSize: 18.sp(context)),
-                content: CustomTextView(text: context.tr('confirmRestoreDialogMsg'), softWrap: true, maxLines: 3),
+                content: CustomTextView(text: context.tr('confirmRestoreDialogMsg'), maxLines: 3),
                 actions: [
                   BlocConsumer<RestorePartyTransactionCubit, RestorePartyTransactionState>(
                     listener: (context, state) {

@@ -40,9 +40,9 @@ class GetAccountCubit extends Cubit<GetAccountState> {
 
   Future<void> addAccountLocally({required Account account}) async {
     if (state is GetAccountSuccess) {
-      final oldData = (state as GetAccountSuccess).account;
-      final newData = <Account>[account, ...oldData];
-      emit(GetAccountSuccess(newData));
+      final currentState = state as GetAccountSuccess;
+      final updatedList = List<Account>.from(currentState.account)..insert(currentState.account.length, account);
+      emit(GetAccountSuccess(updatedList));
     }
   }
 

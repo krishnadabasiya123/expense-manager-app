@@ -20,12 +20,18 @@ class AccountTransactionScreen extends StatefulWidget {
 }
 
 class _AccountTransactionScreenState extends State<AccountTransactionScreen> {
+  List<Map<String, dynamic>> accountTransaction = [];
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: QAppBar(
-        title: CustomTextView(text: widget.account.name, fontSize: 20.sp(context), color: colorScheme.surface),
+        title: CustomTextView(text: widget.account.name, fontSize: 20.sp(context), color: colorScheme.surface, overflow: TextOverflow.ellipsis),
       ),
       body: Column(
         children: [
@@ -133,17 +139,27 @@ class _AccountTransactionScreenState extends State<AccountTransactionScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              CustomTextView(
-                text: context.tr('actualBalanceKey'),
-                fontSize: 16.sp(context),
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
+              Flexible(
+                flex: 3,
+                child: CustomTextView(
+                  text: context.tr('actualBalanceKey'),
+                  fontSize: 16.sp(context),
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              CustomTextView(
-                text: '${context.symbol} ${totalActualBalance.formatAmt()}',
-                fontSize: 20.sp(context),
-                color: Colors.blue,
-                fontWeight: FontWeight.bold,
+              //const Spacer(),
+              Expanded(
+                child: CustomTextView(
+                  text: '${context.symbol} ${totalActualBalance.formatAmt()}',
+                  fontSize: 20.sp(context),
+                  color: Colors.blue,
+                  fontWeight: FontWeight.bold,
+                  softWrap: true,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.end,
+                ),
               ),
             ],
           ),
@@ -158,8 +174,22 @@ class _AccountTransactionScreenState extends State<AccountTransactionScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          CustomTextView(text: label, fontSize: 16.sp(context), color: Colors.black),
-          CustomTextView(text: '${context.symbol} $value', fontSize: 16.sp(context), color: color, fontWeight: FontWeight.bold),
+          Flexible(
+            flex: 3,
+            child: CustomTextView(text: label, fontSize: 16.sp(context), color: Colors.black),
+          ),
+          Expanded(
+            child: CustomTextView(
+              text: '${context.symbol} $value',
+              fontSize: 16.sp(context),
+              color: color,
+              fontWeight: FontWeight.bold,
+              softWrap: true,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.end,
+            ),
+          ),
         ],
       ),
     );
