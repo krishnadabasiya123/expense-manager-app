@@ -140,7 +140,7 @@ class _ResporePartyCardState extends State<ResporePartyCard> {
 
                         if (accountName.isNotEmpty) ...[
                           CustomTextView(
-                            //text: 'hjdgfjhwsg jhsdgsdg shdjshd sdsjdf sjdsjhfd',
+                            // text: 'hjdgfjhwsg jhsdgsdg shdjshd sdsjdf sjdsjhfd hjdgfjhwsg jhsdgsdg shdjshd sdsjdf sjdsjhfd',
                             text: accountName,
                             color: Colors.black,
                             textAlign: TextAlign.end,
@@ -213,7 +213,7 @@ class _ResporePartyCardState extends State<ResporePartyCard> {
                   constraints: BoxConstraints(maxHeight: context.height * 0.45, maxWidth: context.width * 0.85),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   title: CustomTextView(text: context.tr('deleteAccountTitleKey'), fontWeight: FontWeight.bold, fontSize: 18.sp(context)),
-                  content: CustomTextView(text: context.tr('deleteRestoreTransactionDialogMsg'), maxLines: 3),
+                  content: CustomTextView(text: context.tr('deleteRestoreTransactionDialogMsg')),
                   actions: [
                     BlocConsumer<PermenantlyDeletePartyTransactionCubit, PermenantlyDeletePartyTransactionState>(
                       listener: (context, state) {
@@ -300,7 +300,7 @@ Future<void> showPartyTransactionRestoreAlertDialog({required PartyTransaction t
                 constraints: BoxConstraints(maxHeight: context.height * 0.45, maxWidth: context.width * 0.85),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 title: CustomTextView(text: context.tr('restoreTitleKey'), fontWeight: FontWeight.bold, fontSize: 18.sp(context)),
-                content: CustomTextView(text: context.tr('confirmRestoreDialogMsg'), maxLines: 3),
+                content: CustomTextView(text: context.tr('confirmRestoreDialogMsg')),
                 actions: [
                   BlocConsumer<RestorePartyTransactionCubit, RestorePartyTransactionState>(
                     listener: (context, state) {

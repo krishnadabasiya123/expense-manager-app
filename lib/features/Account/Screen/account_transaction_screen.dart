@@ -126,8 +126,9 @@ class _AccountTransactionScreenState extends State<AccountTransactionScreen> {
               borderRadius: BorderRadius.circular(3),
             ),
           ),
-          CustomTextView(text: 'Summary', fontSize: 16.sp(context), color: Colors.black, fontWeight: FontWeight.bold),
-          // const SizedBox(height: 10),
+          CustomTextView(text: context.tr('summaryKey'), fontSize: 16.sp(context), color: Colors.black, fontWeight: FontWeight.bold),
+
+          const SizedBox(height: 10),
           _summaryRow(context.tr('initialBalanceKey'), initialBalance.formatAmt()),
           _summaryRow(context.tr('totalTransferKey'), totalTransfer.formatAmt()),
           _summaryRow(context.tr('totalIncomeKey'), totalIncome.formatAmt(), color: context.colorScheme.incomeColor),
@@ -139,14 +140,11 @@ class _AccountTransactionScreenState extends State<AccountTransactionScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Flexible(
-                flex: 3,
-                child: CustomTextView(
-                  text: context.tr('actualBalanceKey'),
-                  fontSize: 16.sp(context),
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
+              CustomTextView(
+                text: context.tr('actualBalanceKey'),
+                fontSize: 16.sp(context),
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
               ),
               //const Spacer(),
               Expanded(
@@ -155,9 +153,7 @@ class _AccountTransactionScreenState extends State<AccountTransactionScreen> {
                   fontSize: 20.sp(context),
                   color: Colors.blue,
                   fontWeight: FontWeight.bold,
-                  softWrap: true,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+
                   textAlign: TextAlign.end,
                 ),
               ),
@@ -174,19 +170,14 @@ class _AccountTransactionScreenState extends State<AccountTransactionScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Flexible(
-            flex: 3,
-            child: CustomTextView(text: label, fontSize: 16.sp(context), color: Colors.black),
-          ),
+          CustomTextView(text: label, fontSize: 16.sp(context), color: Colors.black),
           Expanded(
             child: CustomTextView(
               text: '${context.symbol} $value',
               fontSize: 16.sp(context),
               color: color,
               fontWeight: FontWeight.bold,
-              softWrap: true,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+
               textAlign: TextAlign.end,
             ),
           ),

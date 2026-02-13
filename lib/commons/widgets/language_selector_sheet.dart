@@ -74,9 +74,6 @@ class _LanguageSelectorWidget extends StatelessWidget {
                                 color: isSelected ? Colors.white : colorScheme.onTertiary,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16.sp(context),
-                                overflow: TextOverflow.ellipsis,
-                                softWrap: true,
-                                maxLines: 2,
                               ),
                             ),
                           );

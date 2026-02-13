@@ -126,7 +126,7 @@ class _MyAppState extends State<MyApp> {
               debugShowCheckedModeBanner: false,
               theme: appThemeData[currentTheme],
               // home: const SelectCurrencyScreen(),
-              initialRoute: Routes.selectLanguage,
+              initialRoute: Routes.intro,
               onGenerateRoute: Routes.onGenerateRouted,
               locale: currentLanguage,
               localizationsDelegates: [Applocalization.delegate, GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],

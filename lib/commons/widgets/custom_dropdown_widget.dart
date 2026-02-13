@@ -207,8 +207,7 @@ class _CustomDropdownState extends State<CustomDropdown> with TickerProviderStat
         style: MenuItemButton.styleFrom(foregroundColor: Colors.white, textStyle: widget.menuItemStyle, padding: widget.contentPadding),
         labelWidget: Text(
           label,
-          overflow: TextOverflow.ellipsis,
-          maxLines: 1,
+
           style: widget.menuItemStyle,
         ),
       );

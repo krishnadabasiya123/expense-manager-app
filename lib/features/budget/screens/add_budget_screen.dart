@@ -673,7 +673,6 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
             ),
           ),
           fontSize: 12.sp(context),
-          maxLines: 3,
         ),
       ],
     ),

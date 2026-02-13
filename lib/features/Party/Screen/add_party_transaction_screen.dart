@@ -293,7 +293,6 @@ class _AddPartyTransactionWidgetState extends State<AddPartyTransactionWidget> {
                         CustomTextFormField(
                           maxLines: 3,
                           controller: _descriptionController,
-
                           hintText: context.tr('descriptionHintKey'),
                         ),
                         SizedBox(height: context.height * 0.02),

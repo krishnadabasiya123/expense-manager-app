@@ -136,7 +136,11 @@ class _HomePageState extends State<HomePage> {
                         children: [
                           Icon(Icons.format_list_bulleted_add, color: colorScheme.primary, size: 40.sp(context)),
                           // const SizedBox(height: 5),
-                          CustomTextView(text: context.tr('noBudgetFound'), fontSize: 18.sp(context), fontWeight: FontWeight.bold, maxLines: 3),
+                          CustomTextView(
+                            text: context.tr('noBudgetFound'),
+                            fontSize: 18.sp(context),
+                            fontWeight: FontWeight.bold,
+                          ),
                         ],
                       ),
                     ),
@@ -150,7 +154,7 @@ class _HomePageState extends State<HomePage> {
                       child: Row(
                         children: [
                           Expanded(
-                            child: CustomTextView(text: context.tr('budgetKey'), fontSize: 18.sp(context), fontWeight: FontWeight.bold, maxLines: 3),
+                            child: CustomTextView(text: context.tr('budgetKey'), fontSize: 18.sp(context), fontWeight: FontWeight.bold),
                           ),
 
                           GestureDetector(
@@ -252,6 +256,7 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                     SizedBox(width: context.width * 0.01),
                                     Expanded(
+                                      flex: 3,
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
@@ -287,7 +292,7 @@ class _HomePageState extends State<HomePage> {
                                         ],
                                       ),
                                     ),
-                                    const SizedBox(width: 10),
+                                    const SizedBox(width: 12),
 
                                     Expanded(
                                       child: Column(

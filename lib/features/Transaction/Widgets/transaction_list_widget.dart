@@ -76,7 +76,7 @@ class _TransactionListState extends State<TransactionList> {
                     boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: .08), blurRadius: 12, offset: const Offset(0, 6))],
                   ),
                   child: Container(
-                    padding: const EdgeInsetsDirectional.all(10),
+                    padding: const EdgeInsetsDirectional.all(8),
                     child: Row(
                       mainAxisAlignment: .center,
 
@@ -100,6 +100,7 @@ class _TransactionListState extends State<TransactionList> {
                         SizedBox(width: context.width * 0.03),
 
                         Expanded(
+                          flex: 2,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: .center,
@@ -135,49 +136,43 @@ class _TransactionListState extends State<TransactionList> {
                           ),
                         ),
                         SizedBox(width: context.width * 0.03),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  // if (item.recurringId.isNotEmpty) Icon(Icons.repeat, size: 15.sp(context)),
+                                  if (item.recurringId.isNotEmpty) ...[
+                                    QImage(
+                                      imageUrl: AppImages.repeatIcon,
+                                      fit: BoxFit.contain,
+                                      height: 12.sp(context),
+                                    ),
+                                  ],
 
-                              children: [
-                                // if (item.recurringId.isNotEmpty) Icon(Icons.repeat, size: 15.sp(context)),
-                                if (item.recurringId.isNotEmpty) ...[
-                                  QImage(
-                                    imageUrl: AppImages.repeatIcon,
-                                    fit: BoxFit.contain,
-                                    height: 12.sp(context),
-                                  ),
-                                ],
-
-                                const SizedBox(width: 6),
-
-                                ConstrainedBox(
-                                  constraints: BoxConstraints(
-                                    maxWidth: context.width * 0.3,
-                                  ),
-                                  child: CustomTextView(
+                                  const SizedBox(width: 6),
+                                  CustomTextView(
                                     text: amount.formatAmt(),
                                     fontWeight: FontWeight.bold,
                                     color: type.color,
 
                                     textAlign: TextAlign.end,
                                   ),
-                                ),
-                              ],
-                            ),
-
-                            if (type != TransactionType.TRANSFER)
-                              CustomTextView(
-                                text: accountName,
-                                fontSize: 14.sp(context),
-                                color: Colors.grey.shade600,
-
-                                overflow: TextOverflow.ellipsis,
+                                ],
                               ),
-                          ],
+
+                              if (type != TransactionType.TRANSFER)
+                                CustomTextView(
+                                  text: accountName,
+                                  fontSize: 14.sp(context),
+                                  color: Colors.grey.shade600,
+                                  textAlign: TextAlign.end,
+                                ),
+                            ],
+                          ),
                         ),
                       ],
                     ),

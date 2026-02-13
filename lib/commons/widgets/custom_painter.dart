@@ -218,8 +218,6 @@ class _RadialPercentageResultContainerState extends State<RadialPercentageResult
             fontWeight: FontWeights.bold,
             fontFamily: GoogleFonts.manrope().fontFamily,
           ),
-          maxLines: 2,
-          softWrap: true,
         ),
       ],
     );

@@ -265,7 +265,7 @@ class _AccountScreenState extends State<AccountScreen> {
                     context.tr('deleteAccountTitleKey'),
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22.sp(context)),
                   ),
-                  content: CustomTextView(text: context.tr('deleteDialogMsg'), softWrap: true, maxLines: 3, fontSize: 15.sp(context)),
+                  content: CustomTextView(text: context.tr('deleteDialogMsg'), fontSize: 15.sp(context)),
                   actions: [
                     BlocConsumer<DeleteAccountCubit, DeleteAccountState>(
                       listener: (context, state) {
@@ -392,8 +392,7 @@ class _AccountScreenState extends State<AccountScreen> {
                   ),
                   content: CustomTextView(
                     text: context.tr('deleteDialogMsgwithMoreTransaction'),
-                    softWrap: true,
-                    maxLines: 6,
+
                     fontSize: 14.sp(context),
                     textAlign: TextAlign.center,
                   ),
@@ -507,9 +506,13 @@ class _AccountScreenState extends State<AccountScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CustomTextView(text: context.tr('selectAccountLbl'), fontSize: 20.sp(context), fontWeight: FontWeight.bold, softWrap: true, maxLines: 3),
+                    CustomTextView(
+                      text: context.tr('selectAccountLbl'),
+                      fontSize: 20.sp(context),
+                      fontWeight: FontWeight.bold,
+                    ),
 
-                    CustomTextView(text: context.tr('accountToTransferAllTransactionKey'), fontSize: 15.sp(context), color: Colors.grey, softWrap: true, maxLines: 3),
+                    CustomTextView(text: context.tr('accountToTransferAllTransactionKey'), fontSize: 15.sp(context), color: Colors.grey),
                     BlocBuilder<GetAccountCubit, GetAccountState>(
                       builder: (context, state) {
                         if (state is GetAccountSuccess) {
@@ -566,7 +569,6 @@ class _AccountScreenState extends State<AccountScreen> {
                                             text: ' ${context.symbol}${totalActualBalance.formatAmt()}',
                                             fontSize: 15.sp(context),
                                             color: Colors.black,
-                                            softWrap: true,
                                             overflow: TextOverflow.ellipsis,
                                             textAlign: TextAlign.end,
                                           ),
@@ -625,7 +627,6 @@ class _AccountScreenState extends State<AccountScreen> {
                   color: Theme.of(context).colorScheme.surface,
                   fontWeight: FontWeight.bold,
                   overflow: TextOverflow.ellipsis,
-                  softWrap: true,
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -649,7 +650,6 @@ class _AccountScreenState extends State<AccountScreen> {
             fontSize: 17.sp(context),
             color: Colors.black,
             fontWeight: FontWeight.bold,
-            softWrap: true,
             overflow: TextOverflow.ellipsis,
           ),
         ],
@@ -678,8 +678,7 @@ class _AccountScreenState extends State<AccountScreen> {
           ),
           content: CustomTextView(
             text: context.tr('accountRestrictedMsg'),
-            softWrap: true,
-            maxLines: 4,
+
             textAlign: TextAlign.center,
             fontSize: 16.sp(context),
           ),

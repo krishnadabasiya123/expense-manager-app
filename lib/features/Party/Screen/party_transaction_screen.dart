@@ -134,9 +134,7 @@ class _PartyTransactionScreenState extends State<PartyTransactionScreen> {
               fontSize: 16.sp(context),
               color: textColor,
               fontWeight: FontWeight.bold,
-              softWrap: true,
-              overflow: TextOverflow.ellipsis,
-              maxLines: 2,
+
               textAlign: TextAlign.center,
             ),
           ],
@@ -276,7 +274,6 @@ class _LedgerItemRowState extends State<LedgerItemRow> {
                 children: [
                   CustomTextView(
                     text: isCredit ? '+ ${context.symbol}${widget.credit.formatAmt()}' : '- ${context.symbol}${widget.debit.formatAmt()}',
-                    softWrap: true,
                     color: type.color,
                     overflow: TextOverflow.ellipsis,
                   ),

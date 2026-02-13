@@ -131,9 +131,6 @@ class _PartyScreenState extends State<PartyScreen> {
             fontSize: 15.sp(context),
             color: textColor,
             fontWeight: FontWeight.bold,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
           ),
         ],
       ),
@@ -223,7 +220,7 @@ class _PartyScreenState extends State<PartyScreen> {
                             padding: EdgeInsets.zero,
 
                             // padding: EdgeInsetsDirectional.zero,
-                            icon: const Icon(Icons.more_horiz, color: Color(0xFF757575), size: 24),
+                            icon: const Icon(Icons.more_horiz, color: Colors.black, size: 24),
                             onSelected: (value) {
                               if (value == context.tr('editKey')) {
                                 showCreatePartySheet(context, isEdit: true, party: partyData);
@@ -390,8 +387,10 @@ class _PartyScreenState extends State<PartyScreen> {
                   constraints: const BoxConstraints(),
                   //constraints: BoxConstraints(maxHeight: size.height * 0.45, maxWidth: size.width * 0.85),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  title: CustomTextView(text: context.tr('deleteAccountTitleKey'), fontWeight: FontWeight.bold, fontSize: 20.sp(context)),
-                  content: CustomTextView(text: context.tr('deletePartyDialogMsg'), maxLines: 3),
+                  title: Center(
+                    child: CustomTextView(text: context.tr('deleteAccountTitleKey'), fontWeight: FontWeight.bold, fontSize: 20.sp(context)),
+                  ),
+                  content: CustomTextView(text: context.tr('deletePartyDialogMsg')),
                   actions: [
                     BlocConsumer<DeletePartyCubit, DeletePartyState>(
                       listener: (context, state) {

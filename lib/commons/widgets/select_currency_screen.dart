@@ -68,9 +68,6 @@ class _SelectCurrencyScreenState extends State<SelectCurrencyScreen> {
                                 text: currency['name']!,
                                 fontSize: context.isTablet ? 18.sp(context) : 16.sp(context),
                                 color: isSelected ? Colors.white : Colors.black,
-                                overflow: TextOverflow.ellipsis,
-                                softWrap: true,
-                                maxLines: 2,
                               ),
                             ),
                           );

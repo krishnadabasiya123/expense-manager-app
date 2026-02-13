@@ -98,7 +98,7 @@ class GetAccountCubit extends Cubit<GetAccountState> {
       }).toList();
 
       if (list.isNotEmpty) {
-        list.removeLast();
+        list.removeWhere((element) => element['value'] == '-2');
       }
       return list;
     }

@@ -64,7 +64,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
     return TextFormField(
       readOnly: widget.isReadOnly,
       focusNode: widget.focusNode,
-      maxLines: widget.maxLines ?? 1,
+      maxLines: widget.maxLines,
       cursorColor: colorScheme.onTertiary,
       controller: widget.controller,
       keyboardType: widget.keyboardType,

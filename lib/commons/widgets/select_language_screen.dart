@@ -80,9 +80,6 @@ class _InitialLanguageSelectionScreenState extends State<InitialLanguageSelectio
                                 text: languageName,
                                 fontSize: context.isTablet ? 18.sp(context) : 16.sp(context),
                                 color: isSelected ? Colors.white : Colors.black,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                softWrap: true,
                               ),
                             ),
                           );

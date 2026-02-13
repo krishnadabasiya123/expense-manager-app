@@ -238,7 +238,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     fontWeight: FontWeight.bold,
                     fontSize: 20.sp(context),
                   ),
-                  content: CustomTextView(text: context.tr('deleteCategoryMsgDialogueKey'), maxLines: 3),
+                  content: CustomTextView(text: context.tr('deleteCategoryMsgDialogueKey')),
                   actions: [
                     BlocConsumer<DeleteCategoryCubit, DeleteCategoryState>(
                       listener: (context, state) {

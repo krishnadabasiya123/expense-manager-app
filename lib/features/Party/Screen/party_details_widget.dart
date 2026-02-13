@@ -247,7 +247,7 @@ class _PartyTransactionDetailsWidgetState extends State<PartyTransactionDetailsW
                   constraints: BoxConstraints(maxHeight: context.height * 0.45, maxWidth: context.width * 0.85),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   title: CustomTextView(text: context.tr('deleteAccountTitleKey'), fontWeight: FontWeight.bold, fontSize: 20.sp(context)),
-                  content: CustomTextView(text: context.tr('deletePartyTransactionDilogueMsg'), maxLines: 3),
+                  content: CustomTextView(text: context.tr('deletePartyTransactionDilogueMsg')),
                   actions: [
                     BlocConsumer<DeletePartyTransactionCubit, DeletePartyTransactionState>(
                       listener: (context, state) {

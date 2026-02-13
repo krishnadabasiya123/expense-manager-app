@@ -856,8 +856,6 @@ class BudgetCard extends StatelessWidget {
                       fontSize: 16.sp(context),
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 2,
                     ),
                     const SizedBox(height: 6),
                     // Category Badge
@@ -1031,7 +1029,7 @@ class BudgetCard extends StatelessWidget {
               SizedBox(width: context.width * 0.02),
               Expanded(
                 child: CustomTextView(
-                  text: '${context.tr('limitKey')}: ${context.symbol}${limit.toStringAsFixed(0)}',
+                  text: '${context.tr('limitKey')}: ${context.symbol}${limit.formatAmt()}',
                   fontSize: 12.sp(context),
                   fontWeight: FontWeight.w600,
                   color: Colors.grey.shade700,
@@ -1061,7 +1059,7 @@ class BudgetCard extends StatelessWidget {
   Widget _buildPopupMenu(BuildContext context) {
     return PopupMenuButton<String>(
       padding: EdgeInsets.zero,
-      icon: Icon(Icons.more_horiz, color: Colors.grey.shade700, size: 24),
+      icon: const Icon(Icons.more_horiz, color: Colors.black, size: 24),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       onSelected: (value) {
         if (value == context.tr('editKey')) {

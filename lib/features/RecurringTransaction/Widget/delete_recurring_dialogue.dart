@@ -40,8 +40,7 @@ Future<void> showDeleteRecurringDialogue(BuildContext context, {required String 
                                   SizedBox(height: context.height * 0.01),
                                   CustomTextView(
                                     text: context.tr('recurringDialogueMsg'),
-                                    softWrap: true,
-                                    maxLines: 3,
+
                                     textAlign: TextAlign.center,
                                     color: Colors.grey,
                                   ),
@@ -72,8 +71,6 @@ Future<void> showDeleteRecurringDialogue(BuildContext context, {required String 
                                             text: context.tr('keepAsNormalTransactionKey'),
                                             fontSize: 12.sp(context),
                                             color: Colors.black,
-                                            softWrap: true,
-                                            maxLines: 2,
                                           ),
                                         ),
                                       ],

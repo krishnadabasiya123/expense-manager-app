@@ -150,7 +150,6 @@ class _RestoreTransactionCardState extends State<RestoreTransactionCard> {
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
                             fontSize: context.isTablet ? 18.sp(context) : 15.sp(context),
-                            maxLines: 2,
                           ),
                         ] else ...[
                           if (isTransfer) ...[
@@ -160,7 +159,6 @@ class _RestoreTransactionCardState extends State<RestoreTransactionCard> {
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black,
                                 fontSize: context.isTablet ? 18.sp(context) : 15.sp(context),
-                                maxLines: 2,
                               ),
                             ],
                           ],
@@ -187,7 +185,14 @@ class _RestoreTransactionCardState extends State<RestoreTransactionCard> {
                           color: color,
                         ),
 
-                        if (widget.type != TransactionType.TRANSFER) CustomTextView(text: widget.account, fontSize: 14.sp(context), color: Colors.grey.shade600, textAlign: TextAlign.end),
+                        if (widget.type != TransactionType.TRANSFER)
+                          CustomTextView(
+                            // text: 'hjdgfjhwsg jhsdgsdg shdjshd sdsjdf sjdsjhfd hjdgfjhwsg jhsdgsdg shdjshd sdsjdf sjdsjhfd',
+                            text: widget.account,
+                            fontSize: 14.sp(context),
+                            color: Colors.grey.shade600,
+                            textAlign: TextAlign.end,
+                          ),
                       ],
                     ),
                   ),
@@ -260,7 +265,7 @@ class _RestoreTransactionCardState extends State<RestoreTransactionCard> {
                   constraints: BoxConstraints(maxHeight: context.height * 0.45, maxWidth: context.width * 0.85),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   title: CustomTextView(text: context.tr('deleteAccountTitleKey'), fontWeight: FontWeight.bold, fontSize: 18.sp(context)),
-                  content: CustomTextView(text: context.tr('deleteRestoreTransactionDialogMsg'), maxLines: 3),
+                  content: CustomTextView(text: context.tr('deleteRestoreTransactionDialogMsg')),
                   actions: [
                     BlocConsumer<SoftDeleteTransactionCubit, SoftDeleteTransactionState>(
                       listener: (context, state) {
@@ -350,7 +355,9 @@ Future<void> showRestoreDialogue({required Transaction transaction, required Bui
                 constraints: BoxConstraints(maxHeight: context.height * 0.45, maxWidth: context.width * 0.85),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 title: CustomTextView(text: context.tr('restoreTitleKey'), fontWeight: FontWeight.bold, fontSize: 18.sp(context)),
-                content: CustomTextView(text: context.tr('confirmRestoreDialogMsg'), maxLines: 3),
+                content: CustomTextView(
+                  text: context.tr('confirmRestoreDialogMsg'),
+                ),
                 actions: [
                   BlocConsumer<RestoreTransactionCubit, RestoreTransactionState>(
                     listener: (context, state) {

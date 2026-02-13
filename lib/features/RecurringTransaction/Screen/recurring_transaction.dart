@@ -91,12 +91,9 @@ class _SubscriptionSummary extends StatelessWidget {
           ),
           SizedBox(height: context.height * 0.01),
           CustomTextView(
-            text: '${context.symbol} ${recurring.amount}',
+            text: '${context.symbol} ${recurring.amount.formatAmt()}',
             fontSize: 20.sp(context),
             fontWeight: FontWeight.w900,
-            overflow: TextOverflow.ellipsis,
-            softWrap: true,
-            maxLines: 2,
           ),
           Divider(height: context.height * 0.03),
           Row(
@@ -205,8 +202,6 @@ class _TransactionLog extends StatelessWidget {
                                     text: recurringTransaction.scheduleDate,
                                     fontSize: 14.sp(context),
                                     fontWeight: FontWeight.w600,
-                                    softWrap: true,
-                                    maxLines: 3,
                                   ),
                                   SizedBox(height: context.height * 0.003),
                                   CustomTextView(
@@ -371,8 +366,6 @@ Future<void> showChangeStatusDialog(
                           textAlign: TextAlign.center,
                           fontSize: 16.sp(context),
                           color: Colors.black,
-                          softWrap: true,
-                          maxLines: 3,
                         ),
 
                         SizedBox(height: context.height * 0.02),

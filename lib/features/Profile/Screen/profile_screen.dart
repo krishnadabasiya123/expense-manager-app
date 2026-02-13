@@ -29,7 +29,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     (title: 'importExportKey', icon: Icons.import_export),
     (title: 'recurringKey', icon: Icons.repeat),
     (title: 'reportsKey', icon: Icons.report),
-    (title: 'activityLogKey', icon: Icons.local_activity_sharp),
     (title: 'accountSettingsKey', icon: Icons.login),
     (title: 'aboutKey', icon: Icons.info_outline),
   ];
@@ -403,15 +402,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           fontSize: 16.sp(context),
                           fontWeight: FontWeight.bold,
                           color: Theme.of(context).colorScheme.onTertiary,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
                         CustomTextView(
                           text: 'Hy there',
                           fontSize: 14.sp(context),
                           color: Theme.of(context).colorScheme.onTertiary.withValues(alpha: 0.4),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
@@ -470,7 +465,7 @@ void showDeleteAlertDialog(BuildContext context) {
         constraints: BoxConstraints(maxHeight: context.height * 0.45, maxWidth: context.width * 0.85),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(context.tr('deletedAccountKey'), style: const TextStyle(fontWeight: FontWeight.bold)),
-        content: Text(context.tr('deleteAccDescKey'), softWrap: true, maxLines: 3),
+        content: Text(context.tr('deleteAccDescKey')),
         actions: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -516,7 +511,7 @@ Future<void> showSignOutDialog(BuildContext context) async {
         constraints: BoxConstraints(maxHeight: context.height * 0.45, maxWidth: context.width * 0.85),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(context.tr('signOutKey'), style: const TextStyle(fontWeight: FontWeight.bold)),
-        content: Text(context.tr('signOutDescKey'), softWrap: true, maxLines: 3),
+        content: Text(context.tr('signOutDescKey')),
         actions: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
