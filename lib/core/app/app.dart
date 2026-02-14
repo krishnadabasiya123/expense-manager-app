@@ -17,6 +17,7 @@ import 'package:expenseapp/features/Transaction/Cubits/delete_transactions_cubit
 import 'package:expenseapp/features/Restore/Cubit/get_soft_delete_transactions_cubit.dart';
 import 'package:expenseapp/features/Transaction/Cubits/update_trasansaction_cubit.dart';
 import 'package:expenseapp/features/RecurringTransaction/LocalStorage/recurring_transaction_local_data.dart';
+import 'package:expenseapp/features/UploadImage/LocalStorage/uploaded_image_local_storage.dart';
 import 'package:expenseapp/features/budget/LocalStorage/budget_local_storage.dart';
 import 'package:expenseapp/features/budget/cubits/get_budget_cubit.dart';
 import 'package:expenseapp/features/localization/auth_localization_cubit.dart';
@@ -27,8 +28,6 @@ Future<Widget> initializeApp() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   await Hive.openBox<dynamic>(settingsBox);
-  // await Hive.openBox<dynamic>(partyBox);
-  // await Hive.openBox<dynamic>(partyTransactionBox);
   await AccountLocalStorage.init();
   await TransactionLocalData.init();
   await PartyLocalData.init();
@@ -37,6 +36,7 @@ Future<Widget> initializeApp() async {
   await RecurringTransactionLocalData.init();
   await HomeLocalStorage.init();
   await BudgetLocalStorage.init();
+  await UploadedImageLocalStorage.init();
 
   // Hive
   //   ..registerAdapter(TransactionAdapter())
@@ -126,7 +126,7 @@ class _MyAppState extends State<MyApp> {
               debugShowCheckedModeBanner: false,
               theme: appThemeData[currentTheme],
               // home: const SelectCurrencyScreen(),
-              initialRoute: Routes.intro,
+              initialRoute: Routes.splash,
               onGenerateRoute: Routes.onGenerateRouted,
               locale: currentLanguage,
               localizationsDelegates: [Applocalization.delegate, GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],

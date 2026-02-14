@@ -22,4 +22,14 @@ class ImageData extends HiveObject {
   Map<String, dynamic> toJson() {
     return {'id': imageId, 'picture': picture};
   }
+
+  ImageData copyWith({
+    String? imageId,
+    Uint8List? picture,
+  }) {
+    return ImageData(
+      imageId: imageId ?? this.imageId,
+      picture: picture ?? this.picture,
+    );
+  }
 }

@@ -65,12 +65,12 @@ class _IntrosliderScreenState extends State<IntrosliderScreen> {
                                     text: item['title'] as String,
                                     fontSize: 28,
                                     color: colorScheme.onTertiary,
-                                    fontFamily: 'sans-serif',
+
                                     textAlign: TextAlign.center,
                                     fontWeight: FontWeight.w600,
                                   ),
                                   const SizedBox(height: 10),
-                                  CustomTextView(text: item['subtitle'] as String, fontSize: 18, color: colorScheme.onTertiary, fontFamily: 'sans-serif', textAlign: TextAlign.center, maxLines: 2),
+                                  CustomTextView(text: item['subtitle'] as String, fontSize: 18, color: colorScheme.onTertiary, textAlign: TextAlign.center, maxLines: 2),
                                 ],
                               ),
                             ],
@@ -109,11 +109,12 @@ class _IntrosliderScreenState extends State<IntrosliderScreen> {
                           height: 45,
                           width: 45,
                           decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: Theme.of(context).colorScheme.onTertiary.withValues(alpha: 0.2)),
+                            // border: Border.all(color: Theme.of(context).colorScheme.onTertiary.withValues(alpha: 0.2)),
                           ),
                           margin: const EdgeInsetsDirectional.only(bottom: 15),
-                          child: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onTertiary),
+                          child: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.surface),
                         ),
                       ),
                     ),
@@ -124,6 +125,7 @@ class _IntrosliderScreenState extends State<IntrosliderScreen> {
 
                 child: Container(
                   margin: const EdgeInsetsDirectional.only(bottom: 35),
+
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(introSliderContent.length, (index) {
@@ -133,7 +135,7 @@ class _IntrosliderScreenState extends State<IntrosliderScreen> {
                         width: _currentPage.value == index ? 8 : 8,
                         height: 8,
                         decoration: BoxDecoration(
-                          color: _currentPage.value == index ? const Color.fromARGB(255, 66, 74, 80) : const Color.fromARGB(255, 186, 181, 181),
+                          color: _currentPage.value == index ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(4),
                         ),
                       );
@@ -147,22 +149,31 @@ class _IntrosliderScreenState extends State<IntrosliderScreen> {
               child: Align(
                 alignment: Alignment.bottomRight,
                 child: GestureDetector(
-                  onTap: () {
+                  onTap: () async {
                     if (introSliderContent.length - 1 != _currentPage.value) {
                       _pageController.animateToPage(_currentPage.value + 1, duration: const Duration(milliseconds: 300), curve: Curves.easeIn);
                     } else {
-                      Navigator.of(context).pushNamed(Routes.login);
+                      final isLanguageSelect = await Hive.box<dynamic>(settingsBox).get(isLanguageSelected, defaultValue: false) as bool;
+                      final isCurrencySelect = await Hive.box<dynamic>(settingsBox).get(isCurrencySelected, defaultValue: false) as bool;
+
+                      if (isCurrencySelect && isLanguageSelect) {
+                        await Navigator.of(context).pushReplacementNamed(Routes.bottomNavigationBar);
+                      } else {
+                        await Navigator.of(context).pushReplacementNamed(Routes.selectLanguage);
+                      }
+                      // Navigator.of(context).pushNamed(Routes.selectLanguage);
                     }
                   },
                   child: Container(
                     height: 45,
                     width: 45,
                     decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Theme.of(context).colorScheme.onTertiary.withValues(alpha: 0.2)),
+                      //   border: Border.all(color: Theme.of(context).colorScheme.onTertiary.withValues(alpha: 0.2)),
                     ),
                     margin: const EdgeInsetsDirectional.only(bottom: 15),
-                    child: Icon(Icons.arrow_forward, color: Theme.of(context).colorScheme.onTertiary),
+                    child: Icon(Icons.arrow_forward, color: Theme.of(context).colorScheme.surface),
                   ),
                 ),
               ),

@@ -108,7 +108,7 @@ class _AccountCreateWidgetState extends State<_AccountCreateWidget> {
                         focusNode: _balanceControllerFocusNode,
                         keyboardType: TextInputType.number,
                         hintText: context.tr('balanceKey'),
-                        prefixIcon: const Icon(Icons.currency_bitcoin),
+                        prefixIcon: const Icon(Icons.currency_exchange_outlined),
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
                           LengthLimitingTextInputFormatter(16),

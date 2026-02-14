@@ -23,6 +23,7 @@ import 'package:expenseapp/features/RecurringTransaction/Screen/main_recurring_t
 import 'package:expenseapp/features/RecurringTransaction/Screen/recurring_transaction.dart';
 import 'package:expenseapp/features/Transaction/Screen/transaction_screen.dart';
 import 'package:expenseapp/features/Transaction/Screen/transaction_tabBar_view_screen.dart';
+import 'package:expenseapp/features/UploadImage/Screen/uploaded_image_list.dart';
 import 'package:expenseapp/features/budget/screens/add_budget_screen.dart';
 import 'package:expenseapp/features/budget/screens/budget_history_screen.dart';
 import 'package:expenseapp/features/budget/screens/budget_screen.dart';
@@ -59,6 +60,7 @@ class Routes {
   static const budget = 'budget';
   static const addBudget = 'addBudget';
   static const budgetHistory = 'budgetHistory';
+  static const uploadImage = 'uploadImage';
 
   static String currentRoute = splash;
 
@@ -148,6 +150,9 @@ class Routes {
 
       case budgetHistory:
         return BudgetHistoryScreen.route(routeSettings);
+
+      case uploadImage:
+        return MaterialPageRoute(builder: (_) => const UploadedImageList());
 
       default:
         return CupertinoPageRoute(builder: (_) => const Scaffold());

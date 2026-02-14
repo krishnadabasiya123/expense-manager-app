@@ -511,7 +511,7 @@ class GetTransactionCubit extends Cubit<GetTransactionState> {
       for (final transaction in transactions) {
         if (transaction.recurringId == recurring.recurringId) {
           final index = transactions.indexOf(transaction);
-          transactions[index] = transaction.copyWith(title: recurring.title, amount: recurring.amount, accountId: recurring.accountId, categoryId: recurring.categoryId);
+          transactions[index] = transaction.copyWith(title: recurring.title, amount: recurring.amount, accountId: recurring.accountId, categoryId: recurring.categoryId , image: recurring.image);
         }
       }
       emit(GetTransactionSuccess(transactions));

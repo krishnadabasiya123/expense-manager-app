@@ -27,13 +27,14 @@ class RecurringAdapter extends TypeAdapter<Recurring> {
       categoryId: fields[7] as String,
       type: fields[8] as TransactionType,
       recurringTransactions: (fields[9] as List).cast<RecurringTransaction>(),
+      image: (fields[10] as List).cast<ImageData>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, Recurring obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.recurringId)
       ..writeByte(1)
@@ -53,7 +54,9 @@ class RecurringAdapter extends TypeAdapter<Recurring> {
       ..writeByte(8)
       ..write(obj.type)
       ..writeByte(9)
-      ..write(obj.recurringTransactions);
+      ..write(obj.recurringTransactions)
+      ..writeByte(10)
+      ..write(obj.image);
   }
 
   @override

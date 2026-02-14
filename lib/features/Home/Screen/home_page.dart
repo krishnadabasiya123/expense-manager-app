@@ -138,8 +138,7 @@ class _HomePageState extends State<HomePage> {
                           // const SizedBox(height: 5),
                           CustomTextView(
                             text: context.tr('noBudgetFound'),
-                            fontSize: 18.sp(context),
-                            fontWeight: FontWeight.bold,
+                            fontSize: 16.sp(context),
                           ),
                         ],
                       ),
@@ -211,7 +210,6 @@ class _HomePageState extends State<HomePage> {
                           }
                         } else {
                           // ALL Type
-
                           if (spent < 0) {
                             // Income case
                             left = spent.abs();

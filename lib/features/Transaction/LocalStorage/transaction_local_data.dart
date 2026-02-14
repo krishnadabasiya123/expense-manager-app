@@ -159,6 +159,7 @@ class TransactionLocalData {
           amount: recurring.amount,
           accountId: recurring.accountId,
           categoryId: recurring.categoryId,
+          image: recurring.image,
         );
 
         await box.put(key, updatedTransaction);

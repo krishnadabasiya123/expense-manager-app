@@ -105,6 +105,7 @@ class _BottomNavigationPageChnageState extends State<BottomNavigationPageChnage>
                         recurringId: recurring.recurringId,
                         recurringTransactionId: rt.recurringTransactionId,
                         addFromType: TransactionType.RECURRING,
+                        image: recurring.image,
                       ),
                     ]);
 

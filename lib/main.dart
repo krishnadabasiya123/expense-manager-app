@@ -1,14 +1,264 @@
-import 'package:expenseapp/core/app/all_import_file.dart';
-import 'package:flutter/material.dart';
 import 'package:expenseapp/core/app/app.dart';
-import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
   runApp(await initializeApp());
 }
+
+// class FintechApp extends StatelessWidget {
+//   const FintechApp({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       title: 'Receipt Gallery',
+//       debugShowCheckedModeBanner: false,
+//       theme: ThemeData(
+//         brightness: Brightness.light,
+//         primaryColor: const Color(0xFF0D7FF2),
+//         scaffoldBackgroundColor: const Color(0xFFF5F7F8),
+//         textTheme: GoogleFonts.manropeTextTheme(),
+//       ),
+//       darkTheme: ThemeData(
+//         brightness: Brightness.dark,
+//         primaryColor: const Color(0xFF0D7FF2),
+//         scaffoldBackgroundColor: const Color(0xFF101922),
+//         textTheme: GoogleFonts.manropeTextTheme(ThemeData.dark().textTheme),
+//       ),
+//       home: const ReceiptGalleryPage(),
+//     );
+//   }
+// }
+
+// class ReceiptGalleryPage extends StatefulWidget {
+//   const ReceiptGalleryPage({super.key});
+
+//   @override
+//   State<ReceiptGalleryPage> createState() => _ReceiptGalleryPageState();
+// }
+
+// class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
+//   int _currentIndex = 1; // "Bills" tab active
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final isDark = Theme.of(context).brightness == Brightness.dark;
+
+//     return Scaffold(
+//       body: SafeArea(
+//         child: Column(
+//           children: [
+//             _buildHeader(context, isDark),
+//             Expanded(
+//               child: _buildReceiptGrid(context, isDark),
+//             ),
+//           ],
+//         ),
+//       ),
+//       floatingActionButton: FloatingActionButton(
+//         onPressed: () {},
+//         backgroundColor: const Color(0xFF0D7FF2),
+//         shape: const CircleBorder(),
+//         elevation: 4,
+//         child: const Icon(Icons.add_a_photo, color: Colors.white, size: 28),
+//       ),
+//       bottomNavigationBar: _buildBottomNav(context, isDark),
+//     );
+//   }
+
+//   Widget _buildHeader(BuildContext context, bool isDark) {
+//     return Column(
+//       children: [
+//         // Top App Bar
+//         Padding(
+//           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+//           child: Row(
+//             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//             children: [
+//               Row(
+//                 children: [
+//                   IconButton(
+//                     icon: const Icon(Icons.arrow_back),
+//                     onPressed: () {},
+//                   ),
+//                   const Text(
+//                     'Receipt Gallery',
+//                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+//                   ),
+//                 ],
+//               ),
+//               IconButton(
+//                 icon: const Icon(Icons.more_vert),
+//                 onPressed: () {},
+//               ),
+//             ],
+//           ),
+//         ),
+//         // Search Bar
+//         Padding(
+//           padding: const EdgeInsets.symmetric(horizontal: 16),
+//           child: TextField(
+//             decoration: InputDecoration(
+//               hintText: 'Search by merchant or category...',
+//               hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
+//               prefixIcon: const Icon(Icons.search, color: Colors.grey),
+//               filled: true,
+//               fillColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+//               border: OutlineInputBorder(
+//                 borderRadius: BorderRadius.circular(12),
+//                 borderSide: BorderSide.none,
+//               ),
+//               contentPadding: const EdgeInsets.symmetric(),
+//             ),
+//           ),
+//         ),
+//         const SizedBox(height: 16),
+
+//         // Filter Chips
+//         const SizedBox(height: 8),
+//       ],
+//     );
+//   }
+
+//   Widget _filterChip(BuildContext context, String label, bool isActive, IconData? icon) {
+//     final isDark = Theme.of(context).brightness == Brightness.dark;
+//     return Container(
+//       margin: const EdgeInsets.only(right: 8),
+//       child: Chip(
+//         avatar: icon != null ? Icon(icon, size: 16, color: isActive ? Colors.white : Colors.grey) : null,
+//         label: Text(label),
+//         labelStyle: TextStyle(
+//           color: isActive ? Colors.white : (isDark ? Colors.grey[300] : Colors.grey[700]),
+//           fontSize: 13,
+//           fontWeight: FontWeight.w500,
+//         ),
+//         backgroundColor: isActive ? const Color(0xFF0D7FF2) : (isDark ? const Color(0xFF1E293B) : Colors.white),
+//         shape: RoundedRectangleBorder(
+//           borderRadius: BorderRadius.circular(20),
+//           side: isActive ? BorderSide.none : BorderSide(color: Colors.grey.withOpacity(0.2)),
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget _buildReceiptGrid(BuildContext context, bool isDark) {
+//     final receipts = <Map<String, dynamic>>[
+//       {'amount': '124.50', 'merchant': 'Grocery Store', 'date': 'Oct 24, 2023', 'color': Colors.green},
+//       {'amount': '12.80', 'merchant': 'Starbucks', 'date': 'Oct 23, 2023', 'color': Colors.orange},
+//       {'amount': '65.00', 'merchant': 'Shell Station', 'date': 'Oct 22, 2023', 'color': Colors.blue},
+//       {'amount': '89.99', 'merchant': 'Internet Bill', 'date': 'Oct 20, 2023', 'color': Colors.purple},
+//       {'amount': '210.00', 'merchant': 'Zara Fashion', 'date': 'Oct 18, 2023', 'color': Colors.pink},
+//       {'amount': '450.25', 'merchant': 'Hilton Hotels', 'date': 'Oct 15, 2023', 'color': Colors.blueAccent},
+//     ];
+
+//     return GridView.builder(
+//       padding: const EdgeInsets.all(16),
+//       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+//         crossAxisCount: 2,
+//         childAspectRatio: 0.75, // 3/4 aspect ratio as in HTML
+//         crossAxisSpacing: 16,
+//         mainAxisSpacing: 16,
+//       ),
+//       itemCount: receipts.length,
+//       itemBuilder: (context, index) {
+//         final item = receipts[index];
+//         return Container(
+//           decoration: BoxDecoration(
+//             color: isDark ? const Color(0xFF1E293B) : Colors.white,
+//             borderRadius: BorderRadius.circular(12),
+//             boxShadow: [
+//               BoxShadow(
+//                 color: Colors.black.withOpacity(0.05),
+//                 blurRadius: 5,
+//                 offset: const Offset(0, 2),
+//               ),
+//             ],
+//           ),
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               // Image Placeholder (Simulating the 3:4 background image)
+//               Expanded(
+//                 child: Container(
+//                   width: double.infinity,
+//                   decoration: BoxDecoration(
+//                     color: Colors.grey[300],
+//                     borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+//                     image: const DecorationImage(
+//                       image: NetworkImage('https://via.placeholder.com/300x400'),
+//                       fit: BoxFit.cover,
+//                     ),
+//                   ),
+//                 ),
+//               ),
+//               // Content
+//               Padding(
+//                 padding: const EdgeInsets.all(12),
+//                 child: Column(
+//                   crossAxisAlignment: CrossAxisAlignment.start,
+//                   children: [
+//                     Row(
+//                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                       children: [
+//                         Text(
+//                           '\$${item['amount']}',
+//                           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+//                         ),
+//                         Container(
+//                           width: 8,
+//                           height: 8,
+//                           decoration: BoxDecoration(color: item['color'] as Color, shape: BoxShape.circle),
+//                         ),
+//                       ],
+//                     ),
+//                     const SizedBox(height: 4),
+//                     Text(
+//                       item['merchant'] as String,
+//                       style: const TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.w500),
+//                     ),
+//                     const SizedBox(height: 2),
+//                     Text(
+//                       item['date'] as String,
+//                       style: const TextStyle(fontSize: 10, color: Colors.grey),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//             ],
+//           ),
+//         );
+//       },
+//     );
+//   }
+
+//   Widget _buildBottomNav(BuildContext context, bool isDark) {
+//     return Container(
+//       decoration: BoxDecoration(
+//         border: Border(top: BorderSide(color: Colors.grey.withOpacity(0.2))),
+//       ),
+//       child: BottomNavigationBar(
+//         currentIndex: _currentIndex,
+//         onTap: (index) => setState(() => _currentIndex = index),
+//         type: BottomNavigationBarType.fixed,
+//         backgroundColor: isDark ? const Color(0xFF0F172A) : Colors.white,
+//         selectedItemColor: const Color(0xFF0D7FF2),
+//         unselectedItemColor: Colors.grey,
+//         selectedFontSize: 10,
+//         unselectedFontSize: 10,
+//         items: const [
+//           BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
+//           BottomNavigationBarItem(icon: Icon(Icons.receipt_long), label: 'Bills'),
+//           BottomNavigationBarItem(icon: Icon(Icons.pie_chart_outline), label: 'Stats'),
+//           BottomNavigationBarItem(icon: Icon(Icons.account_circle_outlined), label: 'Profile'),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
+// void main() async {
+//   runApp(await initializeApp());
+// }
 
 // import 'package:flutter/material.dart';
 // import 'package:flutter_bloc/flutter_bloc.dart';

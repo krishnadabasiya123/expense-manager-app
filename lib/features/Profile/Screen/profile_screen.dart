@@ -43,7 +43,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final List<({IconData icon, String title})> appSettingsMenuList = [
     (title: 'languageKey', icon: Icons.language),
     (title: 'themeKey', icon: Icons.color_lens),
-    (title: 'currencyKey', icon: Icons.currency_bitcoin),
+    (title: 'currencyKey', icon: Icons.currency_exchange_outlined),
     (title: 'notificationKey', icon: Icons.notification_add),
     (title: 'lockAppKey', icon: Icons.lock),
   ];
@@ -142,6 +142,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
           return GestureDetector(
             onTap: () {
               setState(() {
+                if (menuData.title == 'importExportKey') {
+                  isDataManaKeyDiologueOpen.value = !isDataManaKeyDiologueOpen.value;
+                } else if (menuData.title == 'appSettingsKey') {
+                  isAppSettingsOpen.value = !isAppSettingsOpen.value;
+                } else if (menuData.title == 'accountSettingsKey') {
+                  isAccountSettingsOpen.value = !isAccountSettingsOpen.value;
+                } else if (menuData.title == 'aboutKey') {
+                  isAboutOpen.value = !isAboutOpen.value;
+                }
                 _onPressed(menuData.title, context);
               });
             },
@@ -355,12 +364,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildIconMenu(ColorScheme colorScheme, ValueNotifier<bool> key) {
-    return GestureDetector(
-      onTap: () {
-        key.value = !key.value;
-        //isDataManaKeyDiologueOpen.value = !isDataManaKeyDiologueOpen.value;
-      },
-      child: Icon(key.value ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, size: 22.sp(context), color: colorScheme.onSecondary),
+    return Icon(
+      key.value ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+      size: 22.sp(context),
+      color: colorScheme.onSecondary,
     );
   }
 
@@ -454,6 +461,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return;
       case 'budgetKey':
         Navigator.of(context).pushNamed(Routes.budget);
+
+      case 'imgListKey':
+        Navigator.of(context).pushNamed(Routes.uploadImage);
     }
   }
 }

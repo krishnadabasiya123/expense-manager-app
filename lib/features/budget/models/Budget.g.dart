@@ -63,5 +63,9 @@ class BudgetAdapter extends TypeAdapter<Budget> {
   int get hashCode => typeId.hashCode;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is BudgetAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is BudgetAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }

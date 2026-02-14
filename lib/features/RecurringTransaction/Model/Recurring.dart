@@ -18,6 +18,7 @@ class Recurring extends HiveObject {
     this.categoryId = '',
     this.type = TransactionType.NONE,
     this.recurringTransactions = const [],
+    this.image = const [],
   });
 
   @HiveField(0)
@@ -50,6 +51,9 @@ class Recurring extends HiveObject {
   @HiveField(9)
   List<RecurringTransaction> recurringTransactions;
 
+  @HiveField(10)
+  List<ImageData> image;
+
   Map<String, dynamic> toJson() {
     return {
       'recurringId': recurringId,
@@ -62,6 +66,7 @@ class Recurring extends HiveObject {
       'categoryId': categoryId,
       'type': type,
       'recurringTransactions': recurringTransactions.map((e) => e.toJson()).toList(),
+      'image': image,
     };
   }
 
@@ -75,6 +80,7 @@ class Recurring extends HiveObject {
     String? accountId,
     String? categoryId,
     TransactionType? type,
+    List<ImageData>? image,
     List<RecurringTransaction>? recurringTransactions,
   }) {
     return Recurring(
@@ -88,6 +94,7 @@ class Recurring extends HiveObject {
       categoryId: categoryId ?? this.categoryId,
       type: type ?? this.type,
       recurringTransactions: recurringTransactions ?? this.recurringTransactions,
+      image: image ?? this.image,
     );
   }
 }
@@ -116,21 +123,18 @@ final List<Recurring> recurringList = [
         transactionId: 'TR_2026-01-24_15-05-45_1769247345248_^5XR54',
         recurringId: 'RT_2026-01-24_15-05-45_1769247345183_0JA)49',
         scheduleDate: '25.01.2026',
-        status: RecurringTransactionStatus.PAID,
       ),
       RecurringTransaction(
         recurringTransactionId: 'RT_2026-01-24_15-05-45_1769247345248_*LULT/',
         transactionId: 'TR_2026-01-24_15-05-45_1769247345248_FUIR9%',
         recurringId: 'RT_2026-01-24_15-05-45_1769247345183_0JA)49',
         scheduleDate: '26.01.2026',
-        status: RecurringTransactionStatus.PAID,
       ),
       RecurringTransaction(
         recurringTransactionId: 'RT_2026-01-24_15-05-45_1769247345248_M6UNWA',
         transactionId: 'TR_2026-01-24_15-05-45_1769247345248_(FDCLV',
         recurringId: 'RT_2026-01-24_15-05-45_1769247345183_0JA)49',
         scheduleDate: '27.01.2026',
-        status: RecurringTransactionStatus.PAID,
       ),
     ],
   ),

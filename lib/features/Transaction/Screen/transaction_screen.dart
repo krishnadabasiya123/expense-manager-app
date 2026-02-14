@@ -180,7 +180,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                               Divider(color: Colors.white.withValues(alpha: 0.35), thickness: 0.8),
 
                               Row(
-                                crossAxisAlignment: .start,
+                                // crossAxisAlignment: .end,
                                 children: [
                                   Expanded(
                                     child: _buildAmountTile(
@@ -191,13 +191,11 @@ class _TransactionScreenState extends State<TransactionScreen> {
                                     ),
                                   ),
 
-                                  Expanded(
-                                    child: _buildAmountTile(
-                                      icon: Icons.arrow_upward_rounded,
-                                      label: context.tr('expenseKey'),
-                                      amount: '- ${context.symbol}${totalExpense.formatAmt()}',
-                                      color: context.colorScheme.expenseColor,
-                                    ),
+                                  _buildAmountTile(
+                                    icon: Icons.arrow_upward_rounded,
+                                    label: context.tr('expenseKey'),
+                                    amount: '- ${context.symbol}${totalExpense.formatAmt()}',
+                                    color: context.colorScheme.expenseColor,
                                   ),
                                 ],
                               ),
@@ -333,8 +331,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
 
   Widget _buildAmountTile({required IconData icon, required String label, required String amount, required Color color}) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-
+      //crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
           padding: const EdgeInsetsDirectional.all(6),
@@ -342,26 +339,24 @@ class _TransactionScreenState extends State<TransactionScreen> {
           child: Icon(icon, size: 16.sp(context), color: color),
         ),
         const SizedBox(width: 8),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CustomTextView(
-                text: label,
-                color: Colors.white,
-                fontSize: 15.sp(context),
-                fontWeight: FontWeight.bold,
-              ),
-              const SizedBox(height: 5),
-              CustomTextView(
-                text: amount,
-                //  text: '6t578467584687564756456748657845784t5784587465847656',
-                color: color,
-                fontSize: 14.sp(context),
-              ),
-            ],
-          ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          //mainAxisSize: MainAxisSize.min,
+          children: [
+            CustomTextView(
+              text: label,
+              color: Colors.white,
+              fontSize: 15.sp(context),
+              fontWeight: FontWeight.bold,
+            ),
+            const SizedBox(height: 5),
+            CustomTextView(
+              text: amount,
+              //  text: '6t578467584687564756456748657845784t5784587465847656',
+              color: color,
+              fontSize: 14.sp(context),
+            ),
+          ],
         ),
       ],
     );

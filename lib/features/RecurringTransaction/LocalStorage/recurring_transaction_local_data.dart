@@ -19,6 +19,7 @@ class RecurringTransactionLocalData {
   }
 
   Future<void> saveRecurringTransaction(Recurring reccuringTransaction) async {
+    log('saved recurring transaction ${reccuringTransaction.toJson()}');
     await box.add(reccuringTransaction);
   }
 
@@ -26,12 +27,13 @@ class RecurringTransactionLocalData {
     final transactions = box.values.toList();
     log('data is $transactions');
     for (final transaction in transactions) {
-      log('transaction is ${transaction.toJson()}');
+      log('getRecurringTransaction transaction is ${transaction.toJson()}');
     }
     return transactions;
   }
 
   Future<void> updateRecurringTransaction(Recurring transaction) async {
+    log('updateRecurringTransaction transaction ${transaction.toJson()}');
     final key = box.keys.firstWhere(
       (k) => box.get(k)?.recurringId == transaction.recurringId,
       orElse: () => null,
@@ -72,6 +74,7 @@ class RecurringTransactionLocalData {
     required String endDate,
     String? accountId,
     String? categoryId,
+    List<ImageData>? image,
   }) async {
     final key = box.keys.firstWhere((k) => box.get(k)?.recurringId == recurring, orElse: () => null);
     final storedRecurring = box.get(key);
@@ -83,6 +86,7 @@ class RecurringTransactionLocalData {
           endDate: endDate,
           accountId: accountId,
           categoryId: categoryId,
+          image: image,
         );
         await box.put(key, updatedRecurring);
         log('updated recurring ${updatedRecurring.toJson()}');

@@ -153,6 +153,7 @@ class GetRecurringTransactionCubit extends Cubit<GetRecurringTransactionState> {
         categoryId: recuring.categoryId,
         type: recuring.type,
         recurringTransactions: list,
+        image: recuring.image,
       );
       recurringTransactionLocalData.saveRecurringTransaction(transaction);
 
@@ -179,6 +180,7 @@ class GetRecurringTransactionCubit extends Cubit<GetRecurringTransactionState> {
         categoryId: recuring.categoryId,
         type: recuring.type,
         recurringTransactions: list,
+        image: recuring.image,
       );
       recurringTransactionLocalData.updateRecurringTransaction(transaction);
 

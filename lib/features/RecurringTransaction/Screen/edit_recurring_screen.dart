@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 
 class EditRecurringScreen extends StatefulWidget {
   const EditRecurringScreen({required this.recurringId, super.key});
@@ -40,6 +41,46 @@ class EditRecurringDialogueState extends State<EditRecurringScreen> {
   String? selectedCatgoryId;
   final TextEditingController categoryController = TextEditingController();
   Recurring? recurring;
+  final ImagePicker _picker = ImagePicker();
+  final ValueNotifier<List<File>> _selectedImage = ValueNotifier([]);
+  Future<void> loadImages() async {
+    if (recurring?.image != []) {
+      final files = <File>[];
+
+      for (final img in recurring!.image) {
+        if (img.picture != Uint8List(0)) {
+          final file = await UiUtils.uint8ListToFile(
+            img.picture,
+            img.imageId,
+          );
+          files.add(file);
+        }
+      }
+
+      _selectedImage.value = files;
+    } else {
+      _selectedImage.value = [];
+    }
+  }
+
+  Future<List<ImageData>> getPartyImages(List<File> imageFiles) async {
+    final images = <ImageData>[];
+
+    for (final file in imageFiles) {
+      final bytes = await file.readAsBytes();
+
+      final imageId = 'IMAGE'.withDateTimeMillisRandom();
+
+      images.add(
+        ImageData(
+          imageId: imageId,
+          picture: bytes,
+        ),
+      );
+    }
+
+    return images;
+  }
 
   @override
   void dispose() {
@@ -71,6 +112,7 @@ class EditRecurringDialogueState extends State<EditRecurringScreen> {
     selectedCatgoryId = recurring!.categoryId;
     categoryController.text = context.read<GetCategoryCubit>().getCategoryName(recurring!.categoryId);
     _startDateController.text = recurring!.startDate;
+    loadImages();
   }
 
   @override
@@ -230,7 +272,9 @@ class EditRecurringDialogueState extends State<EditRecurringScreen> {
                             selectedCatgoryId = value;
                           },
                         ),
-                        SizedBox(height: context.height * 0.01),
+                        SizedBox(height: context.height * 0.02),
+                        ImagePickerWidget(picker: _picker, selectedImage: _selectedImage),
+                        SizedBox(height: context.height * 0.02),
                       ],
                     ),
                   ),
@@ -265,7 +309,9 @@ class EditRecurringDialogueState extends State<EditRecurringScreen> {
                       children: [
                         Expanded(
                           child: CustomRoundedButton(
-                            onPressed: () {
+                            onPressed: () async {
+                              final partyImages = await getPartyImages(_selectedImage.value);
+                              log('partyImage $partyImages');
                               if (_formKey.currentState!.validate()) {
                                 context.read<UpdateRecurringTransactionCubit>().updateRecurringTransaction(
                                   recurringId: widget.recurringId,
@@ -274,6 +320,7 @@ class EditRecurringDialogueState extends State<EditRecurringScreen> {
                                   endDate: _endsDateController.text,
                                   accountId: selectedAccountId,
                                   categoryId: selectedCatgoryId,
+                                  image: partyImages,
                                 );
                               }
                             },

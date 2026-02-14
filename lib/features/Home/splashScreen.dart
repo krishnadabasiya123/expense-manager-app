@@ -24,7 +24,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     _logoAnimationController =
         AnimationController(
           vsync: this,
-          duration: const Duration(milliseconds: 700),
+          duration: const Duration(milliseconds: 1500),
           //navigate to anothe screen
         )..addListener(() {
           if (_logoAnimationController.isCompleted) {
@@ -54,7 +54,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     if (isCurrencySelect && isLanguageSelect) {
       await Navigator.of(context).pushReplacementNamed(Routes.bottomNavigationBar);
     } else {
-      await Navigator.of(context).pushReplacementNamed(Routes.selectLanguage);
+      await Navigator.of(context).pushReplacementNamed(Routes.intro);
     }
   }
 

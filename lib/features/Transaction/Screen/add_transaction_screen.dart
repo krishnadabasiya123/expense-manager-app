@@ -11,6 +11,7 @@ import 'package:expenseapp/features/RecurringTransaction/Model/Recurring.dart';
 
 import 'package:expenseapp/features/Transaction/Widgets/show_category_dialogue.dart';
 import 'package:expenseapp/features/Transaction/Widgets/show_repeat_option_dialogue.dart';
+import 'package:expenseapp/features/UploadImage/LocalStorage/uploaded_image_local_storage.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -431,6 +432,7 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                       await context.read<GetTransactionCubit>().addTransactionLocally(addState.transaction);
                       context.read<GetAccountCubit>().getTotalAccountBalance(type: addState.transaction.type, accountId: addState.transaction.accountId, amount: addState.transaction.amount);
                       UiUtils.showCustomSnackBar(context: context, errorMessage: context.tr('transactionAddSucess'));
+                      UploadedImageLocalStorage().saveImages(addState.transaction.image);
 
                       await context.read<GetRecurringTransactionCubit>().createRecurringTransaction(
                         Recurring(
@@ -443,6 +445,7 @@ class AddTransactionScreenState extends State<AddTransactionScreen> {
                           accountId: addState.transaction.accountId,
                           categoryId: addState.transaction.categoryId,
                           type: addState.transaction.type,
+                          image: addState.transaction.image,
                         ),
                       );
 

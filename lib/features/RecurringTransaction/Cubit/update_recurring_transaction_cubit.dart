@@ -1,10 +1,12 @@
 import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
+import 'package:expenseapp/core/app/all_import_file.dart';
 import 'package:expenseapp/features/RecurringTransaction/Model/Enums/RecurringTransactionStatus.dart';
 import 'package:expenseapp/features/RecurringTransaction/LocalStorage/recurring_transaction_local_data.dart';
 import 'package:expenseapp/features/RecurringTransaction/Model/Recurring.dart';
 import 'package:expenseapp/features/RecurringTransaction/Model/RecurringTransaction.dart';
+import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
 @immutable
@@ -76,7 +78,7 @@ class UpdateRecurringTransactionCubit extends Cubit<UpdateRecurringTransactionSt
     });
   }
 
-  Future<void> updateRecurringTransaction({required String recurringId, required String title, required double amount, required String endDate, String? accountId, String? categoryId}) async {
+  Future<void> updateRecurringTransaction({required String recurringId, required String title, required double amount, required String endDate, String? accountId, String? categoryId , List<ImageData>? image}) async {
     emit(UpdateRecurringTransactionLoading());
     Future.delayed(const Duration(seconds: 0), () async {
       try {
@@ -87,6 +89,7 @@ class UpdateRecurringTransactionCubit extends Cubit<UpdateRecurringTransactionSt
           endDate: endDate,
           accountId: accountId,
           categoryId: categoryId,
+          image : image,
         );
         emit(UpdateRecurringTransactionSuccess(transaction: recurringTransaction));
       } catch (e) {
